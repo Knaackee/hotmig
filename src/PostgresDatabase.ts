@@ -1,7 +1,7 @@
 import { Pool, PoolClient } from "pg";
 import { Database } from "./Database";
 import { DatabaseAlreadyInitializedError } from "./errors";
-import { AppliedMigration } from "./models";
+import { AppliedMigration, MigrationFileContent } from "./models";
 
 export class PostgresDatabase extends Database {
   readonly pool: Pool;
@@ -74,7 +74,7 @@ export class PostgresDatabase extends Database {
    `);
   }
 
-  async getApliedMigrations() {
+  async getAppliedMigrations() {
     this.ensureInitialized();
 
     const result = await this.client?.query(/*sql*/ `
@@ -83,5 +83,23 @@ export class PostgresDatabase extends Database {
     `);
 
     return result?.rows as Array<AppliedMigration>;
+  }
+
+  async addMigration(migration: MigrationFileContent) {
+    this.ensureInitialized();
+
+    await this.client?.query(
+      /* sql */ `
+      INSERT INTO "${this.schema}"."migrations" 
+      (id, "name")
+      values 
+      ($1, $2);
+   `,
+      [migration.id, migration.name]
+    );
+  }
+
+  runSql(q: string): Promise<any> {
+    return this.client?.query(q) as any;
   }
 }

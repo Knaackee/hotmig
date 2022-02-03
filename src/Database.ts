@@ -1,6 +1,6 @@
 import invariant from "invariant";
 import { DatabaseNotInitializedError } from "./errors";
-import { AppliedMigration } from "./models";
+import { AppliedMigration, MigrationFileContent } from "./models";
 
 export abstract class Database {
   protected isInitalized = false;
@@ -19,7 +19,13 @@ export abstract class Database {
     return this.isInitalized;
   }
 
+  abstract init(): Promise<void>;
+
   abstract createMigrationsTable(): Promise<void>;
 
-  abstract getApliedMigrations(): Promise<Array<AppliedMigration>>;
+  abstract getAppliedMigrations(): Promise<Array<AppliedMigration>>;
+
+  abstract runSql(q: string): Promise<any>;
+
+  abstract addMigration(migration: MigrationFileContent): Promise<void>;
 }
