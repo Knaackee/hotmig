@@ -26,6 +26,7 @@ export class PostgresDatabase extends Database {
       throw new DatabaseAlreadyInitializedError();
     }
     this.client = await this.pool.connect();
+    // TODO: set schema ?
     this.isInitalized = true;
   }
 
@@ -96,6 +97,18 @@ export class PostgresDatabase extends Database {
       ($1, $2);
    `,
       [migration.id, migration.name]
+    );
+  }
+
+  async removeMigration(id: string): Promise<void> {
+    this.ensureInitialized();
+
+    await this.client?.query(
+      /* sql */ `
+      DELETE FROM "${this.schema}"."migrations" 
+      WHERE id = $1;
+   `,
+      [id]
     );
   }
 

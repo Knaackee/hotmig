@@ -9,11 +9,16 @@ module.exports = function (wallaby) {
       configFile: "./jest.config.js",
     },
     files: [
-      "src/**/*.ts",
-      "src/**/*.{json,yaml,ts,tsx,graphql}",
-      "!src/**/*test.ts",
+      "packages/**/*.ts",
+      "packages/**/*.{json,yaml,ts,tsx,graphql}",
+      "!packages/**/*test.ts",
     ],
 
-    tests: ["src/**/*test.ts", "!**/node_modules/**"],
+    tests: ["packages/**/*test.ts", "!**/node_modules/**"],
+
+    workers: {
+      initial: 1,
+      regular: 1,
+    },
   };
 };

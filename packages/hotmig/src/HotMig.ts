@@ -43,14 +43,35 @@ export class HotMig {
   }
 
   async getLocalMigrations() {
-    return readdirSync(this.commitDirectory).map((file) => {
-      const migration = parseMigrationContent(
-        readFileSync(resolve(this.commitDirectory, file)).toString()
-      );
-      migration.id = file.split("-")[0];
-      migration.name = file.split("-")[1].split(".")[0];
-      return migration;
+    const result = {
+      loaded: 0,
+      skipped: 0,
+      migrations: Array<MigrationFileContent>(),
+    };
+    result.migrations = [];
+    readdirSync(this.commitDirectory).forEach((file) => {
+      if (file.toLocaleLowerCase().endsWith(".sql")) {
+        try {
+          const content = readFileSync(
+            resolve(this.commitDirectory, file)
+          ).toString();
+          if (isValidMigrationContent(content)) {
+            const migration = parseMigrationContent(content);
+            migration.id = file.split("-")[0];
+            migration.name = file.split("-")[1].split(".")[0];
+            result.loaded++;
+            result.migrations.push(migration);
+          } else {
+            result.skipped++;
+          }
+        } catch (e) {
+          result.skipped++;
+        }
+      } else {
+        result.skipped++;
+      }
     });
+    return result;
   }
 
   async createLocalMigration(
@@ -80,18 +101,45 @@ export class HotMig {
     return migration;
   }
 
-  async up() {
+  async up(options: { all: boolean } = { all: false }) {
     this.ensureInitialized();
     const localMigrations = await this.getLocalMigrations();
     const appliedMigrations = (await this.db?.getAppliedMigrations()) || [];
-    const toRun = localMigrations.filter((migration) => {
+    const toRun = localMigrations.migrations.filter((migration) => {
       return !appliedMigrations.find((lm) => lm.id === migration.id);
     });
+    let applied = 0;
     for (const migration of toRun) {
-      console.log(`running migration: ` + migration.upSql);
       await this.db?.runSql(migration.upSql || "");
       await this.db?.addMigration(migration);
+      applied++;
+      if (!options.all) {
+        break;
+      }
     }
+    return { applied };
+  }
+
+  async down() {
+    this.ensureInitialized();
+    const localMigrations = await this.getLocalMigrations();
+    const appliedMigrations = (await this.db?.getAppliedMigrations()) || [];
+
+    let applied = 0;
+    const lastApplied = appliedMigrations.pop();
+    const migration = localMigrations.migrations.find((migration) => {
+      return migration.id === lastApplied?.id;
+    });
+    if (migration) {
+      await this.db?.runSql(migration.downSql || "");
+      await this.db?.removeMigration(migration.id || "");
+      applied++;
+    }
+    return { applied };
+  }
+
+  async latest() {
+    return this.up({ all: true });
   }
 
   ensureInitialized() {

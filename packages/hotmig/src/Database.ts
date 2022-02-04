@@ -28,4 +28,6 @@ export abstract class Database {
   abstract runSql(q: string): Promise<any>;
 
   abstract addMigration(migration: MigrationFileContent): Promise<void>;
+
+  abstract removeMigration(id: string): Promise<void>;
 }

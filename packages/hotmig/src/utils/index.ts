@@ -66,7 +66,8 @@ export const generateId = () => {
     pad2(now.getHours()) +
     pad2(now.getMinutes()) +
     pad2(now.getSeconds()) +
-    pad2(now.getMilliseconds());
+    pad2(now.getMilliseconds()) +
+    randomIntFromInterval(1, 9).toString();
   return id;
 };
 
@@ -98,4 +99,9 @@ export const parseMigrationContent = (content: string) => {
   } as MigrationFileContent;
 
   return migration;
+};
+
+export const randomIntFromInterval = (min: number, max: number) => {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
 };
