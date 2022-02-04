@@ -1,0 +1,1 @@
+module.exports = {"driver":"@hotmig/hotmig-driver-pg"}
