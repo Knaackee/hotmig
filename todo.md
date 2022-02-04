@@ -1,0 +1,3 @@
+- cli refactoring
+- down, latest, pending
+- dev mode
