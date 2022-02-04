@@ -21,7 +21,8 @@ beforeEach(async () => {
 
   db.setClient(testDb.client);
 
-  hm = new HotMig(db, root);
+  hm = new HotMig(root);
+  hm.setDatabase(db);
 });
 
 afterEach(async () => {
@@ -36,10 +37,6 @@ describe("HotMig", () => {
   it("should return false if not already initialized", async () => {
     expect(hm.isInitialized()).toBe(false);
   });
-  it("init without Database should fail", async () => {
-    expect(() => new HotMig(undefined, root)).toThrow("db is required");
-  });
-
   it("createMigration should fail if not initialized", async () => {
     expect(hm.createLocalMigration("")).rejects.toThrow("not initialized");
   });
@@ -151,7 +148,11 @@ describe("HotMig", () => {
     it("should fail if not initialized", async () => {
       expect(hm.up()).rejects.toThrow("not initialized");
     });
-
+    it("should fail without Database", async () => {
+      await hm.init();
+      hm.setDatabase(undefined as any);
+      expect(hm.up()).rejects.toThrow("db is required");
+    });
     it("should work", async () => {
       await hm.init();
       await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));

@@ -20,18 +20,19 @@ import { MigrationFileContent } from "./models";
 export class HotMig {
   baseDirectory: string;
   commitDirectory: string;
+  db: Database | undefined = undefined;
 
-  constructor(
-    private readonly db?: Database,
-    private readonly root: string = __dirname
-  ) {
-    invariant(db, "db is required");
+  constructor(private readonly root: string = __dirname) {
     this.baseDirectory = resolve(root, "./migrations");
     this.commitDirectory = resolve(this.baseDirectory, "./commits");
   }
 
   isInitialized() {
     return existsSync(this.baseDirectory);
+  }
+
+  setDatabase(db: Database) {
+    this.db = db;
   }
 
   async init() {
@@ -102,6 +103,7 @@ export class HotMig {
   }
 
   async up(options: { all: boolean } = { all: false }) {
+    invariant(this.db, "db is required");
     this.ensureInitialized();
     const localMigrations = await this.getLocalMigrations();
     const appliedMigrations = (await this.db?.getAppliedMigrations()) || [];
@@ -121,6 +123,7 @@ export class HotMig {
   }
 
   async down() {
+    invariant(this.db, "db is required");
     this.ensureInitialized();
     const localMigrations = await this.getLocalMigrations();
     const appliedMigrations = (await this.db?.getAppliedMigrations()) || [];
