@@ -3,7 +3,7 @@
 --------------------------------
 
 -- UP
-create table test (id int);
+create table test2asd (id int);
 
 -- DOWN
-drop table test;
+drop table test2asd;
