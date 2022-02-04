@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import { HotMig } from "./HotMig";
 import "./utils";
@@ -8,17 +8,17 @@ import { Database as PostgresDatabase } from "@hotmig/hotmig-driver-pg";
 
 let hm: HotMig;
 let db: PostgresDatabase;
-let testDb: TestDb;
+let _testDb: TestDb;
 
 const root = resolve(__dirname, "../test-env");
 
 beforeEach(async () => {
   db = new PostgresDatabase(process.env.CONNECTION_STRING);
 
-  testDb = new TestDb();
-  await testDb.init();
+  _testDb = new TestDb();
+  await _testDb.init();
 
-  db.setClient(testDb.client);
+  db.setClient(_testDb.client);
 
   hm = new HotMig(root);
   hm.setDatabase(db as any);
@@ -29,7 +29,7 @@ afterEach(async () => {
     rmSync(root, { recursive: true, force: true });
     mkdirSync(root);
   }
-  await testDb.end();
+  await _testDb.end();
 });
 
 describe("HotMig", () => {
@@ -80,21 +80,6 @@ describe("HotMig", () => {
       await hm.init({ driver: "x" });
       const migration = await hm.createLocalMigration(
         TEST_MIGRATION_CONTENT(1)
-      );
-      expect(migration.id).toBeDefined();
-      expect(migration.name).toBeDefined();
-      expect(migration.upSql).toBeDefined();
-      expect(migration.downSql).toBeDefined();
-      expect(migration.filePath).toBeDefined();
-      expect(existsSync(migration.filePath || "")).toBe(true);
-    });
-    it("allowEmpty should allow empty migrations", async () => {
-      await hm.init({ driver: "x" });
-      const migration = await hm.createLocalMigration(
-        TEST_MIGRATION_CONTENT_EMPTY,
-        {
-          allowEmpty: true,
-        }
       );
       expect(migration.id).toBeDefined();
       expect(migration.name).toBeDefined();
@@ -176,6 +161,7 @@ describe("HotMig", () => {
     });
     it("should work", async () => {
       await hm.init({ driver: "x" });
+      hm.setDatabase(db as any);
       await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));
       await hm.createLocalMigration(TEST_MIGRATION_CONTENT(2));
 
@@ -200,6 +186,7 @@ describe("HotMig", () => {
 
     it("should work", async () => {
       await hm.init({ driver: "x" });
+      hm.setDatabase(db as any);
       await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));
       await hm.createLocalMigration(TEST_MIGRATION_CONTENT(2));
 
@@ -223,6 +210,7 @@ describe("HotMig", () => {
 
     it("should work", async () => {
       await hm.init({ driver: "x" });
+      hm.setDatabase(db as any);
       await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));
       await hm.createLocalMigration(TEST_MIGRATION_CONTENT(2));
 
@@ -232,6 +220,96 @@ describe("HotMig", () => {
 
       const appliedMigrations = await db.getAppliedMigrations();
       expect(appliedMigrations).toHaveLength(2);
+    });
+  });
+  describe("new", () => {
+    it("should fail if not initialized", async () => {
+      expect(hm.new("")).rejects.toThrow("not initialized");
+    });
+    it("should fail if a dev.sql already exists", async () => {
+      await hm.init({ driver: "x" });
+      await hm.new("init");
+      expect(hm.new("init")).rejects.toThrow("dev.sql already exists");
+    });
+    it("should work", async () => {
+      await hm.init({ driver: "x" });
+      await hm.new("init");
+      expect(existsSync(hm.devSqlPath)).toBe(true);
+      expect(readFileSync(hm.devSqlPath).toString()).toContain("init");
+    });
+  });
+  describe("commit", () => {
+    it("should fail if not initialized", async () => {
+      expect(hm.new("")).rejects.toThrow("not initialized");
+    });
+    it("should fail if a dev.sql does not exists", async () => {
+      await hm.init({ driver: "x" });
+      expect(hm.commit()).rejects.toThrow("dev.sql does not exist");
+    });
+    it("should fail if a dev.sql is not valid", async () => {
+      await hm.init({ driver: "x" });
+      writeFileSync(hm.devSqlPath, "XXX");
+      expect(hm.commit()).rejects.toThrow("dev.sql is invalid");
+    });
+    it("should fail if migration is empty", async () => {
+      await hm.init({ driver: "x" });
+      await hm.new("init");
+      expect(hm.commit()).rejects.toThrow("migration content is empty");
+    });
+    it("should work", async () => {
+      await hm.init({ driver: "x" });
+      await hm.new("init");
+      writeFileSync(hm.devSqlPath, TEST_MIGRATION_CONTENT(1));
+      const commit = await hm.commit();
+      console.log(commit);
+      expect(existsSync(commit.filePath || "")).toBe(true);
+      expect(readFileSync(commit.filePath || "").toString()).toContain("init");
+      expect(existsSync(hm.devSqlPath)).toBe(false);
+    });
+  });
+  describe("pending", () => {
+    it("should fail if not initialized", async () => {
+      expect(hm.pending()).rejects.toThrow("not initialized");
+    });
+
+    it("should work", async () => {
+      await hm.init({ driver: "x" });
+      hm.setDatabase(db as any);
+      await db.createMigrationsTable();
+      await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));
+      expect(hm.pending()).resolves.toHaveLength(1);
+    });
+  });
+  describe("test", () => {
+    it("should fail if not initialized", async () => {
+      expect(hm.new("")).rejects.toThrow("not initialized");
+    });
+    it("should fail if a dev.sql does not exists", async () => {
+      await hm.init({ driver: "x" });
+      expect(hm.test()).rejects.toThrow("dev.sql does not exist");
+    });
+    it("should fail if a dev.sql is not valid", async () => {
+      await hm.init({ driver: "x" });
+      writeFileSync(hm.devSqlPath, "XXX");
+      expect(hm.test()).rejects.toThrow("dev.sql is invalid");
+    });
+    it("should fail if there are pending migrations", async () => {
+      await hm.init({ driver: "x" });
+      hm.setDatabase(db as any);
+      await db.createMigrationsTable();
+      await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));
+      await hm.new("init");
+      expect(hm.test()).rejects.toThrow(
+        "there are pending migrations, cant test"
+      );
+    });
+    it("should work", async () => {
+      await hm.init({ driver: "x" });
+      hm.setDatabase(db as any);
+      await db.createMigrationsTable();
+      await hm.new("init");
+      writeFileSync(hm.devSqlPath, TEST_MIGRATION_CONTENT(2));
+      await hm.test();
     });
   });
 });

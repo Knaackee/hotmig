@@ -1,4 +1,5 @@
 import invariant from "invariant";
+import { Knex, knex } from "knex";
 import { Pool, PoolClient } from "pg";
 
 jest.setTimeout(10000);
@@ -7,29 +8,28 @@ process.env.CONNECTION_STRING =
   "postgresql://postgres:postgres@localhost:5432/db?schema=testing";
 
 export class TestDb {
-  readonly pool: Pool;
-  public client: PoolClient | undefined;
+  public client: Knex<any, unknown[]> | undefined;
 
   constructor() {
     invariant(
       process.env.CONNECTION_STRING,
       "process.env.CONNECTION_STRING is required"
     );
-    this.pool = new Pool({
-      connectionString: process.env.CONNECTION_STRING,
+    this.client = knex({
+      client: "pg",
+      connection: process.env.CONNECTION_STRING,
+      // searchPath: ["testing"],
     });
   }
 
   async init() {
-    this.client = await this.pool.connect();
-    await this.client?.query("BEGIN;");
-    await this.client?.query(`CREATE SCHEMA IF NOT EXISTS "testing";`);
-    await this.client?.query(`SET search_path to "testing";`);
+    await this.client?.raw("BEGIN;");
+    await this.client?.raw(`CREATE SCHEMA IF NOT EXISTS "testing";`);
+    await this.client?.raw(`SET search_path to "testing";`);
   }
 
   async end() {
-    await this.client?.query("ROLLBACK;");
-    await this.client?.release();
-    await this.pool.end();
+    await this.client?.raw("ROLLBACK;");
+    await this.client?.destroy();
   }
 }

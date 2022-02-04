@@ -65,7 +65,7 @@ program
     const hm = await start(title, "Intialize DB...");
     ensureInitialized(hm);
 
-    withDriver(hm, options, async (db) => {
+    await withDriver(hm, options, async (db) => {
       const alreadyExists = await db.migrationsTableExists();
       if (alreadyExists) {
         console.log(chalk.yellow("migrations table already exists"));
@@ -87,7 +87,6 @@ program
   .action(async (options: any) => {
     const hm = await start(title, "Up...");
     ensureInitialized(hm);
-
     withDriver(hm, options, async (db) => {
       if (!(await db.migrationsTableExists())) {
         console.log(
@@ -99,6 +98,129 @@ program
       }
       const result = await hm.up();
       console.log(chalk.green(`✨ done. migrated: ${result.applied}`));
+      process.exit(0);
+    }).then(() => {});
+  });
+
+program
+  .command("down")
+  .description("migrate one down")
+  .option(
+    "-c, --connection-string <string>",
+    "database connection string to use instead of process.env.CONNECTION_STRING"
+  )
+  .action(async (options: any) => {
+    const hm = await start(title, "Up...");
+    ensureInitialized(hm);
+
+    await withDriver(hm, options, async (db) => {
+      if (!(await db.migrationsTableExists())) {
+        console.log(
+          chalk.yellow(
+            "migrations table does not exists. please run init-db first"
+          )
+        );
+        process.exit(1);
+      }
+      const result = await hm.down();
+      console.log(chalk.green(`✨ done. migrated: ${result.applied}`));
+      process.exit(0);
+    });
+  });
+
+program
+  .command("latest")
+  .description("migrate to lastest")
+  .option(
+    "-c, --connection-string <string>",
+    "database connection string to use instead of process.env.CONNECTION_STRING"
+  )
+  .action(async (options: any) => {
+    const hm = await start(title, "Up...");
+    ensureInitialized(hm);
+
+    await withDriver(hm, options, async (db) => {
+      if (!(await db.migrationsTableExists())) {
+        console.log(
+          chalk.yellow(
+            "migrations table does not exists. please run init-db first"
+          )
+        );
+        process.exit(1);
+      }
+      const result = await hm.latest();
+      console.log(chalk.green(`✨ done. migrated: ${result.applied}`));
+      process.exit(0);
+    });
+  });
+
+program
+  .command("new")
+  .description("create a new dev.sql")
+  .argument("<name>", "name of the migration")
+  .action(async (name: string, options: any) => {
+    const hm = await start(title, "New...");
+    ensureInitialized(hm);
+    await hm.new(name);
+  });
+
+program
+  .command("commit")
+  .description("")
+  .action(async (options: any) => {
+    const hm = await start(title, "New...");
+    ensureInitialized(hm);
+    await hm.commit();
+  });
+
+program
+  .command("pending")
+  .description("get pending")
+  .option(
+    "-c, --connection-string <string>",
+    "database connection string to use instead of process.env.CONNECTION_STRING"
+  )
+  .action(async (options: any) => {
+    const hm = await start(title, "Pending...");
+    ensureInitialized(hm);
+
+    await withDriver(hm, options, async (db) => {
+      if (!(await db.migrationsTableExists())) {
+        console.log(
+          chalk.yellow(
+            "migrations table does not exists. please run init-db first"
+          )
+        );
+        process.exit(1);
+      }
+      const result = await hm.pending();
+      console.log(JSON.stringify(result, null, 2));
+      process.exit(0);
+    });
+  });
+
+program
+  .command("test")
+  .description("")
+  .option(
+    "-c, --connection-string <string>",
+    "database connection string to use instead of process.env.CONNECTION_STRING"
+  )
+  .action(async (options: any) => {
+    const hm = await start(title, "Pending...");
+    ensureInitialized(hm);
+
+    await withDriver(hm, options, async (db) => {
+      if (!(await db.migrationsTableExists())) {
+        console.log(
+          chalk.yellow(
+            "migrations table does not exists. please run init-db first"
+          )
+        );
+        process.exit(1);
+      }
+      const result = await hm.test();
+      console.log(JSON.stringify(result, null, 2));
       process.exit(0);
     });
   });

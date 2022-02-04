@@ -3,6 +3,7 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  unlinkSync,
   writeFileSync,
 } from "fs";
 import invariant from "invariant";
@@ -25,11 +26,13 @@ export class HotMig {
   baseDirectory: string;
   commitDirectory: string;
   configFilePath: string;
+  devSqlPath: string;
   config: HotMigConfig | undefined;
   db: Database | undefined = undefined;
 
   constructor(root: string = process.cwd()) {
     this.baseDirectory = resolve(root, "./.migrations");
+    this.devSqlPath = resolve(this.baseDirectory, "./dev.sql");
     this.commitDirectory = resolve(this.baseDirectory, "./commits");
     this.configFilePath = resolve(root, "./hotmig.config.js");
   }
@@ -94,10 +97,7 @@ export class HotMig {
     return result;
   }
 
-  async createLocalMigration(
-    content?: string,
-    options: CreateMigrationOptions = { allowEmpty: false }
-  ): Promise<MigrationFileContent> {
+  async createLocalMigration(content?: string): Promise<MigrationFileContent> {
     this.ensureInitialized();
     invariant(content, "migration content is required");
     if (!isValidMigrationContent(content)) {
@@ -105,11 +105,7 @@ export class HotMig {
     }
     const migration = parseMigrationContent(content);
     invariant(migration.name, "migration name is empty");
-    if (
-      !options.allowEmpty &&
-      migration.upSql?.trim() === "" &&
-      migration.downSql?.trim() === ""
-    ) {
+    if (migration.upSql?.trim() === "" && migration.downSql?.trim() === "") {
       throw new Error("migration content is empty");
     }
     migration.id = generateId();
@@ -124,14 +120,11 @@ export class HotMig {
   async up(options: { all: boolean } = { all: false }) {
     invariant(this.db, "db is required");
     this.ensureInitialized();
-    const localMigrations = await this.getLocalMigrations();
-    const appliedMigrations = (await this.db?.getAppliedMigrations()) || [];
-    const toRun = localMigrations.migrations.filter((migration) => {
-      return !appliedMigrations.find((lm) => lm.id === migration.id);
-    });
+    const toRun = await this.pending();
     let applied = 0;
     for (const migration of toRun) {
-      await this.db?.runSql(migration.upSql || "");
+      const client = await this.db?.getClient();
+      await client.raw(migration.upSql || "");
       await this.db?.addMigration(migration);
       applied++;
       if (!options.all) {
@@ -139,6 +132,17 @@ export class HotMig {
       }
     }
     return { applied };
+  }
+
+  async pending() {
+    invariant(this.db, "db is required");
+    this.ensureInitialized();
+    const localMigrations = await this.getLocalMigrations();
+    const appliedMigrations = (await this.db?.getAppliedMigrations()) || [];
+    const toRun = localMigrations.migrations.filter((migration) => {
+      return !appliedMigrations.find((lm) => lm.id === migration.id);
+    });
+    return toRun;
   }
 
   async down() {
@@ -153,7 +157,8 @@ export class HotMig {
       return migration.id === lastApplied?.id;
     });
     if (migration) {
-      await this.db?.runSql(migration.downSql || "");
+      const client = await this.db?.getClient();
+      await client.raw(migration.downSql || "");
       await this.db?.removeMigration(migration.id || "");
       applied++;
     }
@@ -164,6 +169,65 @@ export class HotMig {
     return this.up({ all: true });
   }
 
+  async new(name: string) {
+    if (!this.isInitialized()) {
+      throw new NotInitializedError();
+    }
+    if (existsSync(this.devSqlPath)) {
+      throw new Error("dev.sql already exists");
+    }
+    writeFileSync(this.devSqlPath, getEmptyMigrationContent(name));
+  }
+
+  async commit() {
+    if (!this.isInitialized()) {
+      throw new NotInitializedError();
+    }
+    if (!existsSync(this.devSqlPath)) {
+      throw new Error("dev.sql does not exist");
+    }
+    const content = readFileSync(this.devSqlPath).toString();
+    if (!isValidMigrationContent(content)) {
+      throw new Error("dev.sql is invalid");
+    }
+    const result = await this.createLocalMigration(content);
+    unlinkSync(this.devSqlPath);
+    return result;
+  }
+
+  async test() {
+    if (!this.isInitialized()) {
+      throw new NotInitializedError();
+    }
+    if (!existsSync(this.devSqlPath)) {
+      throw new Error("dev.sql does not exist");
+    }
+    const content = readFileSync(this.devSqlPath).toString();
+    if (!isValidMigrationContent(content)) {
+      throw new Error("dev.sql is invalid");
+    }
+    invariant(this.db, "db is required");
+    const migration = parseMigrationContent(content);
+
+    // check if there are pending migrations
+    const pending = await this.pending();
+    if (pending.length > 0) {
+      throw new Error("there are pending migrations, cant test");
+    }
+
+    const client = await this.db?.getClient();
+
+    console.log("up");
+    await client.raw(migration.upSql || "");
+    console.log("down");
+    await client.raw(migration.downSql || "");
+
+    console.log("up");
+    await client.raw(migration.upSql || "");
+    console.log("down");
+    await client.raw(migration.downSql || "");
+  }
+
   ensureInitialized() {
     if (!this.isInitialized()) {
       throw new NotInitializedError();
@@ -171,6 +235,13 @@ export class HotMig {
   }
 }
 
-interface CreateMigrationOptions {
-  allowEmpty?: boolean;
-}
+const getEmptyMigrationContent = (
+  name: string
+) => `--------------------------------
+-- Migration: ${name}
+--------------------------------
+
+-- UP
+
+-- DOWN
+`;

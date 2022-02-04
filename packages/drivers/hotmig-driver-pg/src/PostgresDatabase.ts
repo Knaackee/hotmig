@@ -5,18 +5,12 @@ import {
   DatabaseAlreadyInitializedError,
   MigrationFileContent,
 } from "@hotmig/lib";
-
+import { Knex, knex } from "knex";
 export class Database extends Base {
-  readonly pool: Pool;
-  public client: PoolClient | undefined;
   readonly schema: string | null;
 
   constructor(connectionString: string | undefined) {
     super(connectionString);
-    this.pool = new Pool({
-      connectionString,
-    });
-
     var url = new URL(connectionString || "");
     this.schema = url.searchParams.get("schema");
     if (!this.schema) {
@@ -24,39 +18,14 @@ export class Database extends Base {
     }
   }
 
-  async init() {
-    if (this.isInitalized) {
-      throw new DatabaseAlreadyInitializedError();
-    }
-    this.client = await this.pool.connect();
-    // TODO: set schema ?
-    this.isInitalized = true;
-  }
-
-  setClient(client?: PoolClient) {
-    if (this.isInitalized) {
-      throw new DatabaseAlreadyInitializedError();
-    }
-    this.client = client;
-    this.isInitalized = true;
-  }
-
-  async dispose() {
-    this.ensureInitialized();
-
-    await this.client?.release();
-    await this.pool.end();
-    this.isInitalized = false;
-  }
-
   async migrationsTableExists() {
     this.ensureInitialized();
 
-    const result = await this.client?.query(
+    const result = await this.getClient().raw(
       /*sql*/ `
       SELECT EXISTS (
         SELECT FROM "pg_tables"
-        WHERE schemaname = $1
+        WHERE schemaname = ?
         AND tablename  = 'migrations'
       );    
     `,
@@ -68,7 +37,7 @@ export class Database extends Base {
   async createMigrationsTable() {
     this.ensureInitialized();
 
-    await this.client?.query(/* sql */ `
+    await this.getClient().raw(/* sql */ `
       CREATE TABLE IF NOT EXISTS "${this.schema}"."migrations" (
         id varchar(68) NOT NULL,
         "name" text NOT NULL,
@@ -81,7 +50,7 @@ export class Database extends Base {
   async getAppliedMigrations() {
     this.ensureInitialized();
 
-    const result = await this.client?.query(/*sql*/ `
+    const result = await this.getClient().raw(/*sql*/ `
       SELECT id, name, created_at FROM "${this.schema}"."migrations"
       order by created_at asc;
     `);
@@ -91,31 +60,35 @@ export class Database extends Base {
 
   async addMigration(migration: MigrationFileContent) {
     this.ensureInitialized();
-
-    await this.client?.query(
+    const params = { id: migration.id, name: migration.name };
+    await this.getClient()?.raw(
       /* sql */ `
       INSERT INTO "${this.schema}"."migrations" 
       (id, "name")
       values 
-      ($1, $2);
+      (?, ?);
    `,
-      [migration.id, migration.name]
+      [params.id || "", params.name || ""]
     );
   }
 
   async removeMigration(id: string): Promise<void> {
     this.ensureInitialized();
 
-    await this.client?.query(
+    await this.getClient()?.raw(
       /* sql */ `
       DELETE FROM "${this.schema}"."migrations" 
-      WHERE id = $1;
+      WHERE id = ?;
    `,
       [id]
     );
   }
 
-  runSql(q: string): Promise<any> {
-    return this.client?.query(q) as any;
+  createClient() {
+    return knex({
+      client: "pg",
+      connection: this.connectionString,
+      searchPath: [this.schema || "public"],
+    });
   }
 }
