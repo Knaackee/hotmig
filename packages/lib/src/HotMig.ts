@@ -8,15 +8,12 @@ import {
 } from "fs";
 import invariant from "invariant";
 import { resolve } from "path";
-import { Database } from "./Database";
 import { AlreadyInitializedError, NotInitializedError } from "./errors";
 import slugify from "slugify";
-import { MigrationFileContent } from "./models";
-import {
-  generateId,
-  isValidMigrationContent,
-  parseMigrationContent,
-} from "./utils/utils";
+import { Migration } from "./models";
+import { generateId, isValidMigrationContent } from "./utils/utils";
+import { Driver } from "./Driver";
+import { requireGlobal } from "./utils";
 
 export interface HotMigConfig {
   driver: string;
@@ -24,37 +21,59 @@ export interface HotMigConfig {
 
 export class HotMig {
   baseDirectory: string;
+  targetDirectory: string;
   commitDirectory: string;
   configFilePath: string;
-  devSqlPath: string;
+  devJsPath: string;
   config: HotMigConfig | undefined;
-  db: Database | undefined = undefined;
+  driver: Driver | undefined = undefined;
+  driverName?: string;
 
-  constructor(root: string = process.cwd()) {
-    this.baseDirectory = resolve(root, "./.migrations");
-    this.devSqlPath = resolve(this.baseDirectory, "./dev.sql");
-    this.commitDirectory = resolve(this.baseDirectory, "./commits");
-    this.configFilePath = resolve(root, "./hotmig.config.js");
+  constructor(private readonly target: string, root: string = process.cwd()) {
+    this.baseDirectory = resolve(root, "./.migrations"); //?
+    this.targetDirectory = resolve(this.baseDirectory, `./${target}`);
+    this.devJsPath = resolve(this.targetDirectory, "./dev.js");
+    this.commitDirectory = resolve(this.targetDirectory, "./commits");
+    this.configFilePath = resolve(this.targetDirectory, "./hotmig.config.js");
   }
 
   isInitialized() {
-    return existsSync(this.baseDirectory);
+    return existsSync(this.targetDirectory);
   }
 
-  setDatabase(db: Database) {
-    this.db = db;
+  setDriver(driver: Driver) {
+    this.driver = driver;
   }
 
-  async init(config: HotMigConfig) {
+  createMigrationStore() {
+    return this.driver?.createMigrationStore();
+  }
+
+  async init(driver: string, isInteractive?: boolean) {
     if (this.isInitialized()) {
       throw new AlreadyInitializedError();
     }
-    mkdirSync(this.baseDirectory);
+    if (!existsSync(this.baseDirectory)) {
+      mkdirSync(this.baseDirectory);
+    }
+    mkdirSync(this.targetDirectory);
     mkdirSync(this.commitDirectory);
+
+    // TODO: check driver
+    const module = await requireGlobal(driver);
+    this.driver = new module["Driver"]() as Driver;
+    this.driverName = driver;
+
+    const config = {
+      driver,
+      config: await this.driver?.getDefaultConfig(isInteractive),
+    };
+
     writeFileSync(
       this.configFilePath,
       `module.exports = ${JSON.stringify(config)}`
     );
+
     this.config = config;
   }
 
@@ -63,23 +82,25 @@ export class HotMig {
       throw new NotInitializedError();
     }
     this.config = require(this.configFilePath);
+    this.driver?.init(this.config);
   }
 
   async getLocalMigrations() {
     const result = {
       loaded: 0,
       skipped: 0,
-      migrations: Array<MigrationFileContent>(),
+      migrations: Array<Migration>(),
     };
+    if (!this.isInitialized()) {
+      throw new NotInitializedError();
+    }
+
     result.migrations = [];
     readdirSync(this.commitDirectory).forEach((file) => {
-      if (file.toLocaleLowerCase().endsWith(".sql")) {
+      if (file.toLocaleLowerCase().endsWith(".js")) {
         try {
-          const content = readFileSync(
-            resolve(this.commitDirectory, file)
-          ).toString();
-          if (isValidMigrationContent(content)) {
-            const migration = parseMigrationContent(content);
+          if (isValidMigrationContent(resolve(this.commitDirectory, file))) {
+            const migration = {} as Migration;
             migration.id = file.split("-")[0];
             migration.name = file.split("-")[1].split(".")[0];
             result.loaded++;
@@ -97,71 +118,56 @@ export class HotMig {
     return result;
   }
 
-  async createLocalMigration(content?: string): Promise<MigrationFileContent> {
-    this.ensureInitialized();
-    invariant(content, "migration content is required");
-    if (!isValidMigrationContent(content)) {
-      throw new Error("migration content is invalid");
-    }
-    const migration = parseMigrationContent(content);
-    invariant(migration.name, "migration name is empty");
-    if (migration.upSql?.trim() === "" && migration.downSql?.trim() === "") {
-      throw new Error("migration content is empty");
-    }
-    migration.id = generateId();
-    migration.filePath = resolve(
-      this.commitDirectory,
-      `${migration.id}-${slugify(migration.name || "")}.sql`
-    );
-    writeFileSync(migration.filePath, content);
-    return migration;
-  }
-
   async up(options: { all: boolean } = { all: false }) {
-    invariant(this.db, "db is required");
+    invariant(this.driver, "db is required");
     this.ensureInitialized();
     const toRun = await this.pending();
     let applied = 0;
-    for (const migration of toRun) {
-      const client = await this.db?.getClient();
-      await client.raw(migration.upSql || "");
-      await this.db?.addMigration(migration);
-      applied++;
-      if (!options.all) {
-        break;
-      }
-    }
+    // TODO: FIX
+    // for (const migration of toRun) {
+    //   const client = await this.driver?.getClient();
+    //   await client.raw(migration.upSql || "");
+    //   await this.driver?.addMigration(migration);
+    //   applied++;
+    //   if (!options.all) {
+    //     break;
+    //   }
+    // }
     return { applied };
   }
 
   async pending() {
-    invariant(this.db, "db is required");
+    invariant(this.driver, "db is required");
     this.ensureInitialized();
     const localMigrations = await this.getLocalMigrations();
-    const appliedMigrations = (await this.db?.getAppliedMigrations()) || [];
+    const appliedMigrations =
+      (await this.driver?.getAppliedMigrations(this.target)) || [];
+
     const toRun = localMigrations.migrations.filter((migration) => {
-      return !appliedMigrations.find((lm) => lm.id === migration.id);
+      return !appliedMigrations.find((lm: any) => lm.id === migration.id);
     });
     return toRun;
   }
 
   async down() {
-    invariant(this.db, "db is required");
+    invariant(this.driver, "db is required");
     this.ensureInitialized();
     const localMigrations = await this.getLocalMigrations();
-    const appliedMigrations = (await this.db?.getAppliedMigrations()) || [];
+    const appliedMigrations =
+      (await this.driver?.getAppliedMigrations(this.target)) || [];
 
     let applied = 0;
     const lastApplied = appliedMigrations.pop();
     const migration = localMigrations.migrations.find((migration) => {
       return migration.id === lastApplied?.id;
     });
-    if (migration) {
-      const client = await this.db?.getClient();
-      await client.raw(migration.downSql || "");
-      await this.db?.removeMigration(migration.id || "");
-      applied++;
-    }
+    // TODO: FIX
+    // if (migration) {
+    //   const client = await this.driver?.getClient();
+    //   await client.raw(migration.downSql || "");
+    //   await this.driver?.removeMigration(migration.id || "");
+    //   applied++;
+    // }
     return { applied };
   }
 
@@ -169,45 +175,52 @@ export class HotMig {
     return this.up({ all: true });
   }
 
-  async new(name: string) {
+  async new(name: string, isInteractive?: boolean) {
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
-    if (existsSync(this.devSqlPath)) {
-      throw new Error("dev.sql already exists");
+    if (existsSync(this.devJsPath)) {
+      throw new Error("dev.js already exists");
     }
-    writeFileSync(this.devSqlPath, getEmptyMigrationContent(name));
+    const content = await this.driver?.getEmptyMigrationContent(
+      name,
+      isInteractive
+    );
+    writeFileSync(this.devJsPath, content ?? "");
   }
 
   async commit() {
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
-    if (!existsSync(this.devSqlPath)) {
-      throw new Error("dev.sql does not exist");
+    if (!existsSync(this.devJsPath)) {
+      throw new Error("dev.js does not exist");
     }
-    const content = readFileSync(this.devSqlPath).toString();
-    if (!isValidMigrationContent(content)) {
-      throw new Error("dev.sql is invalid");
+    if (!isValidMigrationContent(this.devJsPath)) {
+      throw new Error("dev.js is invalid");
     }
-    const result = await this.createLocalMigration(content);
-    unlinkSync(this.devSqlPath);
-    return result;
+
+    const migration = {} as Migration;
+    migration.id = generateId();
+    migration.filePath = resolve(
+      this.commitDirectory,
+      `${migration.id}-${slugify(migration.name || "")}.js`
+    );
+    writeFileSync(migration.filePath, readFileSync(this.devJsPath).toString());
+    unlinkSync(this.devJsPath);
+    return migration;
   }
 
   async test() {
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
-    if (!existsSync(this.devSqlPath)) {
-      throw new Error("dev.sql does not exist");
+    if (!existsSync(this.devJsPath)) {
+      throw new Error("dev.js does not exist");
     }
-    const content = readFileSync(this.devSqlPath).toString();
-    if (!isValidMigrationContent(content)) {
-      throw new Error("dev.sql is invalid");
+    if (!isValidMigrationContent(this.devJsPath)) {
+      throw new Error("dev.js is invalid " + this.devJsPath);
     }
-    invariant(this.db, "db is required");
-    const migration = parseMigrationContent(content);
 
     // check if there are pending migrations
     const pending = await this.pending();
@@ -215,17 +228,18 @@ export class HotMig {
       throw new Error("there are pending migrations, cant test");
     }
 
-    const client = await this.db?.getClient();
+    // TODO: FIX
+    // const client = await this.driver?.getClient();
 
-    console.log("up");
-    await client.raw(migration.upSql || "");
-    console.log("down");
-    await client.raw(migration.downSql || "");
+    // console.log("up");
+    // await client.raw(migration.upSql || "");
+    // console.log("down");
+    // await client.raw(migration.downSql || "");
 
-    console.log("up");
-    await client.raw(migration.upSql || "");
-    console.log("down");
-    await client.raw(migration.downSql || "");
+    // console.log("up");
+    // await client.raw(migration.upSql || "");
+    // console.log("down");
+    // await client.raw(migration.downSql || "");
   }
 
   ensureInitialized() {
@@ -234,14 +248,3 @@ export class HotMig {
     }
   }
 }
-
-const getEmptyMigrationContent = (
-  name: string
-) => `--------------------------------
--- Migration: ${name}
---------------------------------
-
--- UP
-
--- DOWN
-`;

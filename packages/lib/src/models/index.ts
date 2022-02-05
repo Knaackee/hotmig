@@ -1,2 +1,2 @@
 export * from "./AppliedMigration";
-export * from "./MigrationFileContent";
+export * from "./Migration";

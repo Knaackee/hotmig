@@ -4,9 +4,6 @@ import { Pool, PoolClient } from "pg";
 
 jest.setTimeout(10000);
 
-process.env.CONNECTION_STRING =
-  "postgresql://postgres:postgres@localhost:5432/db?schema=testing";
-
 export class TestDb {
   public client: Knex<any, unknown[]> | undefined;
 

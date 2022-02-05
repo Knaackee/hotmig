@@ -18,8 +18,10 @@ program
 program
   .command("init")
   .description("initalize hotmig in the current directory")
-  .action(async () => {
-    const hm = await start(title, "Initializing...");
+  .option("-t, --target <string>", "name of the target", "default")
+  .action(async (options: any) => {
+    console.log(options);
+    const hm = await start(options.target, title, "Initializing...");
     if (hm.isInitialized()) {
       console.log(chalk.red("Already initialized"));
       process.exit(1);
@@ -47,45 +49,49 @@ program
       choices: available.map((g) => g.name),
     });
 
-    // init
-    await hm.init({ driver: answer.driver });
+    // init (interactive)
+    await hm.init(answer.driver, true);
+
+    // getEmptyMigration() => { up(), down(), name() }
 
     // show success message
     console.log(chalk.green("✨ done, happy migrating!"));
   });
 
-program
-  .command("init-db")
-  .description("...")
-  .option(
-    "-c, --connection-string <string>",
-    "database connection string to use instead of process.env.CONNECTION_STRING"
-  )
-  .action(async (options: any) => {
-    const hm = await start(title, "Intialize DB...");
-    ensureInitialized(hm);
+// zu init
+// program
+//   .command("init-db")
+//   .description("...")
+//   .option(
+//     "-c, --connection-string <string>",
+//     "database connection string to use instead of process.env.CONNECTION_STRING"
+//   )
+//   .action(async (options: any) => {
+//     const hm = await start(title, "Intialize DB...");
+//     ensureInitialized(hm);
 
-    await withDriver(hm, options, async (db) => {
-      const alreadyExists = await db.migrationsTableExists();
-      if (alreadyExists) {
-        console.log(chalk.yellow("migrations table already exists"));
-        process.exit(1);
-      }
-      await db.createMigrationsTable();
-      console.log(chalk.green("✨ done, happy migrating!"));
-      process.exit(0);
-    });
-  });
+//     await withDriver(hm, options, async (db) => {
+//       const alreadyExists = await db.migrationsTableExists();
+//       if (alreadyExists) {
+//         console.log(chalk.yellow("migrations table already exists"));
+//         process.exit(1);
+//       }
+//       await db.createMigrationsTable();
+//       console.log(chalk.green("✨ done, happy migrating!"));
+//       process.exit(0);
+//     });
+//   });
 
 program
   .command("up")
   .description("migrate one up")
+  .option("-t, --target <string>", "name of the target", "default")
   .option(
     "-c, --connection-string <string>",
     "database connection string to use instead of process.env.CONNECTION_STRING"
   )
   .action(async (options: any) => {
-    const hm = await start(title, "Up...");
+    const hm = await start(options.target, title, "Up...");
     ensureInitialized(hm);
     withDriver(hm, options, async (db) => {
       if (!(await db.migrationsTableExists())) {
@@ -105,12 +111,13 @@ program
 program
   .command("down")
   .description("migrate one down")
+  .option("-t, --target <string>", "name of the target", "default")
   .option(
     "-c, --connection-string <string>",
     "database connection string to use instead of process.env.CONNECTION_STRING"
   )
   .action(async (options: any) => {
-    const hm = await start(title, "Up...");
+    const hm = await start(options.target, title, "Up...");
     ensureInitialized(hm);
 
     await withDriver(hm, options, async (db) => {
@@ -131,12 +138,13 @@ program
 program
   .command("latest")
   .description("migrate to lastest")
+  .option("-t, --target <string>", "name of the target", "default")
   .option(
     "-c, --connection-string <string>",
     "database connection string to use instead of process.env.CONNECTION_STRING"
   )
   .action(async (options: any) => {
-    const hm = await start(title, "Up...");
+    const hm = await start(options.target, title, "Up...");
     ensureInitialized(hm);
 
     await withDriver(hm, options, async (db) => {
@@ -156,19 +164,21 @@ program
 
 program
   .command("new")
-  .description("create a new dev.sql")
+  .description("create a new dev migration")
   .argument("<name>", "name of the migration")
+  .option("-t, --target <string>", "name of the target", "default")
   .action(async (name: string, options: any) => {
-    const hm = await start(title, "New...");
+    const hm = await start(options.target, title, "New...");
     ensureInitialized(hm);
     await hm.new(name);
   });
 
 program
   .command("commit")
-  .description("")
+  .description("commit the current dev migration")
+  .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
-    const hm = await start(title, "New...");
+    const hm = await start(options.target, title, "Commit...");
     ensureInitialized(hm);
     await hm.commit();
   });
@@ -181,7 +191,7 @@ program
     "database connection string to use instead of process.env.CONNECTION_STRING"
   )
   .action(async (options: any) => {
-    const hm = await start(title, "Pending...");
+    const hm = await start(options.target, title, "Pending...");
     ensureInitialized(hm);
 
     await withDriver(hm, options, async (db) => {
@@ -201,13 +211,13 @@ program
 
 program
   .command("test")
-  .description("")
+  .description("test the current dev migration")
   .option(
     "-c, --connection-string <string>",
     "database connection string to use instead of process.env.CONNECTION_STRING"
   )
   .action(async (options: any) => {
-    const hm = await start(title, "Pending...");
+    const hm = await start(options.target, title, "Test...");
     ensureInitialized(hm);
 
     await withDriver(hm, options, async (db) => {

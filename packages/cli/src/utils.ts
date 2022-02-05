@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { Database, HotMig, requireGlobal } from "@hotmig/lib";
+import { Driver, HotMig, requireGlobal } from "@hotmig/lib";
 import chalk from "chalk";
 import invariant from "invariant";
 
@@ -14,7 +14,7 @@ export const ensureInitialized = async (hm: HotMig) => {
 export const withDriver = async (
   hm: HotMig,
   options: any,
-  cb: (db: Database) => Promise<void>
+  cb: (db: Driver) => Promise<void>
 ) => {
   await hm.loadConfig();
   // check if connection string is set
@@ -36,9 +36,9 @@ export const withDriver = async (
       plugin["Database"],
       `driver ${hm.config?.driver} does not export a class "Database"`
     );
-    const db = new plugin["Database"](connectionString) as Database;
+    const db = new plugin["Database"](connectionString) as Driver;
     await db.init();
-    hm.setDatabase(db);
+    hm.setDriver(db);
 
     await cb(db);
   } catch (err) {
@@ -47,12 +47,12 @@ export const withDriver = async (
   }
 };
 
-export const start = async (title: string, text: string) => {
+export const start = async (target: string, title: string, text: string) => {
   // show cli title
   console.log(`${title}\n`);
 
   // check if already initialized
-  const hm = new HotMig();
+  const hm = new HotMig(target);
 
   // show action title
   console.log(`${chalk.yellow(text)}`);

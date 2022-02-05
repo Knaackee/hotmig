@@ -1,27 +1,33 @@
 import { Pool, PoolClient } from "pg";
-import {
-  AppliedMigration,
-  Database as Base,
-  DatabaseAlreadyInitializedError,
-  MigrationFileContent,
-} from "@hotmig/lib";
+import { AppliedMigration, Driver as Base, Migration } from "@hotmig/lib";
 import { Knex, knex } from "knex";
-export class Database extends Base {
+export class Driver extends Base {
   readonly schema: string | null;
+  client: Knex<any, unknown[]> | undefined;
 
-  constructor(connectionString: string | undefined) {
-    super(connectionString);
-    var url = new URL(connectionString || "");
+  constructor() {
+    super();
+    var url = new URL(process.env.CONNECTION_STRING || "");
     this.schema = url.searchParams.get("schema");
+    // this.client = this.createClient();
     if (!this.schema) {
       throw new Error(`"schema" is missing in connection string`);
     }
   }
 
-  async migrationsTableExists() {
-    this.ensureInitialized();
+  async init(config: any) {
+    this.client = this.createClient(config.connectionString);
+  }
 
-    const result = await this.getClient().raw(
+  async getDefaultConfig(isInteractive?: boolean): Promise<any> {
+    return {
+      connectionString:
+        "postgresql://postgres:postgres@localhost:5432/db?schema=testing",
+    };
+  }
+
+  async migrationStoreExists() {
+    const result = await this.client?.raw(
       /*sql*/ `
       SELECT EXISTS (
         SELECT FROM "pg_tables"
@@ -34,10 +40,8 @@ export class Database extends Base {
     return result?.rows[0].exists;
   }
 
-  async createMigrationsTable() {
-    this.ensureInitialized();
-
-    await this.getClient().raw(/* sql */ `
+  async createMigrationStore() {
+    await this.client?.raw(/* sql */ `
       CREATE TABLE IF NOT EXISTS "${this.schema}"."migrations" (
         id varchar(68) NOT NULL,
         "name" text NOT NULL,
@@ -48,9 +52,7 @@ export class Database extends Base {
   }
 
   async getAppliedMigrations() {
-    this.ensureInitialized();
-
-    const result = await this.getClient().raw(/*sql*/ `
+    const result = await this.client?.raw(/*sql*/ `
       SELECT id, name, created_at FROM "${this.schema}"."migrations"
       order by created_at asc;
     `);
@@ -58,10 +60,9 @@ export class Database extends Base {
     return result?.rows as Array<AppliedMigration>;
   }
 
-  async addMigration(migration: MigrationFileContent) {
-    this.ensureInitialized();
+  async addMigration(migration: Migration) {
     const params = { id: migration.id, name: migration.name };
-    await this.getClient()?.raw(
+    await this.client?.raw(
       /* sql */ `
       INSERT INTO "${this.schema}"."migrations" 
       (id, "name")
@@ -73,9 +74,7 @@ export class Database extends Base {
   }
 
   async removeMigration(id: string): Promise<void> {
-    this.ensureInitialized();
-
-    await this.getClient()?.raw(
+    await this.client?.raw(
       /* sql */ `
       DELETE FROM "${this.schema}"."migrations" 
       WHERE id = ?;
@@ -84,11 +83,30 @@ export class Database extends Base {
     );
   }
 
-  createClient() {
+  up(migrations: Migration[]): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+  down(migrations: Migration[]): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+  test(migration: Migration): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
+  createClient(connectionString: string) {
     return knex({
       client: "pg",
-      connection: this.connectionString,
+      connection: connectionString,
       searchPath: [this.schema || "public"],
     });
+  }
+
+  async getEmptyMigrationContent(
+    name: string,
+    isInteractive?: boolean
+  ): Promise<string> {
+    return `module.exports = {
+      name: '${name}',
+    }`;
   }
 }

@@ -1,20 +1,13 @@
-import { MigrationFileContent } from "../models";
+import { readFileSync } from "fs";
+import { Migration } from "../models";
 
-export const isValidMigrationContent = (content: string) => {
-  const lines = content.split(/\r?\n/);
-
-  if (lines[0] !== "--------------------------------") {
+export const isValidMigrationContent = (filePath: string) => {
+  try {
+    delete require.cache[require.resolve(filePath)];
+    const module = require(filePath);
+  } catch (err) {
     return false;
   }
-
-  if (!lines[1].startsWith("-- Migration:")) {
-    return false;
-  }
-
-  if (lines[2] !== "--------------------------------") {
-    return false;
-  }
-
   return true;
 };
 
@@ -36,35 +29,35 @@ export const generateId = () => {
   return id;
 };
 
-export const parseMigrationContent = (content: string) => {
-  const lines = content.split(/\r?\n/);
-  const migrationName = lines[1].split(":")[1].trim();
-  const upSql = new Array<string>();
-  const downSql = new Array<string>();
+// export const parseMigrationContent = (content: string) => {
+//   const lines = content.split(/\r?\n/);
+//   const migrationName = lines[1].split(":")[1].trim();
+//   const upSql = new Array<string>();
+//   const downSql = new Array<string>();
 
-  var section: "none" | "up" | "down" = "none";
-  for (const line of lines) {
-    if (line.startsWith("-- UP")) {
-      section = "up";
-    } else if (line.startsWith("-- DOWN")) {
-      section = "down";
-    }
+//   var section: "none" | "up" | "down" = "none";
+//   for (const line of lines) {
+//     if (line.startsWith("-- UP")) {
+//       section = "up";
+//     } else if (line.startsWith("-- DOWN")) {
+//       section = "down";
+//     }
 
-    if (section === "up" && !line.startsWith("-- UP")) {
-      upSql.push(line);
-    } else if (section === "down" && !line.startsWith("-- DOWN")) {
-      downSql.push(line);
-    }
-  }
+//     if (section === "up" && !line.startsWith("-- UP")) {
+//       upSql.push(line);
+//     } else if (section === "down" && !line.startsWith("-- DOWN")) {
+//       downSql.push(line);
+//     }
+//   }
 
-  const migration = {
-    name: migrationName,
-    upSql: upSql.join("\n"),
-    downSql: downSql.join("\n"),
-  } as MigrationFileContent;
+//   const migration = {
+//     name: migrationName,
+//     upSql: upSql.join("\n"),
+//     downSql: downSql.join("\n"),
+//   } as MigrationFileContent;
 
-  return migration;
-};
+//   return migration;
+// };
 
 export const randomIntFromInterval = (min: number, max: number) => {
   // min and max included
