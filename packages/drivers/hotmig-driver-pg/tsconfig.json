@@ -6,6 +6,8 @@
     "declaration": true,
     "outDir": "dist",
     "rootDir": "src",
+    "allowJs": true,
+    "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true
   },

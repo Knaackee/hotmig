@@ -114,30 +114,34 @@ describe("HotMig", () => {
       });
     });
   });
-  // describe("up", () => {
-  //   it("should fail if not initialized", async () => {
-  // rmSync(hm.targetDirectory, { recursive: true, force: true });
-  //     expect(hm.up()).rejects.toThrow("not initialized");
-  //   });
-  //   it("should fail without Database", async () => {
-  //     hm.setDriver(undefined as any);
-  //     expect(hm.up()).rejects.toThrow("db is required");
-  //   });
-  //   it("should work", async () => {
-  //     hm.setDriver(driver as any);
-  //     await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));
-  //     await hm.createLocalMigration(TEST_MIGRATION_CONTENT(2));
-  //     await driver.createMigrationsTable();
-  //     const result = await hm.up();
-  //     expect(result.applied).toBe(1);
-  //     const result2 = await hm.up();
-  //     expect(result2.applied).toBe(1);
-  //     const result3 = await hm.up();
-  //     expect(result3.applied).toBe(0);
-  //     const appliedMigrations = await driver.getAppliedMigrations();
-  //     expect(appliedMigrations).toHaveLength(2);
-  //   });
-  // });
+  describe("up", () => {
+    it("should fail if not initialized", async () => {
+      rmSync(hm.targetDirectory, { recursive: true, force: true });
+      expect(hm.up()).rejects.toThrow("not initialized");
+    });
+    it("should fail without Database", async () => {
+      hm.setDriver(undefined as any);
+      expect(hm.up()).rejects.toThrow("db is required");
+    });
+    it("should work", async () => {
+      hm.setDriver(driver as any);
+
+      await hm.createMigrationStore();
+      await hm.new("test");
+      await hm.commit();
+      await hm.new("test2");
+      await hm.commit();
+
+      const result = await hm.up();
+      expect(result.applied).toBe(1);
+      const result2 = await hm.up();
+      expect(result2.applied).toBe(1);
+      const result3 = await hm.up();
+      expect(result3.applied).toBe(0);
+      const appliedMigrations = await driver.getAppliedMigrations();
+      expect(appliedMigrations).toHaveLength(2);
+    });
+  });
   // describe("down", () => {
   //   it("should fail if not initialized", async () => {
   // rmSync(hm.targetDirectory, { recursive: true, force: true });

@@ -103,6 +103,8 @@ export class HotMig {
             const migration = {} as Migration;
             migration.id = file.split("-")[0];
             migration.name = file.split("-")[1].split(".")[0];
+            migration.filePath = resolve(this.commitDirectory, file);
+            migration.target = this.target;
             result.loaded++;
             result.migrations.push(migration);
           } else {
@@ -123,6 +125,20 @@ export class HotMig {
     this.ensureInitialized();
     const toRun = await this.pending();
     let applied = 0;
+
+    console.log(toRun);
+
+    await this.driver.exec(async (params) => {
+      for (const migration of toRun) {
+        const module = require(migration.filePath || "");
+        // TODO: check module
+
+        await module.up(params);
+
+        console.log(module);
+      }
+    });
+
     // TODO: FIX
     // for (const migration of toRun) {
     //   const client = await this.driver?.getClient();

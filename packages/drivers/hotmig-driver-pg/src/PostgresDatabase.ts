@@ -1,6 +1,7 @@
-import { Pool, PoolClient } from "pg";
 import { AppliedMigration, Driver as Base, Migration } from "@hotmig/lib";
+import { readFileSync } from "fs";
 import { Knex, knex } from "knex";
+import { resolve } from "path";
 export class Driver extends Base {
   readonly schema: string | null;
   client: Knex<any, unknown[]> | undefined;
@@ -87,6 +88,8 @@ export class Driver extends Base {
     // prepare database
     // generate params
     // call cb
+    // throw new Error("Method not implemented.");
+    await cb({});
     // destroy database connection
   }
 
@@ -102,8 +105,8 @@ export class Driver extends Base {
     name: string,
     isInteractive?: boolean
   ): Promise<string> {
-    return `module.exports = {
-      name: '${name}',
-    }`;
+    return readFileSync(resolve(__dirname, "./EmptyMigration.js"))
+      .toString()
+      .replace("{{name}}", name);
   }
 }
