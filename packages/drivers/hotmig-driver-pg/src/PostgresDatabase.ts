@@ -16,7 +16,7 @@ export class Driver extends Base {
     }
   }
 
-  async init(config: any) {
+  async init({ config }: any) {
     this.client = this.createClient(config.connectionString);
   }
 
@@ -85,12 +85,15 @@ export class Driver extends Base {
   }
 
   async exec(cb: (params: any) => Promise<void>) {
-    // prepare database
-    // generate params
-    // call cb
-    // throw new Error("Method not implemented.");
-    await cb({});
-    // destroy database connection
+    // await this.client?.transaction(async (trx) => {
+    try {
+      await cb({ db: this.client });
+      // await trx.commit();
+    } catch (err) {
+      // await trx.rollback();
+      throw err;
+    }
+    // });
   }
 
   createClient(connectionString: string) {
@@ -101,12 +104,25 @@ export class Driver extends Base {
     });
   }
 
+  setClient(client: Knex<any, unknown[]>) {
+    this.client = client;
+  }
+
   async getEmptyMigrationContent(
     name: string,
     isInteractive?: boolean
   ): Promise<string> {
-    return readFileSync(resolve(__dirname, "./EmptyMigration.js"))
-      .toString()
-      .replace("{{name}}", name);
+    return /*js*/ `
+module.exports = {
+  name: "{{name}}",
+  up: async () => {
+    // do your migration here
+    console.log("UpPPPP");
+  },
+  down: async () => {
+    // undo your migration here
+  },
+};    
+    `.replace("{{name}}", name);
   }
 }

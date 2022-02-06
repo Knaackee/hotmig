@@ -12,9 +12,10 @@ import { HotMig } from "./HotMig";
 import "./utils";
 import "./utils/testing";
 import { Driver as PostgresDatabase } from "@hotmig/hotmig-driver-pg";
+import { getMaxListeners } from "process";
+import { Knex } from "knex";
 
 let hm: HotMig;
-let driver: PostgresDatabase;
 
 process.env.CONNECTION_STRING =
   "postgresql://postgres:postgres@localhost:5432/db?schema=testing";
@@ -23,11 +24,20 @@ const root = resolve(__dirname, "../test-env");
 
 let i = 0;
 
+let trx: any = undefined;
+let _originalClient: any = undefined;
+
 beforeEach(async () => {
   hm = new HotMig("default_" + i, root);
   await hm.init("@hotmig/hotmig-driver-pg");
-  driver = new PostgresDatabase();
-  hm.setDriver(driver as any);
+  await hm.loadConfig();
+
+  // start transaction
+  const kn = (await (hm.driver as any).client) as Knex<any, unknown[]>;
+  trx = await kn.transaction();
+  _originalClient = (hm.driver as any).client;
+  (hm.driver as any).client = trx;
+
   i++;
 });
 
@@ -35,6 +45,10 @@ afterEach(async () => {
   if (existsSync(root)) {
     rmSync(root, { recursive: true, force: true });
     mkdirSync(root);
+
+    // rollback
+    await trx.rollback();
+    await _originalClient.destroy();
   }
 });
 
@@ -68,7 +82,6 @@ describe("HotMig", () => {
       expect(hm.config).toMatchObject({ driver: "@hotmig/hotmig-driver-pg" });
     });
   });
-
   describe("getLocalMigrations", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
@@ -120,25 +133,23 @@ describe("HotMig", () => {
       expect(hm.up()).rejects.toThrow("not initialized");
     });
     it("should fail without Database", async () => {
-      hm.setDriver(undefined as any);
+      delete hm.driver;
       expect(hm.up()).rejects.toThrow("db is required");
     });
     it("should work", async () => {
-      hm.setDriver(driver as any);
-
       await hm.createMigrationStore();
       await hm.new("test");
       await hm.commit();
       await hm.new("test2");
       await hm.commit();
-
+      // // >> DEBUG
       const result = await hm.up();
       expect(result.applied).toBe(1);
       const result2 = await hm.up();
       expect(result2.applied).toBe(1);
       const result3 = await hm.up();
       expect(result3.applied).toBe(0);
-      const appliedMigrations = await driver.getAppliedMigrations();
+      const appliedMigrations = await hm.getAppliedMigrations();
       expect(appliedMigrations).toHaveLength(2);
     });
   });
@@ -148,7 +159,6 @@ describe("HotMig", () => {
   //     expect(hm.down()).rejects.toThrow("not initialized");
   //   });
   //   it("should work", async () => {
-  //     hm.setDriver(driver as any);
   //     await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));
   //     await hm.createLocalMigration(TEST_MIGRATION_CONTENT(2));
   //     await driver.createMigrationsTable();
@@ -168,7 +178,6 @@ describe("HotMig", () => {
   //     expect(hm.latest()).rejects.toThrow("not initialized");
   //   });
   //   it("should work", async () => {
-  //     hm.setDriver(driver as any);
   //     await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));
   //     await hm.createLocalMigration(TEST_MIGRATION_CONTENT(2));
   //     await driver.createMigrationsTable();
@@ -218,10 +227,8 @@ describe("HotMig", () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
       expect(hm.pending()).rejects.toThrow("not initialized");
     });
-
     it("should work", async () => {
-      hm.setDriver(driver as any);
-      await driver.createMigrationStore();
+      await hm.createMigrationStore();
       await hm.new("asd");
       await hm.commit();
       expect(hm.pending()).resolves.toHaveLength(1);
@@ -236,13 +243,11 @@ describe("HotMig", () => {
       expect(hm.test()).rejects.toThrow("dev.js does not exist");
     });
     it("should fail if a dev.js is not valid", async () => {
-      hm.setDriver(driver as any);
       await hm.new("init");
       writeFileSync(hm.devJsPath, "XXX");
       await expect(hm.test()).rejects.toThrow("dev.js is invalid");
     });
     it("should fail if there are pending migrations", async () => {
-      hm.setDriver(driver as any);
       await hm.createMigrationStore();
       await hm.new("init");
       await hm.commit();
@@ -252,7 +257,7 @@ describe("HotMig", () => {
       );
     });
     it("should work", async () => {
-      hm.setDriver(driver as any);
+      await hm.createMigrationStore();
       await hm.new("init");
       await expect(hm.test()).resolves.toBeUndefined();
     });

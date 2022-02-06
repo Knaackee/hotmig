@@ -41,10 +41,6 @@ export class HotMig {
     return existsSync(this.targetDirectory);
   }
 
-  setDriver(driver: Driver) {
-    this.driver = driver;
-  }
-
   createMigrationStore() {
     return this.driver?.createMigrationStore();
   }
@@ -83,6 +79,11 @@ export class HotMig {
     }
     this.config = require(this.configFilePath);
     this.driver?.init(this.config);
+  }
+
+  getAppliedMigrations() {
+    this.ensureInitialized();
+    return this.driver?.getAppliedMigrations(this.target);
   }
 
   async getLocalMigrations() {
@@ -125,19 +126,24 @@ export class HotMig {
     this.ensureInitialized();
     const toRun = await this.pending();
     let applied = 0;
+    try {
+      await this.driver.exec(async (params) => {
+        for (const migration of toRun) {
+          const module = require(migration.filePath || "");
+          // TODO: check module
 
-    console.log(toRun);
+          await module.up(params);
+          await this.driver?.addMigration(migration);
+          applied++;
 
-    await this.driver.exec(async (params) => {
-      for (const migration of toRun) {
-        const module = require(migration.filePath || "");
-        // TODO: check module
-
-        await module.up(params);
-
-        console.log(module);
-      }
-    });
+          if (!options.all) {
+            break;
+          }
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
 
     // TODO: FIX
     // for (const migration of toRun) {
