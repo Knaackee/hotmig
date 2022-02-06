@@ -1,11 +1,7 @@
-import { AppliedMigration, Driver as Base, Migration } from "@hotmig/lib";
-import { readFileSync } from "fs";
+import { Driver as Base, Migration } from "@hotmig/lib";
 import { Knex, knex } from "knex";
-import { resolve } from "path";
 
-// SqlDriver
-
-export class Driver extends Base {
+class SqlDriver extends Base {
   private schema: string | null = "public";
   client: Knex<any, unknown[]> | undefined;
 
@@ -32,72 +28,59 @@ export class Driver extends Base {
   }
 
   async migrationStoreExists() {
-    const result = await this.client?.raw(
-      /*sql*/ `
-      SELECT EXISTS (
-        SELECT FROM "pg_tables"
-        WHERE schemaname = ?
-        AND tablename  = 'migrations'
-      );    
-    `,
-      [this.schema]
-    );
-    return result?.rows[0].exists;
+    return this.client?.schema.hasTable("migrations") ?? false;
   }
 
   async createMigrationStore() {
-    await this.client?.raw(/* sql */ `
-      CREATE TABLE IF NOT EXISTS "${this.schema}"."migrations" (
-        id varchar(68) NOT NULL,
-        "name" text NOT NULL,
-        created_at timestamptz(0) NOT NULL DEFAULT now(),
-        CONSTRAINT migrations_pk PRIMARY KEY (id)
-      );
-   `);
+    return this.client?.schema.createTable("migrations", (table) => {
+      table.string("id").primary();
+      table.string("name").notNullable();
+      table.timestamp("created_at").defaultTo(this.client?.fn.now() as any);
+    });
   }
 
   async getAppliedMigrations() {
-    const result = await this.client?.raw(/*sql*/ `
-      SELECT id, name, created_at FROM "${this.schema}"."migrations"
-      order by created_at asc;
-    `);
-
-    return result?.rows as Array<AppliedMigration>;
+    const result = await this.client
+      ?.select("id", "name", "created_at as createdAt")
+      .from("migrations")
+      .orderBy("created_at", "asc");
+    return (
+      result?.map((row) => {
+        return {
+          id: row.id,
+          name: row.name,
+          createdAt: row.createdAt,
+        };
+      }) ?? []
+    );
   }
 
   async addMigration(migration: Migration) {
-    const params = { id: migration.id, name: migration.name };
-    await this.client?.raw(
-      /* sql */ `
-      INSERT INTO "${this.schema}"."migrations" 
-      (id, "name")
-      values 
-      (?, ?);
-   `,
-      [params.id || "", params.name || ""]
-    );
+    await this.client
+      ?.insert({ id: migration.id, name: migration.name })
+      .into("migrations");
   }
 
   async removeMigration(id: string): Promise<void> {
-    await this.client?.raw(
-      /* sql */ `
-      DELETE FROM "${this.schema}"."migrations" 
-      WHERE id = ?;
-   `,
-      [id]
-    );
+    await this.client?.delete().from("migrations").where({ id });
   }
 
   async exec(cb: (params: any) => Promise<void>) {
-    // await this.client?.transaction(async (trx) => {
-    try {
-      await cb({ db: this.client });
-      // await trx.commit();
-    } catch (err) {
-      // await trx.rollback();
-      throw err;
+    const isTransaction = this.client?.isTransaction ?? false;
+
+    if (!isTransaction) {
+      return this.client?.transaction(async (trx) => {
+        try {
+          await cb(trx);
+          await trx.commit();
+        } catch (err) {
+          await trx.rollback();
+          throw err;
+        }
+      });
+    } else {
+      return cb(this.client);
     }
-    // });
   }
 
   createClient(connectionString: string) {
@@ -116,17 +99,18 @@ export class Driver extends Base {
     name: string,
     isInteractive?: boolean
   ): Promise<string> {
-    console.log("returning empty migration content");
     return /*js*/ `
 module.exports = {
   name: "{{name}}",
-  up: async () => {
+  up: async (db) => {
     // do your migration here
   },
-  down: async () => {
+  down: async (db) => {
     // undo your migration here
   },
 };
 `.replace("{{name}}", name);
   }
 }
+
+export { SqlDriver as Driver };

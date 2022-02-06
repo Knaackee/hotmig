@@ -18,8 +18,6 @@ export const start = async (target: string, title: string, text: string) => {
   // check if already initialized
   const hm = new HotMig(target);
 
-  await hm.loadConfig();
-
   // show action title
   console.log(`${chalk.yellow(text)}`);
 

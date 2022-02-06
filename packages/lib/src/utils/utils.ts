@@ -24,8 +24,7 @@ export const generateId = () => {
     pad2(now.getHours()) +
     pad2(now.getMinutes()) +
     pad2(now.getSeconds()) +
-    pad2(now.getMilliseconds()) +
-    randomIntFromInterval(1, 9).toString();
+    pad2(now.getMilliseconds());
   return id;
 };
 

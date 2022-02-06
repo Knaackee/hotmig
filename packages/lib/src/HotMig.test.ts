@@ -1,19 +1,9 @@
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  unlinkSync,
-  writeFile,
-  writeFileSync,
-} from "fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { Knex } from "knex";
 import { resolve } from "path";
 import { HotMig } from "./HotMig";
 import "./utils";
 import "./utils/testing";
-import { Driver as PostgresDatabase } from "@hotmig/hotmig-driver-pg";
-import { getMaxListeners } from "process";
-import { Knex } from "knex";
 
 let hm: HotMig;
 
@@ -296,32 +286,32 @@ describe("HotMig", () => {
       expect(hm.pending()).resolves.toHaveLength(1);
     });
   });
-  // describe("test", () => {
-  //   it("should fail if not initialized", async () => {
-  //     rmSync(hm.targetDirectory, { recursive: true, force: true });
-  //     expect(hm.new("")).rejects.toThrow("not initialized");
-  //   });
-  //   it("should fail if a dev.js does not exists", async () => {
-  //     expect(hm.test()).rejects.toThrow("dev.js does not exist");
-  //   });
-  //   it("should fail if a dev.js is not valid", async () => {
-  //     await hm.new("init");
-  //     writeFileSync(hm.devJsPath, "XXX");
-  //     await expect(hm.test()).rejects.toThrow("dev.js is invalid");
-  //   });
-  //   it("should fail if there are pending migrations", async () => {
-  //     await hm.createMigrationStore();
-  //     await hm.new("init");
-  //     await hm.commit();
-  //     await hm.new("init");
-  //     expect(hm.test()).rejects.toThrow(
-  //       "there are pending migrations, cant test"
-  //     );
-  //   });
-  //   it("should work", async () => {
-  //     await hm.createMigrationStore();
-  //     await hm.new("init");
-  //     await expect(hm.test()).resolves.toBeUndefined();
-  //   });
-  // });
+  describe("test", () => {
+    it("should fail if not initialized", async () => {
+      rmSync(hm.targetDirectory, { recursive: true, force: true });
+      expect(hm.new("")).rejects.toThrow("not initialized");
+    });
+    it("should fail if a dev.js does not exists", async () => {
+      expect(hm.test()).rejects.toThrow("dev.js does not exist");
+    });
+    it("should fail if a dev.js is not valid", async () => {
+      await hm.new("init");
+      writeFileSync(hm.devJsPath, "XXX");
+      await expect(hm.test()).rejects.toThrow("dev.js is invalid");
+    });
+    it("should fail if there are pending migrations", async () => {
+      await hm.createMigrationStore();
+      await hm.new("init");
+      await hm.commit();
+      await hm.new("init");
+      expect(hm.test()).rejects.toThrow(
+        "there are pending migrations, cant test"
+      );
+    });
+    it("should work", async () => {
+      await hm.createMigrationStore();
+      await hm.new("init");
+      await expect(hm.test()).resolves.toBeUndefined();
+    });
+  });
 });

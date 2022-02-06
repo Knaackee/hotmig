@@ -20,7 +20,6 @@ program
   .description("initalize hotmig in the current directory")
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
-    console.log(options);
     const hm = await start(options.target, title, "Initializing...");
     if (hm.isInitialized()) {
       console.log(chalk.red("Already initialized"));
@@ -65,6 +64,7 @@ program
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
     const hm = await start(options.target, "init-store", "Initializing...");
+    await hm.loadConfig();
     ensureInitialized(hm);
     const alreadyExists = await hm.migrationStoreExists();
     if (alreadyExists) {
@@ -85,6 +85,7 @@ program
   .option("-c, --count <number>", "cound", 1)
   .action(async (options: any) => {
     const hm = await start(options.target, title, "Up...");
+    await hm.loadConfig();
     ensureInitialized(hm);
 
     if (!(await hm.migrationStoreExists())) {
@@ -108,6 +109,7 @@ program
   .option("-c, --count <number>", "cound", 1)
   .action(async (options: any) => {
     const hm = await start(options.target, title, "Up...");
+    await hm.loadConfig();
     ensureInitialized(hm);
 
     if (!(await hm.migrationStoreExists())) {
@@ -130,6 +132,7 @@ program
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
     const hm = await start(options.target, title, "Up...");
+    await hm.loadConfig();
     ensureInitialized(hm);
 
     if (!(await hm.migrationStoreExists())) {
@@ -152,6 +155,8 @@ program
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
     const hm = await start(options.target, title, "Up...");
+
+    await hm.loadConfig();
     ensureInitialized(hm);
 
     if (!(await hm.migrationStoreExists())) {
@@ -187,6 +192,7 @@ program
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
     const hm = await start(options.target, title, "Commit...");
+    await hm.loadConfig();
     ensureInitialized(hm);
     await hm.commit();
   });
@@ -197,6 +203,7 @@ program
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
     const hm = await start(options.target, title, "Up...");
+    await hm.loadConfig();
     ensureInitialized(hm);
 
     if (!(await hm.migrationStoreExists())) {
@@ -213,26 +220,27 @@ program
     process.exit(0);
   });
 
-// program
-//   .command("test")
-//   .description("test the current dev migration")
-//   .action(async (options: any) => {
-//     const hm = await start(options.target, title, "Test...");
-//     ensureInitialized(hm);
+program
+  .command("test")
+  .description("test the current dev migration")
+  .option("-t, --target <string>", "name of the target", "default")
+  .action(async (options: any) => {
+    const hm = await start(options.target, title, "Test...");
+    await hm.loadConfig();
+    ensureInitialized(hm);
 
-//     await withDriver(hm, options, async (db) => {
-//       if (!(await db.migrationStoreExists())) {
-//         console.log(
-//           chalk.yellow(
-//             "migrations table does not exists. please run init-db first"
-//           )
-//         );
-//         process.exit(1);
-//       }
-//       const result = await hm.test();
-//       console.log(JSON.stringify(result, null, 2));
-//       process.exit(0);
-//     });
-//   });
+    if (!(await hm.migrationStoreExists())) {
+      console.log(
+        chalk.yellow(
+          "migrations table does not exists. please run init-store first"
+        )
+      );
+      process.exit(1);
+    }
+
+    await hm.test();
+    console.log("done");
+    process.exit(0);
+  });
 
 program.parse();

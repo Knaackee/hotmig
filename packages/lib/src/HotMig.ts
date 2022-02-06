@@ -81,11 +81,7 @@ export class HotMig {
   }
 
   async loadConfig() {
-    if (!this.isInitialized()) {
-      throw new NotInitializedError();
-    }
     this.config = require(this.configFilePath);
-
     // TODO: check config
 
     // TODO: check driver
@@ -234,6 +230,10 @@ export class HotMig {
     }
 
     const migration = {} as Migration;
+
+    // sorry only one commit per ms
+    // we need this to avoid collisions of migration ids
+    await new Promise((res) => setTimeout(res, 1));
     migration.id = generateId();
     // TODO: check module
     migration.name = require(this.devJsPath).name;
@@ -263,18 +263,26 @@ export class HotMig {
       throw new Error("there are pending migrations, cant test");
     }
 
-    // TODO: FIX
-    // const client = await this.driver?.getClient();
+    const devMigration = require(this.devJsPath);
+    validateMigrationModule(module);
 
-    // console.log("up");
-    // await client.raw(migration.upSql || "");
-    // console.log("down");
-    // await client.raw(migration.downSql || "");
+    let error: any = undefined;
+    await this.driver?.exec(async (params) => {
+      try {
+        console.log("running up...");
+        await devMigration.up(params);
+        console.log("running down...");
+        await devMigration.down(params);
+        console.log("running up...");
+        await devMigration.up(params);
+        console.log("running down...");
+        await devMigration.down(params);
+      } catch (err) {
+        error = err;
+      }
+    });
 
-    // console.log("up");
-    // await client.raw(migration.upSql || "");
-    // console.log("down");
-    // await client.raw(migration.downSql || "");
+    if (error) throw error;
   }
 
   ensureInitialized() {
