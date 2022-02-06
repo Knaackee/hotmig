@@ -10,7 +10,7 @@
     "dev": "tsc -w",
     "docs": "rimraf docs && typedoc src/index.ts --hideInPageTOC --hideBreadcrumbs --plugin typedoc-plugin-markdown --out docs",
     "test": "jest --passWithNoTests --runInBand",
-    "test:watch": "jest --watchAll --verbose --passWithNoTests --runInBand ",
+    "test:watch": "jest --watchAll --verbose --passWithNoTests",
     "test:clear": "jest --clearCache"
   },
   "license": "MIT",

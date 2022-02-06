@@ -83,14 +83,11 @@ export class Driver extends Base {
     );
   }
 
-  up(migrations: Migration[]): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  down(migrations: Migration[]): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  test(migration: Migration): Promise<void> {
-    throw new Error("Method not implemented.");
+  async exec(cb: (params: any) => Promise<void>) {
+    // prepare database
+    // generate params
+    // call cb
+    // destroy database connection
   }
 
   createClient(connectionString: string) {
