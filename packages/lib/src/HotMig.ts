@@ -15,9 +15,11 @@ import { generateId, isValidMigrationContent } from "./utils/utils";
 import { Driver } from "./Driver";
 import { requireGlobal } from "./utils";
 import { count } from "console";
+import * as decache from "decache";
 
 export interface HotMigConfig {
   driver: string;
+  config: any;
 }
 
 export class HotMig {
@@ -44,6 +46,10 @@ export class HotMig {
 
   createMigrationStore() {
     return this.driver?.createMigrationStore();
+  }
+
+  migrationStoreExists() {
+    return this.driver?.migrationStoreExists();
   }
 
   async init(driver: string, isInteractive?: boolean) {
@@ -79,7 +85,14 @@ export class HotMig {
       throw new NotInitializedError();
     }
     this.config = require(this.configFilePath);
-    this.driver?.init(this.config);
+
+    // TODO: check config
+
+    // TODO: check driver
+    const module = await requireGlobal(this.config?.driver ?? "");
+    this.driver = new module["Driver"]() as Driver;
+
+    this.driver?.init(this.config?.config);
   }
 
   getAppliedMigrations() {
@@ -140,6 +153,7 @@ export class HotMig {
     this.ensureInitialized();
     const toRun = await this.pending();
     let applied = 0;
+    let migrations: Array<Migration> = [];
 
     await this.driver.exec(async (params) => {
       for (let i = 0; i !== Math.min(options.count, toRun.length); i++) {
@@ -150,10 +164,11 @@ export class HotMig {
         await module.up(params);
         await this.driver?.addMigration(migration);
         applied++;
+        migrations.push(migration);
       }
     });
 
-    return { applied };
+    return { applied, migrations };
   }
 
   async down(options: { count: number } = { count: 1 }) {
@@ -163,6 +178,7 @@ export class HotMig {
     const toRun = (await this.driver?.getAppliedMigrations(this.target)) || [];
 
     let applied = 0;
+    let migrations: Array<Migration> = [];
 
     await this.driver.exec(async (params) => {
       for (let i = 0; i !== Math.min(options.count, toRun.length); i++) {
@@ -176,11 +192,12 @@ export class HotMig {
         validateMigrationModule(module);
         await module.down(params);
         await this.driver?.removeMigration(migration.id);
+        migrations.push(migration);
         applied++;
       }
     });
 
-    return { applied };
+    return { applied, migrations };
   }
 
   latest() {
@@ -218,6 +235,8 @@ export class HotMig {
 
     const migration = {} as Migration;
     migration.id = generateId();
+    // TODO: check module
+    migration.name = require(this.devJsPath).name;
     migration.filePath = resolve(
       this.commitDirectory,
       `${migration.id}-${slugify(migration.name || "")}.js`

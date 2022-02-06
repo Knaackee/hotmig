@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-packages/lib/src/errors/NotInitializedError.ts:2
+[packages/lib/src/errors/NotInitializedError.ts:2](https://github.com/Knaackee/hotmig/blob/b33712a/packages/lib/src/errors/NotInitializedError.ts#L2)
 
 ## Properties
 

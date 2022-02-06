@@ -5,7 +5,7 @@ import { listGlobal } from "@hotmig/lib";
 import chalk from "chalk";
 import inqu from "inquirer";
 import ora from "ora";
-import { ensureInitialized, start, withDriver } from "./utils";
+import { ensureInitialized, start } from "./utils";
 
 const title = chalk.green("🔥 HotMig - Database migration tool");
 
@@ -59,107 +59,113 @@ program
   });
 
 // zu init
-// program
-//   .command("init-db")
-//   .description("...")
-//   .option(
-//     "-c, --connection-string <string>",
-//     "database connection string to use instead of process.env.CONNECTION_STRING"
-//   )
-//   .action(async (options: any) => {
-//     const hm = await start(title, "Intialize DB...");
-//     ensureInitialized(hm);
+program
+  .command("init-store")
+  .description("...")
+  .option("-t, --target <string>", "name of the target", "default")
+  .action(async (options: any) => {
+    const hm = await start(options.target, "init-store", "Initializing...");
+    ensureInitialized(hm);
+    const alreadyExists = await hm.migrationStoreExists();
+    if (alreadyExists) {
+      console.log(chalk.yellow("migrations table already exists"));
+      process.exit(1);
+    }
+    await hm.createMigrationStore();
+    console.log(chalk.green("✨ done, happy migrating!"));
+    process.exit(0);
+  });
 
-//     await withDriver(hm, options, async (db) => {
-//       const alreadyExists = await db.migrationsTableExists();
-//       if (alreadyExists) {
-//         console.log(chalk.yellow("migrations table already exists"));
-//         process.exit(1);
-//       }
-//       await db.createMigrationsTable();
-//       console.log(chalk.green("✨ done, happy migrating!"));
-//       process.exit(0);
-//     });
-//   });
+// TODO: init-store
 
 program
   .command("up")
-  .description("migrate one up")
+  .description("migrate")
   .option("-t, --target <string>", "name of the target", "default")
-  .option(
-    "-c, --connection-string <string>",
-    "database connection string to use instead of process.env.CONNECTION_STRING"
-  )
+  .option("-c, --count <number>", "cound", 1)
   .action(async (options: any) => {
     const hm = await start(options.target, title, "Up...");
     ensureInitialized(hm);
-    withDriver(hm, options, async (db) => {
-      if (!(await db.migrationsTableExists())) {
-        console.log(
-          chalk.yellow(
-            "migrations table does not exists. please run init-db first"
-          )
-        );
-        process.exit(1);
-      }
-      const result = await hm.up();
-      console.log(chalk.green(`✨ done. migrated: ${result.applied}`));
-      process.exit(0);
-    }).then(() => {});
+
+    if (!(await hm.migrationStoreExists())) {
+      console.log(
+        chalk.yellow(
+          "migrations table does not exists. please run init-db first"
+        )
+      );
+      process.exit(1);
+    }
+
+    const result = await hm.up({ count: options.count });
+    console.log(chalk.green(`✨ done. migrated: ${result.applied}`));
+    process.exit(0);
   });
 
 program
   .command("down")
-  .description("migrate one down")
+  .description("migrate")
   .option("-t, --target <string>", "name of the target", "default")
-  .option(
-    "-c, --connection-string <string>",
-    "database connection string to use instead of process.env.CONNECTION_STRING"
-  )
+  .option("-c, --count <number>", "cound", 1)
   .action(async (options: any) => {
     const hm = await start(options.target, title, "Up...");
     ensureInitialized(hm);
 
-    await withDriver(hm, options, async (db) => {
-      if (!(await db.migrationsTableExists())) {
-        console.log(
-          chalk.yellow(
-            "migrations table does not exists. please run init-db first"
-          )
-        );
-        process.exit(1);
-      }
-      const result = await hm.down();
-      console.log(chalk.green(`✨ done. migrated: ${result.applied}`));
-      process.exit(0);
-    });
+    if (!(await hm.migrationStoreExists())) {
+      console.log(
+        chalk.yellow(
+          "migrations table does not exists. please run init-db first"
+        )
+      );
+      process.exit(1);
+    }
+
+    const result = await hm.down({ count: options.count });
+    console.log(chalk.green(`✨ done. migrated: ${result.applied}`));
+    process.exit(0);
   });
 
 program
   .command("latest")
-  .description("migrate to lastest")
+  .description("migrate")
   .option("-t, --target <string>", "name of the target", "default")
-  .option(
-    "-c, --connection-string <string>",
-    "database connection string to use instead of process.env.CONNECTION_STRING"
-  )
   .action(async (options: any) => {
     const hm = await start(options.target, title, "Up...");
     ensureInitialized(hm);
 
-    await withDriver(hm, options, async (db) => {
-      if (!(await db.migrationsTableExists())) {
-        console.log(
-          chalk.yellow(
-            "migrations table does not exists. please run init-db first"
-          )
-        );
-        process.exit(1);
-      }
-      const result = await hm.latest();
-      console.log(chalk.green(`✨ done. migrated: ${result.applied}`));
-      process.exit(0);
-    });
+    if (!(await hm.migrationStoreExists())) {
+      console.log(
+        chalk.yellow(
+          "migrations table does not exists. please run init-db first"
+        )
+      );
+      process.exit(1);
+    }
+
+    const result = await hm.latest();
+    console.log(chalk.green(`✨ done. migrated: ${result.applied}`));
+    process.exit(0);
+  });
+
+program
+  .command("reset")
+  .description("migrate")
+  .option("-t, --target <string>", "name of the target", "default")
+  .action(async (options: any) => {
+    const hm = await start(options.target, title, "Up...");
+    ensureInitialized(hm);
+
+    if (!(await hm.migrationStoreExists())) {
+      console.log(
+        chalk.yellow(
+          "migrations table does not exists. please run init-db first"
+        )
+      );
+      process.exit(1);
+    }
+
+    const result = await hm.reset();
+    console.log(chalk.green(`✨ done. migrated: ${result.applied}`));
+    process.exit(0);
   });
 
 program
@@ -169,8 +175,10 @@ program
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (name: string, options: any) => {
     const hm = await start(options.target, title, "New...");
+    await hm.loadConfig();
     ensureInitialized(hm);
     await hm.new(name);
+    console.log(chalk.green("✨ done, happy migrating!"));
   });
 
 program
@@ -185,54 +193,46 @@ program
 
 program
   .command("pending")
-  .description("get pending")
-  .option(
-    "-c, --connection-string <string>",
-    "database connection string to use instead of process.env.CONNECTION_STRING"
-  )
+  .description("migrate")
+  .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
-    const hm = await start(options.target, title, "Pending...");
+    const hm = await start(options.target, title, "Up...");
     ensureInitialized(hm);
 
-    await withDriver(hm, options, async (db) => {
-      if (!(await db.migrationsTableExists())) {
-        console.log(
-          chalk.yellow(
-            "migrations table does not exists. please run init-db first"
-          )
-        );
-        process.exit(1);
-      }
-      const result = await hm.pending();
-      console.log(JSON.stringify(result, null, 2));
-      process.exit(0);
-    });
+    if (!(await hm.migrationStoreExists())) {
+      console.log(
+        chalk.yellow(
+          "migrations table does not exists. please run init-db first"
+        )
+      );
+      process.exit(1);
+    }
+
+    const result = await hm.pending();
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(0);
   });
 
-program
-  .command("test")
-  .description("test the current dev migration")
-  .option(
-    "-c, --connection-string <string>",
-    "database connection string to use instead of process.env.CONNECTION_STRING"
-  )
-  .action(async (options: any) => {
-    const hm = await start(options.target, title, "Test...");
-    ensureInitialized(hm);
+// program
+//   .command("test")
+//   .description("test the current dev migration")
+//   .action(async (options: any) => {
+//     const hm = await start(options.target, title, "Test...");
+//     ensureInitialized(hm);
 
-    await withDriver(hm, options, async (db) => {
-      if (!(await db.migrationsTableExists())) {
-        console.log(
-          chalk.yellow(
-            "migrations table does not exists. please run init-db first"
-          )
-        );
-        process.exit(1);
-      }
-      const result = await hm.test();
-      console.log(JSON.stringify(result, null, 2));
-      process.exit(0);
-    });
-  });
+//     await withDriver(hm, options, async (db) => {
+//       if (!(await db.migrationStoreExists())) {
+//         console.log(
+//           chalk.yellow(
+//             "migrations table does not exists. please run init-db first"
+//           )
+//         );
+//         process.exit(1);
+//       }
+//       const result = await hm.test();
+//       console.log(JSON.stringify(result, null, 2));
+//       process.exit(0);
+//     });
+//   });
 
 program.parse();

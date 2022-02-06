@@ -2,21 +2,25 @@ import { AppliedMigration, Driver as Base, Migration } from "@hotmig/lib";
 import { readFileSync } from "fs";
 import { Knex, knex } from "knex";
 import { resolve } from "path";
+
+// SqlDriver
+
 export class Driver extends Base {
-  readonly schema: string | null;
+  private schema: string | null = "public";
   client: Knex<any, unknown[]> | undefined;
 
   constructor() {
     super();
-    var url = new URL(process.env.CONNECTION_STRING || "");
+  }
+
+  async init(config: any) {
+    var url = new URL(config.connectionString);
     this.schema = url.searchParams.get("schema");
     // this.client = this.createClient();
     if (!this.schema) {
       throw new Error(`"schema" is missing in connection string`);
     }
-  }
 
-  async init({ config }: any) {
     this.client = this.createClient(config.connectionString);
   }
 
@@ -112,6 +116,7 @@ export class Driver extends Base {
     name: string,
     isInteractive?: boolean
   ): Promise<string> {
+    console.log("returning empty migration content");
     return /*js*/ `
 module.exports = {
   name: "{{name}}",
@@ -121,7 +126,7 @@ module.exports = {
   down: async () => {
     // undo your migration here
   },
-};    
-    `.replace("{{name}}", name);
+};
+`.replace("{{name}}", name);
   }
 }

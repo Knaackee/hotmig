@@ -18,7 +18,7 @@ Base.constructor
 
 #### Defined in
 
-[PostgresDatabase.ts:9](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L9)
+[PostgresDatabase.ts:12](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L12)
 
 ## Properties
 
@@ -28,17 +28,17 @@ Base.constructor
 
 #### Defined in
 
-[PostgresDatabase.ts:7](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L7)
+[PostgresDatabase.ts:10](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L10)
 
 ___
 
 ### schema
 
-• `Readonly` **schema**: ``null`` \| `string`
+• `Private` **schema**: ``null`` \| `string` = `"public"`
 
 #### Defined in
 
-[PostgresDatabase.ts:6](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L6)
+[PostgresDatabase.ts:9](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L9)
 
 ## Methods
 
@@ -62,7 +62,7 @@ Base.addMigration
 
 #### Defined in
 
-[PostgresDatabase.ts:64](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L64)
+[PostgresDatabase.ts:68](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L68)
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 #### Defined in
 
-[PostgresDatabase.ts:100](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L100)
+[PostgresDatabase.ts:103](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L103)
 
 ___
 
@@ -100,7 +100,7 @@ Base.createMigrationStore
 
 #### Defined in
 
-[PostgresDatabase.ts:44](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L44)
+[PostgresDatabase.ts:48](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L48)
 
 ___
 
@@ -124,7 +124,7 @@ Base.exec
 
 #### Defined in
 
-[PostgresDatabase.ts:87](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L87)
+[PostgresDatabase.ts:91](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L91)
 
 ___
 
@@ -142,7 +142,7 @@ Base.getAppliedMigrations
 
 #### Defined in
 
-[PostgresDatabase.ts:55](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L55)
+[PostgresDatabase.ts:59](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L59)
 
 ___
 
@@ -166,7 +166,7 @@ Base.getDefaultConfig
 
 #### Defined in
 
-[PostgresDatabase.ts:23](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L23)
+[PostgresDatabase.ts:27](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L27)
 
 ___
 
@@ -191,19 +191,19 @@ Base.getEmptyMigrationContent
 
 #### Defined in
 
-[PostgresDatabase.ts:108](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L108)
+[PostgresDatabase.ts:115](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L115)
 
 ___
 
 ### init
 
-▸ **init**(`config`): `Promise`<`void`\>
+▸ **init**(`__namedParameters`): `Promise`<`void`\>
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `config` | `any` |
+| `__namedParameters` | `any` |
 
 #### Returns
 
@@ -215,7 +215,7 @@ Base.init
 
 #### Defined in
 
-[PostgresDatabase.ts:19](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L19)
+[PostgresDatabase.ts:16](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L16)
 
 ___
 
@@ -233,7 +233,7 @@ Base.migrationStoreExists
 
 #### Defined in
 
-[PostgresDatabase.ts:30](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L30)
+[PostgresDatabase.ts:34](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L34)
 
 ___
 
@@ -257,4 +257,24 @@ Base.removeMigration
 
 #### Defined in
 
-[PostgresDatabase.ts:77](https://github.com/Knaackee/hotmig/blob/13f18e6/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L77)
+[PostgresDatabase.ts:81](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L81)
+
+___
+
+### setClient
+
+▸ **setClient**(`client`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `client` | `Knex`<`any`, `unknown`[]\> |
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[PostgresDatabase.ts:111](https://github.com/Knaackee/hotmig/blob/b33712a/packages/drivers/hotmig-driver-pg/src/PostgresDatabase.ts#L111)
