@@ -117,7 +117,6 @@ module.exports = {
   name: "{{name}}",
   up: async () => {
     // do your migration here
-    console.log("UpPPPP");
   },
   down: async () => {
     // undo your migration here

@@ -142,51 +142,100 @@ describe("HotMig", () => {
       await hm.commit();
       await hm.new("test2");
       await hm.commit();
-      // // >> DEBUG
+
       const result = await hm.up();
       expect(result.applied).toBe(1);
       const result2 = await hm.up();
       expect(result2.applied).toBe(1);
       const result3 = await hm.up();
       expect(result3.applied).toBe(0);
+      let appliedMigrations = await hm.getAppliedMigrations();
+      expect(appliedMigrations).toHaveLength(2);
+
+      // test with count (add 2 more)
+      await hm.new("test");
+      await hm.commit();
+      await hm.new("test2");
+      await hm.commit();
+      await hm.new("test3");
+      await hm.commit();
+      const result4 = await hm.up({ count: 2 });
+      expect(result4.applied).toBe(2);
+      appliedMigrations = await hm.getAppliedMigrations();
+      expect(appliedMigrations).toHaveLength(4);
+    });
+  });
+  describe("down", () => {
+    it("should fail if not initialized", async () => {
+      rmSync(hm.targetDirectory, { recursive: true, force: true });
+      expect(hm.down()).rejects.toThrow("not initialized");
+    });
+    it("should work", async () => {
+      await hm.createMigrationStore();
+      await hm.new("test");
+      await hm.commit();
+      await hm.new("test2");
+      await hm.commit();
+
+      const result = await hm.up();
+      const result2 = await hm.up();
+      const result3 = await hm.down();
+      expect(result.applied).toBe(1);
+      expect(result2.applied).toBe(1);
+      expect(result3.applied).toBe(1);
+      let appliedMigrations = await hm.getAppliedMigrations();
+      expect(appliedMigrations).toHaveLength(1);
+
+      // test with count (add 2 more)
+      await hm.new("test");
+      await hm.commit();
+      await hm.new("test2");
+      await hm.commit();
+      const result4 = await hm.up({ count: 2 });
+      expect(result4.applied).toBe(2);
+      appliedMigrations = await hm.getAppliedMigrations();
+      expect(appliedMigrations).toHaveLength(3);
+    });
+  });
+  describe("latest", () => {
+    it("should fail if not initialized", async () => {
+      rmSync(hm.targetDirectory, { recursive: true, force: true });
+      expect(hm.latest()).rejects.toThrow("not initialized");
+    });
+    it("should work", async () => {
+      await hm.createMigrationStore();
+      await hm.new("test");
+      await hm.commit();
+      await hm.new("test2");
+      await hm.commit();
+      const result = await hm.latest();
+      expect(result.applied).toBe(2);
       const appliedMigrations = await hm.getAppliedMigrations();
       expect(appliedMigrations).toHaveLength(2);
     });
   });
-  // describe("down", () => {
-  //   it("should fail if not initialized", async () => {
-  // rmSync(hm.targetDirectory, { recursive: true, force: true });
-  //     expect(hm.down()).rejects.toThrow("not initialized");
-  //   });
-  //   it("should work", async () => {
-  //     await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));
-  //     await hm.createLocalMigration(TEST_MIGRATION_CONTENT(2));
-  //     await driver.createMigrationsTable();
-  //     const result = await hm.up();
-  //     const result2 = await hm.up();
-  //     const result3 = await hm.down();
-  //     expect(result.applied).toBe(1);
-  //     expect(result2.applied).toBe(1);
-  //     expect(result3.applied).toBe(1);
-  //     const appliedMigrations = await driver.getAppliedMigrations();
-  //     expect(appliedMigrations).toHaveLength(1);
-  //   });
-  // });
-  // describe("latest", () => {
-  //   it("should fail if not initialized", async () => {
-  // rmSync(hm.targetDirectory, { recursive: true, force: true });
-  //     expect(hm.latest()).rejects.toThrow("not initialized");
-  //   });
-  //   it("should work", async () => {
-  //     await hm.createLocalMigration(TEST_MIGRATION_CONTENT(1));
-  //     await hm.createLocalMigration(TEST_MIGRATION_CONTENT(2));
-  //     await driver.createMigrationsTable();
-  //     const result = await hm.latest();
-  //     expect(result.applied).toBe(2);
-  //     const appliedMigrations = await driver.getAppliedMigrations();
-  //     expect(appliedMigrations).toHaveLength(2);
-  //   });
-  // });
+  describe("reset", () => {
+    it("should fail if not initialized", async () => {
+      rmSync(hm.targetDirectory, { recursive: true, force: true });
+      expect(hm.reset()).rejects.toThrow("not initialized");
+    });
+    it("should work", async () => {
+      await hm.createMigrationStore();
+      await hm.new("test");
+      await hm.commit();
+      await hm.new("test2");
+      await hm.commit();
+      const result = await hm.latest();
+      expect(result.applied).toBe(2);
+      let appliedMigrations = await hm.getAppliedMigrations();
+      expect(appliedMigrations).toHaveLength(2);
+
+      const result2 = await hm.reset();
+      expect(result2.applied).toBe(2);
+      appliedMigrations = await hm.getAppliedMigrations();
+      expect(appliedMigrations).toHaveLength(0);
+    });
+  });
   describe("new", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });

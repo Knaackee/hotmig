@@ -14,6 +14,7 @@ import { Migration } from "./models";
 import { generateId, isValidMigrationContent } from "./utils/utils";
 import { Driver } from "./Driver";
 import { requireGlobal } from "./utils";
+import { count } from "console";
 
 export interface HotMigConfig {
   driver: string;
@@ -121,43 +122,6 @@ export class HotMig {
     return result;
   }
 
-  async up(options: { all: boolean } = { all: false }) {
-    invariant(this.driver, "db is required");
-    this.ensureInitialized();
-    const toRun = await this.pending();
-    let applied = 0;
-    try {
-      await this.driver.exec(async (params) => {
-        for (const migration of toRun) {
-          const module = require(migration.filePath || "");
-          // TODO: check module
-
-          await module.up(params);
-          await this.driver?.addMigration(migration);
-          applied++;
-
-          if (!options.all) {
-            break;
-          }
-        }
-      });
-    } catch (e) {
-      console.log(e);
-    }
-
-    // TODO: FIX
-    // for (const migration of toRun) {
-    //   const client = await this.driver?.getClient();
-    //   await client.raw(migration.upSql || "");
-    //   await this.driver?.addMigration(migration);
-    //   applied++;
-    //   if (!options.all) {
-    //     break;
-    //   }
-    // }
-    return { applied };
-  }
-
   async pending() {
     invariant(this.driver, "db is required");
     this.ensureInitialized();
@@ -171,30 +135,60 @@ export class HotMig {
     return toRun;
   }
 
-  async down() {
+  async up(options: { count: number } = { count: 1 }) {
     invariant(this.driver, "db is required");
     this.ensureInitialized();
-    const localMigrations = await this.getLocalMigrations();
-    const appliedMigrations =
-      (await this.driver?.getAppliedMigrations(this.target)) || [];
-
+    const toRun = await this.pending();
     let applied = 0;
-    const lastApplied = appliedMigrations.pop();
-    const migration = localMigrations.migrations.find((migration) => {
-      return migration.id === lastApplied?.id;
+
+    await this.driver.exec(async (params) => {
+      for (let i = 0; i !== Math.min(options.count, toRun.length); i++) {
+        const migration = toRun[i];
+
+        const module = require(migration.filePath || "");
+        validateMigrationModule(module);
+        await module.up(params);
+        await this.driver?.addMigration(migration);
+        applied++;
+      }
     });
-    // TODO: FIX
-    // if (migration) {
-    //   const client = await this.driver?.getClient();
-    //   await client.raw(migration.downSql || "");
-    //   await this.driver?.removeMigration(migration.id || "");
-    //   applied++;
-    // }
+
     return { applied };
   }
 
-  async latest() {
-    return this.up({ all: true });
+  async down(options: { count: number } = { count: 1 }) {
+    invariant(this.driver, "db is required");
+    this.ensureInitialized();
+    const localMigrations = await this.getLocalMigrations();
+    const toRun = (await this.driver?.getAppliedMigrations(this.target)) || [];
+
+    let applied = 0;
+
+    await this.driver.exec(async (params) => {
+      for (let i = 0; i !== Math.min(options.count, toRun.length); i++) {
+        const migration = toRun[i];
+        const localMigration = localMigrations.migrations.find((migration) => {
+          return migration.id === migration?.id;
+        });
+
+        // TODO: Check if localMigration exists
+        const module = require(localMigration?.filePath || "");
+        validateMigrationModule(module);
+        await module.down(params);
+        await this.driver?.removeMigration(migration.id);
+        applied++;
+      }
+    });
+
+    return { applied };
+  }
+
+  latest() {
+    return this.up({ count: Infinity });
+  }
+
+  reset() {
+    return this.down({ count: Infinity });
   }
 
   async new(name: string, isInteractive?: boolean) {
@@ -270,3 +264,4 @@ export class HotMig {
     }
   }
 }
+function validateMigrationModule(module: any) {}
