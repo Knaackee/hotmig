@@ -10,7 +10,7 @@
     "dev": "tsc -w",
     "docs": "rimraf docs && typedoc src/index.ts --hideInPageTOC --hideBreadcrumbs --plugin typedoc-plugin-markdown --out docs",
     "test": "jest --passWithNoTests --runInBand",
-    "test:watch": "jest --watch --verbose --passWithNoTests --detectOpenHandles --runInBand",
+    "test:watch": "jest --watch --verbose --passWithNoTests --detectOpenHandles --runInBand | pino-pretty",
     "test:clear": "jest --clearCache"
   },
   "license": "MIT",
@@ -41,6 +41,8 @@
   "dependencies": {
     "dotenv": "^16.0.0",
     "knex": "^1.0.2",
+    "pino": "^7.6.5",
+    "pino-pretty": "^7.5.1",
     "slugify": "^1.6.5"
   }
 }

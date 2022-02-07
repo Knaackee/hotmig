@@ -131,7 +131,7 @@ program
   .description("migrate")
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
-    const hm = await start(options.target, title, "Up...");
+    const hm = await start(options.target, title, "Latest...");
     await hm.loadConfig();
     ensureInitialized(hm);
 
@@ -154,7 +154,7 @@ program
   .description("migrate")
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
-    const hm = await start(options.target, title, "Up...");
+    const hm = await start(options.target, title, "Reset...");
 
     await hm.loadConfig();
     ensureInitialized(hm);

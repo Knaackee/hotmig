@@ -14,8 +14,7 @@ import { Migration } from "./models";
 import { generateId, isValidMigrationContent } from "./utils/utils";
 import { Driver } from "./Driver";
 import { requireGlobal } from "./utils";
-import { count } from "console";
-import * as decache from "decache";
+import pino from "pino";
 
 export interface HotMigConfig {
   driver: string;
@@ -31,6 +30,7 @@ export class HotMig {
   config: HotMigConfig | undefined;
   driver: Driver | undefined = undefined;
   driverName?: string;
+  private logger = pino();
 
   constructor(private readonly target: string, root: string = process.cwd()) {
     this.baseDirectory = resolve(root, "./.migrations"); //?
@@ -41,18 +41,23 @@ export class HotMig {
   }
 
   isInitialized() {
-    return existsSync(this.targetDirectory);
+    const result = existsSync(this.targetDirectory);
+    pino().info(`isInitialized: ${result}`);
+    return result;
   }
 
   createMigrationStore() {
+    pino().info("createMigrationStore");
     return this.driver?.createMigrationStore();
   }
 
   migrationStoreExists() {
+    pino().info("migrationStoreExists");
     return this.driver?.migrationStoreExists();
   }
 
   async init(driver: string, isInteractive?: boolean) {
+    pino().info("init ", driver);
     if (this.isInitialized()) {
       throw new AlreadyInitializedError();
     }
@@ -81,6 +86,9 @@ export class HotMig {
   }
 
   async loadConfig() {
+    pino().info("loadConfig");
+    this.ensureInitialized();
+
     this.config = require(this.configFilePath);
     // TODO: check config
 
@@ -92,11 +100,13 @@ export class HotMig {
   }
 
   getAppliedMigrations() {
+    pino().info("getAppliedMigrations");
     this.ensureInitialized();
     return this.driver?.getAppliedMigrations(this.target);
   }
 
   async getLocalMigrations() {
+    pino().info("getLocalMigrations");
     const result = {
       loaded: 0,
       skipped: 0,
@@ -132,6 +142,7 @@ export class HotMig {
   }
 
   async pending() {
+    pino().info("pending");
     invariant(this.driver, "db is required");
     this.ensureInitialized();
     const localMigrations = await this.getLocalMigrations();
@@ -145,15 +156,20 @@ export class HotMig {
   }
 
   async up(options: { count: number } = { count: 1 }) {
+    pino().info("up");
     invariant(this.driver, "db is required");
     this.ensureInitialized();
-    const toRun = await this.pending();
+    const pendingMigrations = await this.pending();
     let applied = 0;
     let migrations: Array<Migration> = [];
 
     await this.driver.exec(async (params) => {
-      for (let i = 0; i !== Math.min(options.count, toRun.length); i++) {
-        const migration = toRun[i];
+      for (
+        let i = 0;
+        i !== Math.min(options.count, pendingMigrations.length);
+        i++
+      ) {
+        const migration = pendingMigrations[i];
 
         const module = require(migration.filePath || "");
         validateMigrationModule(module);
@@ -168,24 +184,34 @@ export class HotMig {
   }
 
   async down(options: { count: number } = { count: 1 }) {
+    pino().info("down");
     invariant(this.driver, "db is required");
     this.ensureInitialized();
     const localMigrations = await this.getLocalMigrations();
-    const toRun = (await this.driver?.getAppliedMigrations(this.target)) || [];
+    const appliedMigrations =
+      (await this.driver?.getAppliedMigrations(this.target)).reverse() || [];
+
+    pino().info(`appliedMigrations: ${JSON.stringify(appliedMigrations)}`);
+    pino().info(`localMigrations: ${JSON.stringify(localMigrations)}`);
 
     let applied = 0;
     let migrations: Array<Migration> = [];
 
     await this.driver.exec(async (params) => {
-      for (let i = 0; i !== Math.min(options.count, toRun.length); i++) {
-        const migration = toRun[i];
-        const localMigration = localMigrations.migrations.find((migration) => {
-          return migration.id === migration?.id;
+      for (
+        let i = 0;
+        i !== Math.min(options.count, appliedMigrations.length);
+        i++
+      ) {
+        const migration = appliedMigrations[i];
+        const localMigration = localMigrations.migrations.find((m) => {
+          return m.id === migration?.id;
         });
 
         // TODO: Check if localMigration exists
         const module = require(localMigration?.filePath || "");
         validateMigrationModule(module);
+        pino().info("running down " + localMigration?.filePath);
         await module.down(params);
         await this.driver?.removeMigration(migration.id);
         migrations.push(migration);
@@ -197,14 +223,17 @@ export class HotMig {
   }
 
   latest() {
+    pino().info("latest");
     return this.up({ count: Infinity });
   }
 
   reset() {
+    pino().info("reset");
     return this.down({ count: Infinity });
   }
 
   async new(name: string, isInteractive?: boolean) {
+    pino().info("new");
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
@@ -219,6 +248,7 @@ export class HotMig {
   }
 
   async commit() {
+    pino().info("commit");
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
@@ -247,6 +277,7 @@ export class HotMig {
   }
 
   async test() {
+    pino().info("test");
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
@@ -279,6 +310,7 @@ export class HotMig {
         await devMigration.down(params);
       } catch (err) {
         error = err;
+        pino().error(err);
       }
     });
 
@@ -286,9 +318,12 @@ export class HotMig {
   }
 
   ensureInitialized() {
+    pino().info("ensureInitialized");
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
   }
 }
-function validateMigrationModule(module: any) {}
+function validateMigrationModule(module: any) {
+  pino().info("validateMigrationModule");
+}
