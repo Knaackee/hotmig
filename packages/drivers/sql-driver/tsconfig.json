@@ -4,12 +4,15 @@
     "module": "commonjs",
     "lib": ["es2017", "es7", "es6", "dom"],
     "declaration": true,
-    "composite": true,
     "outDir": "dist",
     "rootDir": "src",
+    "allowJs": true,
+    "moduleResolution": "node",
+    "composite": true,
     "strict": true,
     "esModuleInterop": true
   },
   "exclude": ["node_modules", "dist", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/EmptyMigration.js"],
+  "references": [{ "path": "../../lib" }]
 }

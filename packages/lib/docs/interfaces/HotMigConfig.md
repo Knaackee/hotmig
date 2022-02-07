@@ -2,10 +2,20 @@
 
 ## Properties
 
+### config
+
+• **config**: `any`
+
+#### Defined in
+
+[packages/lib/src/HotMig.ts:21](https://github.com/Knaackee/hotmig/blob/23a257c/packages/lib/src/HotMig.ts#L21)
+
+___
+
 ### driver
 
 • **driver**: `string`
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:21](https://github.com/Knaackee/hotmig/blob/b33712a/packages/lib/src/HotMig.ts#L21)
+[packages/lib/src/HotMig.ts:20](https://github.com/Knaackee/hotmig/blob/23a257c/packages/lib/src/HotMig.ts#L20)

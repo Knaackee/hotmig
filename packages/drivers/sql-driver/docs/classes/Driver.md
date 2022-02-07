@@ -2,7 +2,7 @@
 
 ## Hierarchy
 
-- `Driver`
+- `Driver`<`Knex.Config`<`any`\>\>
 
   ↳ **`Driver`**
 
@@ -14,11 +14,11 @@
 
 #### Overrides
 
-Driver.constructor
+Base&lt;Knex.Config&lt;any\&gt;\&gt;.constructor
 
 #### Defined in
 
-hotmig-driver-pg/src/PostgresDriver.ts:7
+drivers/sql-driver/src/Driver.ts:7
 
 ## Properties
 
@@ -26,13 +26,9 @@ hotmig-driver-pg/src/PostgresDriver.ts:7
 
 • **client**: `undefined` \| `Knex`<`any`, `unknown`[]\>
 
-#### Overrides
-
-Driver.client
-
 #### Defined in
 
-hotmig-driver-pg/src/PostgresDriver.ts:5
+drivers/sql-driver/src/Driver.ts:5
 
 ## Methods
 
@@ -50,19 +46,19 @@ hotmig-driver-pg/src/PostgresDriver.ts:5
 
 `Promise`<`void`\>
 
-#### Inherited from
+#### Overrides
 
-Driver.addMigration
+Base.addMigration
 
 #### Defined in
 
-sql-driver/dist/Driver.d.ts:15
+drivers/sql-driver/src/Driver.ts:45
 
 ___
 
 ### createClient
 
-▸ **createClient**(`config`): `Knex`<`any`, `unknown`[]\>
+▸ `Abstract` **createClient**(`config`): `Knex`<`any`, `unknown`[]\>
 
 #### Parameters
 
@@ -74,13 +70,9 @@ ___
 
 `Knex`<`any`, `unknown`[]\>
 
-#### Overrides
-
-Driver.createClient
-
 #### Defined in
 
-hotmig-driver-pg/src/PostgresDriver.ts:19
+drivers/sql-driver/src/Driver.ts:11
 
 ___
 
@@ -92,13 +84,13 @@ ___
 
 `Promise`<`undefined` \| `void`\>
 
-#### Inherited from
+#### Overrides
 
-Driver.createMigrationStore
+Base.createMigrationStore
 
 #### Defined in
 
-sql-driver/dist/Driver.d.ts:9
+drivers/sql-driver/src/Driver.ts:21
 
 ___
 
@@ -116,37 +108,37 @@ ___
 
 `Promise`<`void`\>
 
-#### Inherited from
+#### Overrides
 
-Driver.exec
+Base.exec
 
 #### Defined in
 
-sql-driver/dist/Driver.d.ts:17
+drivers/sql-driver/src/Driver.ts:59
 
 ___
 
 ### getAppliedMigrations
 
-▸ **getAppliedMigrations**(): `Promise`<{ `createdAt`: `any` ; `id`: `any` ; `name`: `any`  }[]\>
+▸ **getAppliedMigrations**(): `Promise`<{ `createdAt`: `any` = row.createdAt; `id`: `any` = row.id; `name`: `any` = row.name }[]\>
 
 #### Returns
 
-`Promise`<{ `createdAt`: `any` ; `id`: `any` ; `name`: `any`  }[]\>
+`Promise`<{ `createdAt`: `any` = row.createdAt; `id`: `any` = row.id; `name`: `any` = row.name }[]\>
 
-#### Inherited from
+#### Overrides
 
-Driver.getAppliedMigrations
+Base.getAppliedMigrations
 
 #### Defined in
 
-sql-driver/dist/Driver.d.ts:10
+drivers/sql-driver/src/Driver.ts:29
 
 ___
 
 ### getDefaultConfig
 
-▸ **getDefaultConfig**(`isInteractive?`): `Promise`<`Config`<`any`\>\>
+▸ `Abstract` **getDefaultConfig**(`isInteractive?`): `Promise`<`Config`<`any`\>\>
 
 #### Parameters
 
@@ -158,13 +150,13 @@ ___
 
 `Promise`<`Config`<`any`\>\>
 
-#### Overrides
+#### Inherited from
 
-Driver.getDefaultConfig
+Base.getDefaultConfig
 
 #### Defined in
 
-hotmig-driver-pg/src/PostgresDriver.ts:11
+lib/dist/Driver.d.ts:9
 
 ___
 
@@ -183,13 +175,13 @@ ___
 
 `Promise`<`string`\>
 
-#### Inherited from
+#### Overrides
 
-Driver.getEmptyMigrationContent
+Base.getEmptyMigrationContent
 
 #### Defined in
 
-sql-driver/dist/Driver.d.ts:19
+drivers/sql-driver/src/Driver.ts:81
 
 ___
 
@@ -207,13 +199,13 @@ ___
 
 `Promise`<`void`\>
 
-#### Inherited from
+#### Overrides
 
-Driver.init
+Base.init
 
 #### Defined in
 
-sql-driver/dist/Driver.d.ts:7
+drivers/sql-driver/src/Driver.ts:13
 
 ___
 
@@ -225,13 +217,13 @@ ___
 
 `Promise`<`boolean`\>
 
-#### Inherited from
+#### Overrides
 
-Driver.migrationStoreExists
+Base.migrationStoreExists
 
 #### Defined in
 
-sql-driver/dist/Driver.d.ts:8
+drivers/sql-driver/src/Driver.ts:17
 
 ___
 
@@ -250,13 +242,13 @@ ___
 
 `Promise`<`void`\>
 
-#### Inherited from
+#### Overrides
 
-Driver.removeMigration
+Base.removeMigration
 
 #### Defined in
 
-sql-driver/dist/Driver.d.ts:16
+drivers/sql-driver/src/Driver.ts:51
 
 ___
 
@@ -274,10 +266,6 @@ ___
 
 `void`
 
-#### Inherited from
-
-Driver.setClient
-
 #### Defined in
 
-sql-driver/dist/Driver.d.ts:18
+drivers/sql-driver/src/Driver.ts:77

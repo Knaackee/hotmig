@@ -1,30 +1,17 @@
 import { Driver as Base, Migration } from "@hotmig/lib";
 import { Knex, knex } from "knex";
 
-class SqlDriver extends Base {
-  private schema: string | null = "public";
+export abstract class Driver extends Base<Knex.Config<any>> {
   client: Knex<any, unknown[]> | undefined;
 
   constructor() {
     super();
   }
 
-  async init(config: any) {
-    var url = new URL(config.connectionString);
-    this.schema = url.searchParams.get("schema");
-    // this.client = this.createClient();
-    if (!this.schema) {
-      throw new Error(`"schema" is missing in connection string`);
-    }
+  abstract createClient(config: Knex.Config<any>): Knex<any, unknown[]>;
 
-    this.client = this.createClient(config.connectionString);
-  }
-
-  async getDefaultConfig(isInteractive?: boolean): Promise<any> {
-    return {
-      connectionString:
-        "postgresql://postgres:postgres@localhost:5432/db?schema=testing",
-    };
+  async init(config: Knex.Config<any>) {
+    this.client = this.createClient(config);
   }
 
   async migrationStoreExists() {
@@ -61,8 +48,12 @@ class SqlDriver extends Base {
       .into("migrations");
   }
 
-  async removeMigration(id: string): Promise<void> {
-    await this.client?.delete().from("migrations").where({ id });
+  async removeMigration(id: string, params?: any): Promise<void> {
+    let client = this.client;
+    if (params) {
+      client = params;
+    }
+    await client?.delete().from("migrations").where({ id });
   }
 
   async exec(cb: (params: any) => Promise<void>) {
@@ -81,14 +72,6 @@ class SqlDriver extends Base {
     } else {
       return cb(this.client);
     }
-  }
-
-  createClient(connectionString: string) {
-    return knex({
-      client: "pg",
-      connection: connectionString,
-      searchPath: [this.schema || "public"],
-    });
   }
 
   setClient(client: Knex<any, unknown[]>) {
@@ -112,5 +95,3 @@ module.exports = {
 `.replace("{{name}}", name);
   }
 }
-
-export { SqlDriver as Driver };

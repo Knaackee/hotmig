@@ -1,1 +1,1 @@
-export * from "./PostgresDatabase";
+export * from "./PostgresDriver";

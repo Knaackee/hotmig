@@ -1,9 +1,15 @@
+process.env.NODE_ENV = "testing";
+
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { Knex } from "knex";
-import { resolve } from "path";
+import path, { resolve } from "path";
 import { HotMig } from "./HotMig";
 import "./utils";
 import "./utils/testing";
+import { vol } from "memfs";
+import * as utils from "./utils/index";
+
+const execa = require("execa");
 
 let hm: HotMig;
 
@@ -17,7 +23,43 @@ let i = 0;
 let trx: any = undefined;
 let _originalClient: any = undefined;
 
+// jest.mock("fs");
+
+// (utils as any).requireGlobal = jest.fn(async (packageName: string) => {
+//   const fs = jest.requireActual("fs");
+//   const { stdout: globalNodeModules } = await execa("npm root -g");
+//   var packageDir = path.join(globalNodeModules, packageName);
+//   if (!fs.existsSync(packageDir))
+//     packageDir = path.join(globalNodeModules, "npm/node_modules", packageName); //find package required by old npm
+
+//   if (!fs.existsSync(packageDir))
+//     throw new Error("Cannot find global module '" + packageName + "'");
+
+//   var packageMeta = JSON.parse(
+//     fs.readFileSync(path.join(packageDir, "package.json")).toString()
+//   );
+//   if (!packageMeta.main) {
+//     throw new Error(`package ${packageName} does not export a main file`);
+//   }
+//   var main = path.join(packageDir, packageMeta.main);
+
+//   return eval(fs.readFileSync(main).toString());
+// });
+
+const clearTestEnv = () => {
+  if (existsSync(root)) {
+    rmSync(root, { recursive: true, force: true });
+    mkdirSync(root);
+  }
+};
+
+beforeAll(() => {
+  clearTestEnv();
+});
+
 beforeEach(async () => {
+  // vol.reset();
+
   hm = new HotMig("default_" + i, root);
   await hm.init("@hotmig/hotmig-driver-pg");
   await hm.loadConfig();
@@ -32,14 +74,10 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  if (existsSync(root)) {
-    rmSync(root, { recursive: true, force: true });
-    mkdirSync(root);
-
-    // rollback
-    await trx.rollback();
-    await _originalClient.destroy();
-  }
+  clearTestEnv();
+  // rollback
+  await trx.rollback();
+  await _originalClient.destroy();
 });
 
 describe("HotMig", () => {

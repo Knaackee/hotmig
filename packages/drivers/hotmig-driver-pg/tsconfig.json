@@ -12,5 +12,6 @@
     "esModuleInterop": true
   },
   "exclude": ["node_modules", "dist", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts", "src/EmptyMigration.js"]
+  "include": ["src/**/*.ts", "src/EmptyMigration.js"],
+  "references": [{ "path": "../sql-driver" }, { "path": "../../lib" }]
 }

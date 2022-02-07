@@ -1,7 +1,7 @@
 import { AppliedMigration, Migration } from "./models";
 
 export abstract class Driver<TConfig = any> {
-  abstract init(config: any): Promise<void>;
+  abstract init(config: TConfig): Promise<void>;
 
   abstract createMigrationStore(): Promise<void>;
 
@@ -13,7 +13,7 @@ export abstract class Driver<TConfig = any> {
 
   abstract addMigration(migration: Migration): Promise<void>;
 
-  abstract removeMigration(id: string): Promise<void>;
+  abstract removeMigration(id: string, params?: any): Promise<void>;
 
   abstract getDefaultConfig(isInteractive?: boolean): Promise<TConfig>;
 

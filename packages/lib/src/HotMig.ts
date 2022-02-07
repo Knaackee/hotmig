@@ -8,18 +8,25 @@ import {
 } from "fs";
 import invariant from "invariant";
 import { resolve } from "path";
-import { AlreadyInitializedError, NotInitializedError } from "./errors";
-import slugify from "slugify";
-import { Migration } from "./models";
-import { generateId, isValidMigrationContent } from "./utils/utils";
-import { Driver } from "./Driver";
-import { requireGlobal } from "./utils";
 import pino from "pino";
+import slugify from "slugify";
+import { Driver } from "./Driver";
+import { AlreadyInitializedError, NotInitializedError } from "./errors";
+import { Migration } from "./models";
+import { requireGlobal } from "./utils";
+import { generateId, isValidMigrationContent } from "./utils/utils";
 
 export interface HotMigConfig {
   driver: string;
   config: any;
 }
+
+const requireModule = (path: string) => {
+  // return process.env.NODE_ENV === "testing"
+  // ? eval(readFileSync(path, "utf8"))
+  // : require(path);
+  return require(path);
+};
 
 export class HotMig {
   baseDirectory: string;
@@ -89,7 +96,7 @@ export class HotMig {
     pino().info("loadConfig");
     this.ensureInitialized();
 
-    this.config = require(this.configFilePath);
+    this.config = requireModule(this.configFilePath);
     // TODO: check config
 
     // TODO: check driver
@@ -171,7 +178,7 @@ export class HotMig {
       ) {
         const migration = pendingMigrations[i];
 
-        const module = require(migration.filePath || "");
+        const module = requireModule(migration.filePath || "");
         validateMigrationModule(module);
         await module.up(params);
         await this.driver?.addMigration(migration);
@@ -209,11 +216,15 @@ export class HotMig {
         });
 
         // TODO: Check if localMigration exists
-        const module = require(localMigration?.filePath || "");
+        const module = requireModule(localMigration?.filePath || "");
         validateMigrationModule(module);
         pino().info("running down " + localMigration?.filePath);
         await module.down(params);
-        await this.driver?.removeMigration(migration.id);
+
+        console.log("remove migration");
+
+        // give params to function. e.g. if params contains the sql client and we want to use the transaction
+        await this.driver?.removeMigration(migration.id, params);
         migrations.push(migration);
         applied++;
       }
@@ -266,7 +277,7 @@ export class HotMig {
     await new Promise((res) => setTimeout(res, 1));
     migration.id = generateId();
     // TODO: check module
-    migration.name = require(this.devJsPath).name;
+    migration.name = requireModule(this.devJsPath).name;
     migration.filePath = resolve(
       this.commitDirectory,
       `${migration.id}-${slugify(migration.name || "")}.js`
@@ -294,7 +305,7 @@ export class HotMig {
       throw new Error("there are pending migrations, cant test");
     }
 
-    const devMigration = require(this.devJsPath);
+    const devMigration = requireModule(this.devJsPath);
     validateMigrationModule(module);
 
     let error: any = undefined;
