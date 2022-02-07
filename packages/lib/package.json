@@ -45,6 +45,7 @@
     "memfs": "^3.4.1",
     "pino": "^7.6.5",
     "pino-pretty": "^7.5.1",
+    "prettier": "^2.5.1",
     "slugify": "^1.6.5"
   }
 }

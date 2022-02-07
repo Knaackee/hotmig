@@ -33,7 +33,7 @@ program
       text: "Getting drivers from global modules...",
     }).start();
     let global = await listGlobal();
-    let available = global.filter((x) => x.name.indexOf("-hotmig-driver") > -1);
+    let available = global.filter((x) => x.name.indexOf("hotmig-driver-") > -1);
     spinner.stop();
 
     // exit if no driver was found
@@ -52,7 +52,7 @@ program
       text: "Getting drivers from global modules...",
     }).start();
     global = await listGlobal();
-    available = global.filter((x) => x.name.indexOf("-hotmig-driver") > -1);
+    available = global.filter((x) => x.name.indexOf("hotmig-driver") > -1);
     spinner.stop();
 
     // ask for driver
@@ -129,8 +129,6 @@ program
     console.log(chalk.green("✨ done, happy migrating!"));
     process.exit(0);
   });
-
-// TODO: init-store
 
 program
   .command("up")
@@ -280,6 +278,8 @@ program
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
     const hm = await start(options.target, title, "Test...");
+
+    // TODO: TO preCheck ?
     await hm.loadConfig();
     ensureInitialized(hm);
 
@@ -291,6 +291,7 @@ program
       );
       process.exit(1);
     }
+    //
 
     await hm.test();
     console.log("done");

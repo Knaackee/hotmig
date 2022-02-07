@@ -16,7 +16,7 @@ let hm: HotMig;
 process.env.CONNECTION_STRING =
   "postgresql://postgres:postgres@localhost:5432/db?schema=testing";
 
-const root = resolve(__dirname, "../test-env");
+const root = resolve(__dirname, "../test/test-env");
 
 let i = 0;
 
@@ -93,9 +93,9 @@ describe("HotMig", () => {
       expect(existsSync(hm.baseDirectory)).toBe(true);
       expect(existsSync(hm.commitDirectory)).toBe(true);
     });
-    it("should create a hotmig.config.js file", async () => {
+    it("should create a target.config.js file", async () => {
       expect(hm.configFilePath).toBe(
-        resolve(hm.baseDirectory, "default_" + (i - 1), "hotmig.config.js")
+        resolve(hm.baseDirectory, "default_" + (i - 1), "target.config.js")
       );
       expect(existsSync(hm.configFilePath)).toBe(true);
     });
@@ -233,7 +233,7 @@ describe("HotMig", () => {
       expect(appliedMigrations).toHaveLength(1);
 
       // check if order is correct
-      expect(parseInt(result5.migrations[0].id ?? "")).toBeGreaterThan(
+      expect(parseInt(result5.migrations[0].id ?? "")).toBeLessThan(
         parseInt(result5.migrations[1].id ?? "")
       );
     });

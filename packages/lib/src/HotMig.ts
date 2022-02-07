@@ -15,18 +15,12 @@ import { AlreadyInitializedError, NotInitializedError } from "./errors";
 import { Migration } from "./models";
 import { requireGlobal } from "./utils";
 import { generateId, isValidMigrationContent } from "./utils/utils";
+const prettier = require("prettier");
 
 export interface HotMigConfig {
   driver: string;
   config: any;
 }
-
-const requireModule = (path: string) => {
-  // return process.env.NODE_ENV === "testing"
-  // ? eval(readFileSync(path, "utf8"))
-  // : require(path);
-  return require(path);
-};
 
 export class HotMig {
   baseDirectory: string;
@@ -51,12 +45,11 @@ export class HotMig {
       | "trace"
       | "silent" = "silent"
   ) {
-    this.baseDirectory = resolve(root, "./.migrations"); //?
+    this.baseDirectory = resolve(root, "./.migrations");
     this.targetDirectory = resolve(this.baseDirectory, `./${target}`);
     this.devJsPath = resolve(this.targetDirectory, "./dev.js");
     this.commitDirectory = resolve(this.targetDirectory, "./commits");
-    this.configFilePath = resolve(this.targetDirectory, "./hotmig.config.js");
-
+    this.configFilePath = resolve(this.targetDirectory, "./target.config.js");
     this.logger = pino({ level: logLevel });
   }
 
@@ -99,7 +92,10 @@ export class HotMig {
 
     writeFileSync(
       this.configFilePath,
-      `module.exports = ${JSON.stringify(config)}`
+      prettier.format(`module.exports = ${JSON.stringify(config)}`, {
+        semi: false,
+        parser: "babel",
+      })
     );
 
     this.config = config;
@@ -109,7 +105,7 @@ export class HotMig {
     this.logger.info("loadConfig");
     this.ensureInitialized();
 
-    this.config = requireModule(this.configFilePath);
+    this.config = require(this.configFilePath);
     // TODO: check config
 
     // TODO: check driver
@@ -191,7 +187,7 @@ export class HotMig {
       ) {
         const migration = pendingMigrations[i];
 
-        const module = requireModule(migration.filePath || "");
+        const module = require(migration.filePath || "");
         this.validateMigrationModule(module);
         await module.up(params);
         await this.driver?.addMigration(migration);
@@ -229,7 +225,7 @@ export class HotMig {
         });
 
         // TODO: Check if localMigration exists
-        const module = requireModule(localMigration?.filePath || "");
+        const module = require(localMigration?.filePath || "");
         this.validateMigrationModule(module);
         this.logger.info("running down " + localMigration?.filePath);
         await module.down(params);
@@ -290,7 +286,7 @@ export class HotMig {
     await new Promise((res) => setTimeout(res, 1));
     migration.id = generateId();
     // TODO: check module
-    migration.name = requireModule(this.devJsPath).name;
+    migration.name = require(this.devJsPath).name;
     migration.filePath = resolve(
       this.commitDirectory,
       `${migration.id}-${slugify(migration.name || "")}.js`
@@ -318,16 +314,21 @@ export class HotMig {
       throw new Error("there are pending migrations, cant test");
     }
 
-    const devMigration = requireModule(this.devJsPath);
+    const devMigration = require(this.devJsPath);
     this.validateMigrationModule(module);
 
     let error: any = undefined;
     await this.driver?.exec(async (params) => {
       try {
+        console.log("first run");
+        console.log("--------------------------------");
         console.log("running up...");
         await devMigration.up(params);
         console.log("running down...");
         await devMigration.down(params);
+
+        console.log("\nsecond run");
+        console.log("--------------------------------");
         console.log("running up...");
         await devMigration.up(params);
         console.log("running down...");
