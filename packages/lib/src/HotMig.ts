@@ -39,32 +39,45 @@ export class HotMig {
   driverName?: string;
   private logger = pino();
 
-  constructor(private readonly target: string, root: string = process.cwd()) {
+  constructor(
+    private readonly target: string,
+    root: string = process.cwd(),
+    logLevel:
+      | "fatal"
+      | "error"
+      | "warn"
+      | "info"
+      | "debug"
+      | "trace"
+      | "silent" = "silent"
+  ) {
     this.baseDirectory = resolve(root, "./.migrations"); //?
     this.targetDirectory = resolve(this.baseDirectory, `./${target}`);
     this.devJsPath = resolve(this.targetDirectory, "./dev.js");
     this.commitDirectory = resolve(this.targetDirectory, "./commits");
     this.configFilePath = resolve(this.targetDirectory, "./hotmig.config.js");
+
+    this.logger = pino({ level: logLevel });
   }
 
   isInitialized() {
     const result = existsSync(this.targetDirectory);
-    pino().info(`isInitialized: ${result}`);
+    this.logger.info(`isInitialized: ${result}`);
     return result;
   }
 
   createMigrationStore() {
-    pino().info("createMigrationStore");
+    this.logger.info("createMigrationStore");
     return this.driver?.createMigrationStore();
   }
 
   migrationStoreExists() {
-    pino().info("migrationStoreExists");
+    this.logger.info("migrationStoreExists");
     return this.driver?.migrationStoreExists();
   }
 
   async init(driver: string, isInteractive?: boolean) {
-    pino().info("init ", driver);
+    this.logger.info("init ", driver);
     if (this.isInitialized()) {
       throw new AlreadyInitializedError();
     }
@@ -93,7 +106,7 @@ export class HotMig {
   }
 
   async loadConfig() {
-    pino().info("loadConfig");
+    this.logger.info("loadConfig");
     this.ensureInitialized();
 
     this.config = requireModule(this.configFilePath);
@@ -107,13 +120,13 @@ export class HotMig {
   }
 
   getAppliedMigrations() {
-    pino().info("getAppliedMigrations");
+    this.logger.info("getAppliedMigrations");
     this.ensureInitialized();
     return this.driver?.getAppliedMigrations(this.target);
   }
 
   async getLocalMigrations() {
-    pino().info("getLocalMigrations");
+    this.logger.info("getLocalMigrations");
     const result = {
       loaded: 0,
       skipped: 0,
@@ -149,7 +162,7 @@ export class HotMig {
   }
 
   async pending() {
-    pino().info("pending");
+    this.logger.info("pending");
     invariant(this.driver, "db is required");
     this.ensureInitialized();
     const localMigrations = await this.getLocalMigrations();
@@ -163,7 +176,7 @@ export class HotMig {
   }
 
   async up(options: { count: number } = { count: 1 }) {
-    pino().info("up");
+    this.logger.info("up");
     invariant(this.driver, "db is required");
     this.ensureInitialized();
     const pendingMigrations = await this.pending();
@@ -179,7 +192,7 @@ export class HotMig {
         const migration = pendingMigrations[i];
 
         const module = requireModule(migration.filePath || "");
-        validateMigrationModule(module);
+        this.validateMigrationModule(module);
         await module.up(params);
         await this.driver?.addMigration(migration);
         applied++;
@@ -191,15 +204,15 @@ export class HotMig {
   }
 
   async down(options: { count: number } = { count: 1 }) {
-    pino().info("down");
+    this.logger.info("down");
     invariant(this.driver, "db is required");
     this.ensureInitialized();
     const localMigrations = await this.getLocalMigrations();
     const appliedMigrations =
       (await this.driver?.getAppliedMigrations(this.target)).reverse() || [];
 
-    pino().info(`appliedMigrations: ${JSON.stringify(appliedMigrations)}`);
-    pino().info(`localMigrations: ${JSON.stringify(localMigrations)}`);
+    this.logger.info(`appliedMigrations: ${JSON.stringify(appliedMigrations)}`);
+    this.logger.info(`localMigrations: ${JSON.stringify(localMigrations)}`);
 
     let applied = 0;
     let migrations: Array<Migration> = [];
@@ -217,8 +230,8 @@ export class HotMig {
 
         // TODO: Check if localMigration exists
         const module = requireModule(localMigration?.filePath || "");
-        validateMigrationModule(module);
-        pino().info("running down " + localMigration?.filePath);
+        this.validateMigrationModule(module);
+        this.logger.info("running down " + localMigration?.filePath);
         await module.down(params);
 
         console.log("remove migration");
@@ -234,17 +247,17 @@ export class HotMig {
   }
 
   latest() {
-    pino().info("latest");
+    this.logger.info("latest");
     return this.up({ count: Infinity });
   }
 
   reset() {
-    pino().info("reset");
+    this.logger.info("reset");
     return this.down({ count: Infinity });
   }
 
   async new(name: string, isInteractive?: boolean) {
-    pino().info("new");
+    this.logger.info("new");
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
@@ -259,7 +272,7 @@ export class HotMig {
   }
 
   async commit() {
-    pino().info("commit");
+    this.logger.info("commit");
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
@@ -288,7 +301,7 @@ export class HotMig {
   }
 
   async test() {
-    pino().info("test");
+    this.logger.info("test");
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
@@ -306,7 +319,7 @@ export class HotMig {
     }
 
     const devMigration = requireModule(this.devJsPath);
-    validateMigrationModule(module);
+    this.validateMigrationModule(module);
 
     let error: any = undefined;
     await this.driver?.exec(async (params) => {
@@ -321,7 +334,7 @@ export class HotMig {
         await devMigration.down(params);
       } catch (err) {
         error = err;
-        pino().error(err);
+        this.logger.error(err);
       }
     });
 
@@ -329,12 +342,13 @@ export class HotMig {
   }
 
   ensureInitialized() {
-    pino().info("ensureInitialized");
+    this.logger.info("ensureInitialized");
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
   }
-}
-function validateMigrationModule(module: any) {
-  pino().info("validateMigrationModule");
+
+  validateMigrationModule(module: any) {
+    this.logger.info("validateMigrationModule");
+  }
 }

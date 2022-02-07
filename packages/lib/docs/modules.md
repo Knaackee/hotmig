@@ -27,7 +27,7 @@
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:27](https://github.com/Knaackee/hotmig/blob/23a257c/packages/lib/src/utils/index.ts#L27)
+[packages/lib/src/utils/index.ts:27](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/utils/index.ts#L27)
 
 ___
 
@@ -47,4 +47,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/23a257c/packages/lib/src/utils/index.ts#L7)
+[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/utils/index.ts#L7)

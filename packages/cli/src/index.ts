@@ -27,7 +27,9 @@ program
     }
 
     // show spinner and get global modules
-    const spinner = ora({ text: "Getting global modules..." }).start();
+    const spinner = ora({
+      text: "Getting Drivers from global modules...",
+    }).start();
     const global = await listGlobal();
     const available = global.filter(
       (x) => x.name.indexOf("hotmig-driver") > -1
