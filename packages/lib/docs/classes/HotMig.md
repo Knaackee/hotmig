@@ -4,19 +4,19 @@
 
 ### constructor
 
-• **new HotMig**(`target`, `root?`, `log?`)
+• **new HotMig**(`target`, `root?`, `logLevel?`)
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `target` | `string` |
-| `root` | `string` |
-| `log?` | `boolean` |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `target` | `string` | `undefined` |
+| `root` | `string` | `undefined` |
+| `logLevel` | ``"fatal"`` \| ``"error"`` \| ``"warn"`` \| ``"info"`` \| ``"debug"`` \| ``"trace"`` \| ``"silent"`` | `"silent"` |
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:42](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L42)
+[packages/lib/src/HotMig.ts:42](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L42)
 
 ## Properties
 
@@ -26,7 +26,7 @@
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:32](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L32)
+[packages/lib/src/HotMig.ts:32](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L32)
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:34](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L34)
+[packages/lib/src/HotMig.ts:34](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L34)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:37](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L37)
+[packages/lib/src/HotMig.ts:37](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L37)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:35](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L35)
+[packages/lib/src/HotMig.ts:35](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L35)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:36](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L36)
+[packages/lib/src/HotMig.ts:36](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L36)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:38](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L38)
+[packages/lib/src/HotMig.ts:38](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L38)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:39](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L39)
+[packages/lib/src/HotMig.ts:39](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L39)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:40](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L40)
+[packages/lib/src/HotMig.ts:40](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L40)
 
 ___
 
@@ -106,7 +106,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:33](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L33)
+[packages/lib/src/HotMig.ts:33](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L33)
 
 ## Methods
 
@@ -120,7 +120,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:269](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L269)
+[packages/lib/src/HotMig.ts:274](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L274)
 
 ___
 
@@ -134,7 +134,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:64](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L64)
+[packages/lib/src/HotMig.ts:69](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L69)
 
 ___
 
@@ -155,7 +155,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:201](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L201)
+[packages/lib/src/HotMig.ts:206](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L206)
 
 ___
 
@@ -169,7 +169,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:339](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L339)
+[packages/lib/src/HotMig.ts:344](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L344)
 
 ___
 
@@ -183,7 +183,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:117](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L117)
+[packages/lib/src/HotMig.ts:122](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L122)
 
 ___
 
@@ -197,7 +197,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:123](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L123)
+[packages/lib/src/HotMig.ts:128](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L128)
 
 ___
 
@@ -218,7 +218,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:74](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L74)
+[packages/lib/src/HotMig.ts:79](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L79)
 
 ___
 
@@ -232,7 +232,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:58](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L58)
+[packages/lib/src/HotMig.ts:63](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L63)
 
 ___
 
@@ -246,7 +246,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:244](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L244)
+[packages/lib/src/HotMig.ts:249](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L249)
 
 ___
 
@@ -260,7 +260,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:103](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L103)
+[packages/lib/src/HotMig.ts:108](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L108)
 
 ___
 
@@ -274,7 +274,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:69](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L69)
+[packages/lib/src/HotMig.ts:74](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L74)
 
 ___
 
@@ -295,7 +295,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:254](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L254)
+[packages/lib/src/HotMig.ts:259](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L259)
 
 ___
 
@@ -309,7 +309,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:159](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L159)
+[packages/lib/src/HotMig.ts:164](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L164)
 
 ___
 
@@ -323,7 +323,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:249](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L249)
+[packages/lib/src/HotMig.ts:254](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L254)
 
 ___
 
@@ -337,7 +337,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:298](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L298)
+[packages/lib/src/HotMig.ts:303](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L303)
 
 ___
 
@@ -358,7 +358,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:173](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L173)
+[packages/lib/src/HotMig.ts:178](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L178)
 
 ___
 
@@ -378,4 +378,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:346](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/HotMig.ts#L346)
+[packages/lib/src/HotMig.ts:351](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/HotMig.ts#L351)

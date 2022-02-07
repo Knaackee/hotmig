@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/DatabaseNotInitializedError.ts:2](https://github.com/Knaackee/hotmig/blob/3e2c301/packages/lib/src/errors/DatabaseNotInitializedError.ts#L2)
+[packages/lib/src/errors/DatabaseNotInitializedError.ts:2](https://github.com/Knaackee/hotmig/blob/5927299/packages/lib/src/errors/DatabaseNotInitializedError.ts#L2)
 
 ## Properties
 

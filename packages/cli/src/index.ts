@@ -5,7 +5,9 @@ import { listGlobal } from "@hotmig/lib";
 import chalk from "chalk";
 import inqu from "inquirer";
 import ora from "ora";
+import axios from "axios";
 import { ensureInitialized, start } from "./utils";
+const execa = require("execa");
 
 const title = chalk.green("🔥 HotMig - Database migration tool");
 
@@ -27,20 +29,31 @@ program
     }
 
     // show spinner and get global modules
-    const spinner = ora({
-      text: "Getting Drivers from global modules...",
+    let spinner = ora({
+      text: "Getting drivers from global modules...",
     }).start();
-    const global = await listGlobal();
-    const available = global.filter(
-      (x) => x.name.indexOf("hotmig-driver") > -1
-    );
+    let global = await listGlobal();
+    let available = global.filter((x) => x.name.indexOf("-hotmig-driver") > -1);
     spinner.stop();
 
     // exit if no driver was found
     if (available.length === 0) {
-      console.log(chalk.red("no driver found"));
+      console.log(
+        chalk.red(
+          "no driver found in global modules. Please run install-drivers."
+        )
+      );
+
       process.exit(1);
     }
+
+    // show spinner and get global modules
+    spinner = ora({
+      text: "Getting drivers from global modules...",
+    }).start();
+    global = await listGlobal();
+    available = global.filter((x) => x.name.indexOf("-hotmig-driver") > -1);
+    spinner.stop();
 
     // ask for driver
     const answer = await inqu.prompt({
@@ -57,6 +70,45 @@ program
 
     // show success message
     console.log(chalk.green("✨ done, happy migrating!"));
+  });
+
+program
+  .command("install-driver")
+  .description("...")
+  .action(async (options: any) => {
+    // show cli title
+    console.log(`${title}\n`);
+
+    // show action title
+    console.log(`${chalk.yellow("Installing drivers...")}\n`);
+
+    let spinner = ora({
+      text: "fetching available drivers...",
+    }).start();
+
+    const url =
+      "https://gist.githubusercontent.com/Knaackee/b4feaaad25ca38a82e6442a5947289a6/raw";
+    const response = await axios.get(url);
+    const drivers = await response.data;
+
+    spinner.stop();
+
+    const answer = await inqu.prompt({
+      name: "drivers",
+      type: "checkbox",
+      message: "Select drivers to install",
+      choices: drivers.map((g: any) => `${g.package} (${g.name})`),
+    });
+
+    for (const name of answer.drivers) {
+      await execa(`npm install ${name.split(" ")[0]} -g`, {
+        shell: true,
+        stdio: "inherit",
+      });
+    }
+
+    console.log(chalk.green("✨ done, happy migrating!"));
+    process.exit(0);
   });
 
 // zu init
