@@ -2,12 +2,19 @@ process.env.NODE_ENV = "testing";
 
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { Knex } from "knex";
-import path, { resolve } from "path";
+import { resolve } from "path";
+import { OnProgressArgs, TestDriver } from ".";
+import {
+  DevMigrationAlreadyExistsError,
+  DevMigrationInvalidError,
+  DevMigrationNotExistsError,
+  InvalidDriverError,
+  NotInitializedError,
+  PendingMigrationsError,
+} from "./errors/";
 import { HotMig } from "./HotMig";
 import "./utils";
 import "./utils/testing";
-import { vol } from "memfs";
-import * as utils from "./utils/index";
 
 const execa = require("execa");
 
@@ -70,6 +77,8 @@ beforeEach(async () => {
   _originalClient = (hm.driver as any).client;
   (hm.driver as any).client = trx;
 
+  await hm.setDriver(new TestDriver());
+
   i++;
 });
 
@@ -99,11 +108,18 @@ describe("HotMig", () => {
       );
       expect(existsSync(hm.configFilePath)).toBe(true);
     });
+    it("should fail with invalid driver", async () => {
+      // "uninitialize"
+      rmSync(hm.targetDirectory, { recursive: true, force: true });
+      expect(hm.init("invalid-driver")).rejects.toThrow(
+        InvalidDriverError.MESSAGE + "invalid-driver"
+      );
+    });
   });
   describe("loadConfig", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
-      expect(hm.loadConfig()).rejects.toThrow("not initialized");
+      expect(hm.loadConfig()).rejects.toThrow(NotInitializedError.MESSAGE);
     });
     it("should load config file", async () => {
       await hm.loadConfig();
@@ -113,7 +129,9 @@ describe("HotMig", () => {
   describe("getLocalMigrations", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
-      expect(hm.getLocalMigrations()).rejects.toThrow("not initialized");
+      expect(hm.getLocalMigrations()).rejects.toThrow(
+        NotInitializedError.MESSAGE
+      );
     });
     it("should work", async () => {
       expect(hm.getLocalMigrations()).resolves.toMatchObject({
@@ -158,11 +176,7 @@ describe("HotMig", () => {
   describe("up", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
-      expect(hm.up()).rejects.toThrow("not initialized");
-    });
-    it("should fail without Database", async () => {
-      delete hm.driver;
-      expect(hm.up()).rejects.toThrow("db is required");
+      expect(hm.up()).rejects.toThrow(NotInitializedError.MESSAGE);
     });
     it("should work", async () => {
       await hm.createMigrationStore();
@@ -196,12 +210,34 @@ describe("HotMig", () => {
       expect(parseInt(result4.migrations[0].id ?? "")).toBeLessThan(
         parseInt(result4.migrations[1].id ?? "")
       );
+
+      await hm.new("test");
+      await hm.commit();
+      await hm.new("test2");
+      await hm.commit();
+
+      const progresses = new Array<OnProgressArgs>();
+
+      await hm.down({
+        count: 2,
+        onProgress: async (args) => {
+          console.log(args);
+          progresses.push(args);
+        },
+      });
+
+      console.log(progresses);
+      expect(progresses).toHaveLength(4);
+      expect(progresses[0]).toMatchObject({ total: 2, applied: 0 });
+      expect(progresses[1]).toMatchObject({ total: 2, applied: 1 });
+      expect(progresses[2]).toMatchObject({ total: 2, applied: 2 });
+      expect(progresses[3]).toMatchObject({ total: 2, applied: 2 });
     });
   });
   describe("down", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
-      expect(hm.down()).rejects.toThrow("not initialized");
+      expect(hm.down()).rejects.toThrow(NotInitializedError.MESSAGE);
     });
     it("should work", async () => {
       await hm.createMigrationStore();
@@ -233,15 +269,38 @@ describe("HotMig", () => {
       expect(appliedMigrations).toHaveLength(1);
 
       // check if order is correct
-      expect(parseInt(result5.migrations[0].id ?? "")).toBeLessThan(
+      expect(parseInt(result5.migrations[0].id ?? "")).toBeGreaterThan(
         parseInt(result5.migrations[1].id ?? "")
       );
+
+      // test if progress gets reported
+      await hm.new("test");
+      await hm.commit();
+      await hm.new("test2");
+      await hm.commit();
+
+      const progresses = new Array<OnProgressArgs>();
+
+      await hm.up({
+        count: 2,
+        onProgress: async (args) => {
+          console.log(args);
+          progresses.push(args);
+        },
+      });
+
+      console.log(progresses);
+      expect(progresses).toHaveLength(4);
+      expect(progresses[0]).toMatchObject({ total: 2, applied: 0 });
+      expect(progresses[1]).toMatchObject({ total: 2, applied: 1 });
+      expect(progresses[2]).toMatchObject({ total: 2, applied: 2 });
+      expect(progresses[3]).toMatchObject({ total: 2, applied: 2 });
     });
   });
   describe("latest", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
-      expect(hm.latest()).rejects.toThrow("not initialized");
+      expect(hm.latest()).rejects.toThrow(NotInitializedError.MESSAGE);
     });
     it("should work", async () => {
       await hm.createMigrationStore();
@@ -258,7 +317,7 @@ describe("HotMig", () => {
   describe("reset", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
-      expect(hm.reset()).rejects.toThrow("not initialized");
+      expect(hm.reset()).rejects.toThrow(NotInitializedError.MESSAGE);
     });
     it("should work", async () => {
       await hm.createMigrationStore();
@@ -280,11 +339,13 @@ describe("HotMig", () => {
   describe("new", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
-      expect(hm.new("")).rejects.toThrow("not initialized");
+      expect(hm.new("")).rejects.toThrow(NotInitializedError.MESSAGE);
     });
     it("should fail if a dev.js already exists", async () => {
       await hm.new("init");
-      expect(hm.new("init")).rejects.toThrow("dev.js already exists");
+      expect(hm.new("init")).rejects.toThrow(
+        DevMigrationAlreadyExistsError.MESSAGE
+      );
     });
     it("should work", async () => {
       await hm.new("init");
@@ -295,14 +356,14 @@ describe("HotMig", () => {
   describe("commit", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
-      expect(hm.new("")).rejects.toThrow("not initialized");
+      expect(hm.new("")).rejects.toThrow(NotInitializedError.MESSAGE);
     });
     it("should fail if a dev.sql does not exists", async () => {
-      expect(hm.commit()).rejects.toThrow("dev.js does not exist");
+      expect(hm.commit()).rejects.toThrow(DevMigrationNotExistsError.MESSAGE);
     });
     it("should fail if a dev.sql is not valid", async () => {
       writeFileSync(hm.devJsPath, "XXX");
-      expect(hm.commit()).rejects.toThrow("dev.js is invalid");
+      expect(hm.commit()).rejects.toThrow(DevMigrationInvalidError.MESSAGE);
     });
     it("should work", async () => {
       await hm.new("init");
@@ -315,7 +376,7 @@ describe("HotMig", () => {
   describe("pending", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
-      expect(hm.pending()).rejects.toThrow("not initialized");
+      expect(hm.pending()).rejects.toThrow(NotInitializedError.MESSAGE);
     });
     it("should work", async () => {
       await hm.createMigrationStore();
@@ -327,10 +388,10 @@ describe("HotMig", () => {
   describe("test", () => {
     it("should fail if not initialized", async () => {
       rmSync(hm.targetDirectory, { recursive: true, force: true });
-      expect(hm.new("")).rejects.toThrow("not initialized");
+      expect(hm.new("")).rejects.toThrow(NotInitializedError.MESSAGE);
     });
     it("should fail if a dev.js does not exists", async () => {
-      expect(hm.test()).rejects.toThrow("dev.js does not exist");
+      expect(hm.test()).rejects.toThrow(DevMigrationNotExistsError.MESSAGE);
     });
     it("should fail if a dev.js is not valid", async () => {
       await hm.new("init");
@@ -342,9 +403,7 @@ describe("HotMig", () => {
       await hm.new("init");
       await hm.commit();
       await hm.new("init");
-      expect(hm.test()).rejects.toThrow(
-        "there are pending migrations, cant test"
-      );
+      expect(hm.test()).rejects.toThrow(PendingMigrationsError.MESSAGE);
     });
     it("should work", async () => {
       await hm.createMigrationStore();

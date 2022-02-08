@@ -11,7 +11,15 @@ import { resolve } from "path";
 import pino from "pino";
 import slugify from "slugify";
 import { Driver } from "./Driver";
-import { AlreadyInitializedError, NotInitializedError } from "./errors";
+import {
+  AlreadyInitializedError,
+  DevMigrationAlreadyExistsError,
+  DevMigrationInvalidError,
+  DevMigrationNotExistsError,
+  InvalidDriverError,
+  NotInitializedError,
+  PendingMigrationsError,
+} from "./errors";
 import { Migration } from "./models";
 import { requireGlobal } from "./utils";
 import { generateId, isValidMigrationContent } from "./utils/utils";
@@ -21,6 +29,25 @@ export interface HotMigConfig {
   driver: string;
   config: any;
 }
+
+export interface OnProgressArgs {
+  applied: number;
+  migrations: Array<Migration>;
+  total: number;
+}
+
+export const loadDriver = async (driver: string) => {
+  // check driver
+  try {
+    const module = await requireGlobal(driver);
+    if (!module["Driver"]) {
+      throw new InvalidDriverError(driver);
+    }
+    return module;
+  } catch (err) {
+    throw new InvalidDriverError(driver);
+  }
+};
 
 export class HotMig {
   baseDirectory: string;
@@ -74,16 +101,16 @@ export class HotMig {
     if (this.isInitialized()) {
       throw new AlreadyInitializedError();
     }
+
+    const module = await loadDriver(driver);
+    this.driver = new module["Driver"]() as Driver;
+    this.driverName = driver;
+
     if (!existsSync(this.baseDirectory)) {
       mkdirSync(this.baseDirectory);
     }
     mkdirSync(this.targetDirectory);
     mkdirSync(this.commitDirectory);
-
-    // TODO: check driver
-    const module = await requireGlobal(driver);
-    this.driver = new module["Driver"]() as Driver;
-    this.driverName = driver;
 
     const config = {
       driver,
@@ -101,6 +128,10 @@ export class HotMig {
     this.config = config;
   }
 
+  async setDriver(driver: Driver) {
+    this.driver = driver;
+  }
+
   async loadConfig() {
     this.logger.info("loadConfig");
     this.ensureInitialized();
@@ -108,9 +139,9 @@ export class HotMig {
     this.config = require(this.configFilePath);
     // TODO: check config
 
-    // TODO: check driver
-    const module = await requireGlobal(this.config?.driver ?? "");
+    const module = await loadDriver(this.config?.driver ?? "");
     this.driver = new module["Driver"]() as Driver;
+    this.driverName = this.config?.driver;
 
     this.driver?.init(this.config?.config);
   }
@@ -138,6 +169,7 @@ export class HotMig {
         try {
           if (isValidMigrationContent(resolve(this.commitDirectory, file))) {
             const migration = {} as Migration;
+            // TODO valdate migration
             migration.id = file.split("-")[0];
             migration.name = file.split("-")[1].split(".")[0];
             migration.filePath = resolve(this.commitDirectory, file);
@@ -171,15 +203,26 @@ export class HotMig {
     return toRun;
   }
 
-  async up(options: { count: number } = { count: 1 }) {
+  async up(
+    options: {
+      count: number;
+      onProgress?: (args: OnProgressArgs) => Promise<void>;
+    } = { count: 1 }
+  ) {
     this.logger.info("up");
-    invariant(this.driver, "db is required");
     this.ensureInitialized();
     const pendingMigrations = await this.pending();
     let applied = 0;
     let migrations: Array<Migration> = [];
 
-    await this.driver.exec(async (params) => {
+    console.log("calling onProgress", options);
+    await options?.onProgress?.({
+      applied,
+      migrations,
+      total: Math.min(pendingMigrations.length, options.count),
+    });
+
+    await this.driver?.exec(async (params) => {
       for (
         let i = 0;
         i !== Math.min(options.count, pendingMigrations.length);
@@ -193,13 +236,30 @@ export class HotMig {
         await this.driver?.addMigration(migration);
         applied++;
         migrations.push(migration);
+
+        await options?.onProgress?.({
+          applied,
+          migrations,
+          total: Math.min(pendingMigrations.length, options.count),
+        });
       }
+    });
+
+    await options?.onProgress?.({
+      applied,
+      migrations,
+      total: Math.min(pendingMigrations.length, options.count),
     });
 
     return { applied, migrations };
   }
 
-  async down(options: { count: number } = { count: 1 }) {
+  async down(
+    options: {
+      count: number;
+      onProgress?: (args: OnProgressArgs) => Promise<void>;
+    } = { count: 1 }
+  ) {
     this.logger.info("down");
     invariant(this.driver, "db is required");
     this.ensureInitialized();
@@ -212,6 +272,15 @@ export class HotMig {
 
     let applied = 0;
     let migrations: Array<Migration> = [];
+
+    await options?.onProgress?.({
+      applied,
+      migrations,
+      total: Math.min(
+        appliedMigrations.length,
+        Math.min(options.count, options.count)
+      ),
+    });
 
     await this.driver.exec(async (params) => {
       for (
@@ -230,26 +299,42 @@ export class HotMig {
         this.logger.info("running down " + localMigration?.filePath);
         await module.down(params);
 
-        console.log("remove migration");
-
         // give params to function. e.g. if params contains the sql client and we want to use the transaction
         await this.driver?.removeMigration(migration.id, params);
         migrations.push(migration);
         applied++;
+
+        await options?.onProgress?.({
+          applied,
+          migrations,
+          total: Math.min(
+            appliedMigrations.length,
+            Math.min(options.count, options.count)
+          ),
+        });
       }
+    });
+
+    await options?.onProgress?.({
+      applied,
+      migrations,
+      total: Math.min(
+        appliedMigrations.length,
+        Math.min(options.count, options.count)
+      ),
     });
 
     return { applied, migrations };
   }
 
-  latest() {
+  latest(options?: { onProgress?: (args: OnProgressArgs) => Promise<void> }) {
     this.logger.info("latest");
-    return this.up({ count: Infinity });
+    return this.up({ count: Infinity, onProgress: options?.onProgress });
   }
 
-  reset() {
+  reset(options?: { onProgress?: (args: OnProgressArgs) => Promise<void> }) {
     this.logger.info("reset");
-    return this.down({ count: Infinity });
+    return this.down({ count: Infinity, onProgress: options?.onProgress });
   }
 
   async new(name: string, isInteractive?: boolean) {
@@ -258,8 +343,9 @@ export class HotMig {
       throw new NotInitializedError();
     }
     if (existsSync(this.devJsPath)) {
-      throw new Error("dev.js already exists");
+      throw new DevMigrationAlreadyExistsError();
     }
+    // TODO: validate migration
     const content = await this.driver?.getEmptyMigrationContent(
       name,
       isInteractive
@@ -273,10 +359,10 @@ export class HotMig {
       throw new NotInitializedError();
     }
     if (!existsSync(this.devJsPath)) {
-      throw new Error("dev.js does not exist");
+      throw new DevMigrationNotExistsError();
     }
     if (!isValidMigrationContent(this.devJsPath)) {
-      throw new Error("dev.js is invalid");
+      throw new DevMigrationInvalidError();
     }
 
     const migration = {} as Migration;
@@ -302,16 +388,16 @@ export class HotMig {
       throw new NotInitializedError();
     }
     if (!existsSync(this.devJsPath)) {
-      throw new Error("dev.js does not exist");
+      throw new DevMigrationNotExistsError();
     }
     if (!isValidMigrationContent(this.devJsPath)) {
-      throw new Error("dev.js is invalid " + this.devJsPath);
+      throw new DevMigrationInvalidError();
     }
 
     // check if there are pending migrations
     const pending = await this.pending();
     if (pending.length > 0) {
-      throw new Error("there are pending migrations, cant test");
+      throw new PendingMigrationsError();
     }
 
     const devMigration = require(this.devJsPath);

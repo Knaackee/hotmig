@@ -15,5 +15,10 @@ module.exports = function (wallaby) {
     ],
 
     tests: ["packages/**/*test.ts", "!**/node_modules/**"],
+
+    workers: {
+      initial: 1,
+      regular: 1,
+    },
   };
 };
