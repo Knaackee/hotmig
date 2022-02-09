@@ -80,8 +80,58 @@ program
 program.command("target", "initialize a new target or migration store");
 
 program
+  .command("new")
+  .description("create a new dev migration for a target")
+  .argument("<name>", "name of the migration")
+  .option("-t, --target <string>", "name of the target", "default")
+  .action(async (name: string, options: any) => {
+    header(
+      `creating a new dev migration "${name}" for target "${options.target}"...`
+    );
+
+    const target = await getReadyTarget(options.target, false, false);
+    if (target?.devMigationAlreadyExists()) {
+      console.log(
+        chalk.red(`dev migration for target "${options.target}" already exists`)
+      );
+      process.exit(0);
+    }
+
+    console.log(chalk.green(`✨ done!`));
+    process.exit(0);
+  });
+
+program
+  .command("test")
+  .description("test the current dev migration of a target")
+  .option("-t, --target <string>", "name of the target", "default")
+  .action(async (options: any) => {
+    header(`testing dev migration for target "${options.target}"...`);
+
+    const task = await getReadyTarget(options.target, true, true);
+    await task?.test();
+
+    console.log(chalk.green(`✨ done!`));
+    process.exit(0);
+  });
+
+program
+  .command("commit")
+  .description("commit the current dev migration of a target")
+  .option("-t, --target <string>", "name of the target", "default")
+  .action(async (options: any) => {
+    header(`committing dev migration for target "${options.target}"...`);
+
+    const task = await getReadyTarget(options.target, true, true);
+    await task?.commit();
+
+    console.log(chalk.green(`✨ done!`));
+    process.exit(0);
+  });
+
+program
   .command("up")
-  .description("migrate")
+  .description("migrate a target up")
   .option("-t, --target <string>", "name of the target", "default")
   .option("-c, --count <number>", "cound", 1)
   .action(async (options: any) => {
@@ -104,7 +154,7 @@ program
 
 program
   .command("down")
-  .description("migrate")
+  .description("migrate a target down")
   .option("-t, --target <string>", "name of the target", "default")
   .option("-c, --count <number>", "cound", 1)
   .action(async (options: any) => {
@@ -127,7 +177,7 @@ program
 
 program
   .command("latest")
-  .description("migrate")
+  .description("apply all pending migrations for a target")
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
     header(`applying all pending migrations for target "${options.target}"...`);
@@ -146,7 +196,7 @@ program
 
 program
   .command("reset")
-  .description("migrate")
+  .description("resetting all applied migrations for a target")
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
     header(
@@ -167,7 +217,7 @@ program
 
 program
   .command("pending")
-  .description("lists all pending transactions")
+  .description("lists all pending transactions of a target")
   .option("-t, --target <string>", "name of the target", "default")
   .action(async (options: any) => {
     header(`pending transactions for target "${options.target}":`);
@@ -176,56 +226,6 @@ program
     const result = await task?.pending();
 
     console.log(result);
-
-    console.log(chalk.green(`✨ done!`));
-    process.exit(0);
-  });
-
-program
-  .command("new")
-  .description("create a new dev migration")
-  .argument("<name>", "name of the migration")
-  .option("-t, --target <string>", "name of the target", "default")
-  .action(async (name: string, options: any) => {
-    header(
-      `creating a new dev migration "${name}" for target "${options.target}"...`
-    );
-
-    const target = await getReadyTarget(options.target, false, false);
-    if (target?.devMigationAlreadyExists()) {
-      console.log(
-        chalk.red(`dev migration for target "${options.target}" already exists`)
-      );
-      process.exit(0);
-    }
-
-    console.log(chalk.green(`✨ done!`));
-    process.exit(0);
-  });
-
-program
-  .command("test")
-  .description("test the current dev migration")
-  .option("-t, --target <string>", "name of the target", "default")
-  .action(async (options: any) => {
-    header(`testing dev migration for target "${options.target}"...`);
-
-    const task = await getReadyTarget(options.target, true, true);
-    await task?.test();
-
-    console.log(chalk.green(`✨ done!`));
-    process.exit(0);
-  });
-
-program
-  .command("commit")
-  .description("commit the current dev migration")
-  .option("-t, --target <string>", "name of the target", "default")
-  .action(async (options: any) => {
-    header(`committing dev migration for target "${options.target}"...`);
-
-    const task = await getReadyTarget(options.target, true, true);
-    await task?.commit();
 
     console.log(chalk.green(`✨ done!`));
     process.exit(0);
