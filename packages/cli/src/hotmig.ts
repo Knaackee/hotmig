@@ -2,12 +2,20 @@
 
 const program = require("commander");
 
-import { HotMig, OnProgressArgs } from "@hotmig/lib";
+import {
+  HotMig,
+  Migration,
+  OnProgressArgs,
+  validateMigrationModule,
+} from "@hotmig/lib";
 import axios from "axios";
 import chalk from "chalk";
 import inqu from "inquirer";
+import chokidar from "chokidar";
 import ora from "ora";
 import { header, title } from "./header";
+import { copyFile, copyFileSync, existsSync } from "fs";
+import { resolve } from "path";
 const execa = require("execa");
 
 console.log("");
@@ -229,6 +237,155 @@ program
 
     console.log(chalk.green(`✨ done!`));
     process.exit(0);
+  });
+
+program
+  .command("dev")
+  .description("develope a dev migration of a target")
+  .option("-t, --target <string>", "name of the target", "default")
+  .action(async (options: any) => {
+    header(`starting dev mode for target "${options.target}"...`);
+
+    const target = await getReadyTarget(options.target, false, true);
+
+    // check if there are pending migrations
+    const pending = (await target?.pending()) as Array<Migration>;
+    if (pending?.length > 0) {
+      console.log(
+        chalk.red(
+          `there are pending migrations for target "${options.target}", cant test.`
+        )
+      );
+      process.exit(0);
+    }
+
+    // create dev.sql if not exists
+    if (!target?.devMigationAlreadyExists()) {
+      console.log(
+        chalk.yellow(`creating dev.sql for target "${options.target}"...`)
+      );
+      await target?.new("insert name here", false);
+    }
+
+    // watch for changes in dev.sql
+    const watcher = chokidar
+      .watch(target?.devJsPath ?? ".", { ignoreInitial: false })
+      .on("all", async (event, path) => {
+        if (event === "change" || event === "add") {
+          const prevDevJsPath = resolve(
+            target?.targetDirectory ?? "",
+            "prev.dev.js"
+          );
+          await target?.driver?.exec(async (params) => {
+            // check if prev.dev.js exists
+            if (existsSync(prevDevJsPath)) {
+              try {
+                const prevDevJs = require(prevDevJsPath);
+                // validate prev.dev.js
+                validateMigrationModule(prevDevJs);
+                // run down in prev.dev.js
+
+                const spinner = ora(
+                  `running down on prev.dev.js for target "${options.target}"...`
+                ).start();
+                let failed = false;
+                await prevDevJs
+                  .down(params)
+                  .then(() => spinner.succeed())
+                  .catch((err: any) => {
+                    spinner.fail();
+                    console.log(err);
+                    failed = true;
+                  });
+
+                if (failed) return;
+              } catch (e) {
+                console.log(chalk.red(`❌ prev.dev.js is invalid, cant test.`));
+                console.log(e);
+                return;
+              }
+            }
+
+            // validate dev.js
+
+            // remove from require cache
+            delete require.cache[target?.devJsPath ?? ""];
+
+            const devJs = require(path);
+            validateMigrationModule(devJs);
+
+            // run up, down, up in dev.js
+            let spinner = ora(
+              `running up for target "${options.target}"...`
+            ).start();
+
+            let failed = false;
+
+            await devJs
+              .up(params)
+              .then(() => spinner.succeed())
+              .catch((err: any) => {
+                spinner.fail();
+                console.log(err);
+                failed = true;
+              });
+
+            if (failed) return;
+
+            spinner = ora(
+              `running down for target "${options.target}"...`
+            ).start();
+            await devJs
+              .down(params)
+              .then(() => spinner.succeed())
+              .catch((err: any) => {
+                spinner.fail();
+                console.log(err);
+                failed = true;
+              });
+
+            if (failed) return;
+
+            spinner = ora(
+              `running up for target "${options.target}"...`
+            ).start();
+            await devJs
+              .up(params)
+              .then(() => spinner.succeed())
+              .catch((err: any) => {
+                spinner.fail();
+                console.log(err);
+                failed = true;
+              });
+
+            if (failed) return;
+
+            console.log(
+              chalk.yellow(
+                `\n✨ dev.sql was for target "${options.target}" is alright!\n`
+              )
+            );
+
+            // copy dev.js to prev.dev.js
+            copyFileSync(path, prevDevJsPath);
+
+            // ask for commit
+
+            // ask for next dev.js ?
+          });
+        } else if (event === "unlink") {
+          watcher.close();
+          console.log(
+            chalk.yellow(
+              `dev.sql was removed for target "${options.target}", stopping dev mode...`
+            )
+          );
+          process.exit(0);
+        }
+      });
+
+    // console.log(chalk.green(`✨ done!`));
+    // process.exit(0);
   });
 
 const getReadyTarget = async (

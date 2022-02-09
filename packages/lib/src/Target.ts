@@ -39,6 +39,11 @@ export interface OnProgressArgs {
   total: number;
 }
 
+export interface TestOnProgressArgs {
+  action: "up" | "down";
+  run: number;
+}
+
 export const loadDriver = async (driver: string) => {
   // check driver
   try {
@@ -62,8 +67,9 @@ export const loadMigrationModule = async (
   logger: pino.Logger
 ): Promise<MigrationModule | undefined> => {
   logger.info("loadMigrationModule");
-  await validateMigrationModule(undefined, logger);
-  return undefined;
+  const module = require(path);
+  await validateMigrationModule(module, logger);
+  return module;
 };
 
 export const validateMigrationModule = (
@@ -420,7 +426,10 @@ export class Target {
     return migration;
   }
 
-  async test() {
+  async test(
+    isDevMode: boolean = false,
+    onProgress?: (args: TestOnProgressArgs) => Promise<void>
+  ) {
     this.logger.info("test");
     if (!this.isInitialized()) {
       throw new NotInitializedError();
@@ -443,18 +452,28 @@ export class Target {
     let error: any = undefined;
     await this.driver?.exec(async (params) => {
       try {
-        console.log("first run");
-        console.log("--------------------------------");
-        console.log("running up...");
+        await onProgress?.({
+          action: "up",
+          run: 1,
+        });
         await devMigration?.up(params);
-        console.log("running down...");
+
+        await onProgress?.({
+          action: "down",
+          run: 1,
+        });
         await devMigration?.down(params);
 
-        console.log("\nsecond run");
-        console.log("--------------------------------");
-        console.log("running up...");
+        await onProgress?.({
+          action: "up",
+          run: 2,
+        });
         await devMigration?.up(params);
-        console.log("running down...");
+
+        await onProgress?.({
+          action: "down",
+          run: 2,
+        });
         await devMigration?.down(params);
       } catch (err) {
         error = err;
@@ -462,7 +481,7 @@ export class Target {
       }
     });
 
-    if (error) throw error;
+    return { error };
   }
 
   ensureInitialized() {
