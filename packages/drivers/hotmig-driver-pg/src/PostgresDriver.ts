@@ -13,6 +13,7 @@ class PostgresDriver extends Driver {
       client: "pg",
       connection: "postgresql://postgres:postgres@localhost:5432/db",
       searchPath: ["testing"],
+      asyncStackTraces: true,
     };
   }
 

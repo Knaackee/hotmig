@@ -5,3 +5,5 @@ export * from "./DevMigrationInvalidError";
 export * from "./DevMigrationNotExistsError";
 export * from "./DevMigrationAlreadyExistsError";
 export * from "./PendingMigrationsError";
+export * from "./LocalMigrationNotFound";
+export * from "./InvalidConfigError";

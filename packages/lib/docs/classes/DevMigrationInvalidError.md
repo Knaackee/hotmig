@@ -1,16 +1,16 @@
-# Class: NotInitializedError
+# Class: DevMigrationInvalidError
 
 ## Hierarchy
 
 - `Error`
 
-  ↳ **`NotInitializedError`**
+  ↳ **`DevMigrationInvalidError`**
 
 ## Constructors
 
 ### constructor
 
-• **new NotInitializedError**()
+• **new DevMigrationInvalidError**()
 
 #### Overrides
 
@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/NotInitializedError.ts:3](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/NotInitializedError.ts#L3)
+[packages/lib/src/errors/DevMigrationInvalidError.ts:3](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/DevMigrationInvalidError.ts#L3)
 
 ## Properties
 
@@ -66,11 +66,11 @@ ___
 
 ### MESSAGE
 
-▪ `Static` **MESSAGE**: `string` = `"HotMig is not initialized"`
+▪ `Static` **MESSAGE**: `string` = `"dev.js is invalid"`
 
 #### Defined in
 
-[packages/lib/src/errors/NotInitializedError.ts:2](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/NotInitializedError.ts#L2)
+[packages/lib/src/errors/DevMigrationInvalidError.ts:2](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/DevMigrationInvalidError.ts#L2)
 
 ___
 

@@ -18,7 +18,7 @@ Base&lt;Knex.Config&lt;any\&gt;\&gt;.constructor
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:7](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L7)
+[drivers/sql-driver/src/Driver.ts:7](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L7)
 
 ## Properties
 
@@ -28,7 +28,7 @@ Base&lt;Knex.Config&lt;any\&gt;\&gt;.constructor
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:5](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L5)
+[drivers/sql-driver/src/Driver.ts:5](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L5)
 
 ## Methods
 
@@ -52,7 +52,7 @@ Base.addMigration
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:45](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L45)
+[drivers/sql-driver/src/Driver.ts:45](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L45)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:11](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L11)
+[drivers/sql-driver/src/Driver.ts:11](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L11)
 
 ___
 
@@ -90,7 +90,7 @@ Base.createMigrationStore
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:21](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L21)
+[drivers/sql-driver/src/Driver.ts:21](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L21)
 
 ___
 
@@ -114,7 +114,7 @@ Base.exec
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:59](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L59)
+[drivers/sql-driver/src/Driver.ts:59](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L59)
 
 ___
 
@@ -132,7 +132,7 @@ Base.getAppliedMigrations
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:29](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L29)
+[drivers/sql-driver/src/Driver.ts:29](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L29)
 
 ___
 
@@ -181,7 +181,7 @@ Base.getEmptyMigrationContent
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:81](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L81)
+[drivers/sql-driver/src/Driver.ts:81](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L81)
 
 ___
 
@@ -205,7 +205,7 @@ Base.init
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:13](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L13)
+[drivers/sql-driver/src/Driver.ts:13](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L13)
 
 ___
 
@@ -223,7 +223,7 @@ Base.migrationStoreExists
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:17](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L17)
+[drivers/sql-driver/src/Driver.ts:17](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L17)
 
 ___
 
@@ -248,7 +248,7 @@ Base.removeMigration
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:51](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L51)
+[drivers/sql-driver/src/Driver.ts:51](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L51)
 
 ___
 
@@ -268,4 +268,4 @@ ___
 
 #### Defined in
 
-[drivers/sql-driver/src/Driver.ts:77](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/drivers/sql-driver/src/Driver.ts#L77)
+[drivers/sql-driver/src/Driver.ts:77](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/drivers/sql-driver/src/Driver.ts#L77)

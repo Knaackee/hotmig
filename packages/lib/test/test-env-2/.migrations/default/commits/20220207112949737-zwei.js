@@ -11,6 +11,6 @@ module.exports = {
   down: async (db) => {
     // undo your migration here
     console.log("running down ", "zwei");
-    return db.schema.dropTable("users2");
+    return db.schema.dropTable("user2s2");
   },
 };

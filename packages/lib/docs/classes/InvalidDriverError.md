@@ -1,16 +1,22 @@
-# Class: NotInitializedError
+# Class: InvalidDriverError
 
 ## Hierarchy
 
 - `Error`
 
-  ↳ **`NotInitializedError`**
+  ↳ **`InvalidDriverError`**
 
 ## Constructors
 
 ### constructor
 
-• **new NotInitializedError**()
+• **new InvalidDriverError**(`driver`)
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `driver` | `string` |
 
 #### Overrides
 
@@ -18,7 +24,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/NotInitializedError.ts:3](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/NotInitializedError.ts#L3)
+[packages/lib/src/errors/InvalidDriverError.ts:3](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/InvalidDriverError.ts#L3)
 
 ## Properties
 
@@ -66,11 +72,11 @@ ___
 
 ### MESSAGE
 
-▪ `Static` **MESSAGE**: `string` = `"HotMig is not initialized"`
+▪ `Static` **MESSAGE**: `string` = `"Invalid driver: "`
 
 #### Defined in
 
-[packages/lib/src/errors/NotInitializedError.ts:2](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/NotInitializedError.ts#L2)
+[packages/lib/src/errors/InvalidDriverError.ts:2](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/InvalidDriverError.ts#L2)
 
 ___
 

@@ -6,6 +6,12 @@
 | :------ | :------ |
 | `TConfig` | `any` |
 
+## Hierarchy
+
+- **`Driver`**
+
+  ↳ [`TestDriver`](TestDriver.md)
+
 ## Constructors
 
 ### constructor
@@ -36,7 +42,7 @@
 
 #### Defined in
 
-[packages/lib/src/Driver.ts:14](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/Driver.ts#L14)
+[packages/lib/src/Driver.ts:14](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/Driver.ts#L14)
 
 ___
 
@@ -50,7 +56,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Driver.ts:6](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/Driver.ts#L6)
+[packages/lib/src/Driver.ts:6](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/Driver.ts#L6)
 
 ___
 
@@ -70,7 +76,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Driver.ts:25](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/Driver.ts#L25)
+[packages/lib/src/Driver.ts:20](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/Driver.ts#L20)
 
 ___
 
@@ -90,7 +96,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Driver.ts:10](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/Driver.ts#L10)
+[packages/lib/src/Driver.ts:10](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/Driver.ts#L10)
 
 ___
 
@@ -110,13 +116,13 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Driver.ts:18](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/Driver.ts#L18)
+[packages/lib/src/Driver.ts:18](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/Driver.ts#L18)
 
 ___
 
 ### getEmptyMigrationContent
 
-▸ `Abstract` **getEmptyMigrationContent**(`name`, `isInteractive?`): `Promise`<`string`\>
+▸ **getEmptyMigrationContent**(`name`, `isInteractive?`): `Promise`<`string`\>
 
 #### Parameters
 
@@ -131,7 +137,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Driver.ts:27](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/Driver.ts#L27)
+[packages/lib/src/Driver.ts:22](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/Driver.ts#L22)
 
 ___
 
@@ -151,7 +157,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Driver.ts:4](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/Driver.ts#L4)
+[packages/lib/src/Driver.ts:4](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/Driver.ts#L4)
 
 ___
 
@@ -165,7 +171,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Driver.ts:8](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/Driver.ts#L8)
+[packages/lib/src/Driver.ts:8](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/Driver.ts#L8)
 
 ___
 
@@ -186,4 +192,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Driver.ts:16](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/Driver.ts#L16)
+[packages/lib/src/Driver.ts:16](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/Driver.ts#L16)

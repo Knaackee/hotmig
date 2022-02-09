@@ -1,16 +1,16 @@
-# Class: DatabaseNotInitializedError
+# Class: PendingMigrationsError
 
 ## Hierarchy
 
 - `Error`
 
-  ↳ **`DatabaseNotInitializedError`**
+  ↳ **`PendingMigrationsError`**
 
 ## Constructors
 
 ### constructor
 
-• **new DatabaseNotInitializedError**()
+• **new PendingMigrationsError**()
 
 #### Overrides
 
@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/DatabaseNotInitializedError.ts:2](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/errors/DatabaseNotInitializedError.ts#L2)
+[packages/lib/src/errors/PendingMigrationsError.ts:3](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/PendingMigrationsError.ts#L3)
 
 ## Properties
 
@@ -61,6 +61,16 @@ Error.stack
 #### Defined in
 
 node_modules/typescript/lib/lib.es5.d.ts:1024
+
+___
+
+### MESSAGE
+
+▪ `Static` **MESSAGE**: `string` = `"there are pending migrations, cant test"`
+
+#### Defined in
+
+[packages/lib/src/errors/PendingMigrationsError.ts:2](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/PendingMigrationsError.ts#L2)
 
 ___
 

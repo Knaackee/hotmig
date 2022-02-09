@@ -1,16 +1,16 @@
-# Class: DatabaseAlreadyInitializedError
+# Class: DevMigrationNotExistsError
 
 ## Hierarchy
 
 - `Error`
 
-  ↳ **`DatabaseAlreadyInitializedError`**
+  ↳ **`DevMigrationNotExistsError`**
 
 ## Constructors
 
 ### constructor
 
-• **new DatabaseAlreadyInitializedError**()
+• **new DevMigrationNotExistsError**()
 
 #### Overrides
 
@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/DatabaseAlreadyInitializedError.ts:2](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/errors/DatabaseAlreadyInitializedError.ts#L2)
+[packages/lib/src/errors/DevMigrationNotExistsError.ts:3](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/DevMigrationNotExistsError.ts#L3)
 
 ## Properties
 
@@ -61,6 +61,16 @@ Error.stack
 #### Defined in
 
 node_modules/typescript/lib/lib.es5.d.ts:1024
+
+___
+
+### MESSAGE
+
+▪ `Static` **MESSAGE**: `string` = `"dev.js does not exist"`
+
+#### Defined in
+
+[packages/lib/src/errors/DevMigrationNotExistsError.ts:2](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/errors/DevMigrationNotExistsError.ts#L2)
 
 ___
 

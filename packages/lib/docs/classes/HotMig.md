@@ -12,11 +12,11 @@
 | :------ | :------ | :------ |
 | `target` | `string` | `undefined` |
 | `root` | `string` | `undefined` |
-| `logLevel` | ``"fatal"`` \| ``"error"`` \| ``"warn"`` \| ``"info"`` \| ``"debug"`` \| ``"trace"`` \| ``"silent"`` | `"silent"` |
+| `logLevel` | ``"info"`` \| ``"fatal"`` \| ``"error"`` \| ``"warn"`` \| ``"debug"`` \| ``"trace"`` \| ``"silent"`` | `"silent"` |
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:36](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L36)
+[packages/lib/src/HotMig.ts:85](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L85)
 
 ## Properties
 
@@ -26,7 +26,7 @@
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:26](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L26)
+[packages/lib/src/HotMig.ts:75](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L75)
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:28](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L28)
+[packages/lib/src/HotMig.ts:77](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L77)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:31](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L31)
+[packages/lib/src/HotMig.ts:80](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L80)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:29](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L29)
+[packages/lib/src/HotMig.ts:78](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L78)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:30](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L30)
+[packages/lib/src/HotMig.ts:79](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L79)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:32](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L32)
+[packages/lib/src/HotMig.ts:81](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L81)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:33](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L33)
+[packages/lib/src/HotMig.ts:82](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L82)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:34](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L34)
+[packages/lib/src/HotMig.ts:83](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L83)
 
 ___
 
@@ -106,7 +106,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:27](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L27)
+[packages/lib/src/HotMig.ts:76](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L76)
 
 ## Methods
 
@@ -120,7 +120,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:270](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L270)
+[packages/lib/src/HotMig.ts:386](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L386)
 
 ___
 
@@ -134,7 +134,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:62](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L62)
+[packages/lib/src/HotMig.ts:111](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L111)
 
 ___
 
@@ -148,6 +148,7 @@ ___
 | :------ | :------ |
 | `options` | `Object` |
 | `options.count` | `number` |
+| `options.onProgress?` | (`args`: [`OnProgressArgs`](../interfaces/OnProgressArgs.md)) => `Promise`<`void`\> |
 
 #### Returns
 
@@ -155,7 +156,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:202](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L202)
+[packages/lib/src/HotMig.ts:279](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L279)
 
 ___
 
@@ -169,7 +170,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:345](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L345)
+[packages/lib/src/HotMig.ts:459](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L459)
 
 ___
 
@@ -183,7 +184,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:118](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L118)
+[packages/lib/src/HotMig.ts:170](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L170)
 
 ___
 
@@ -197,7 +198,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:124](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L124)
+[packages/lib/src/HotMig.ts:176](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L176)
 
 ___
 
@@ -218,7 +219,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:72](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L72)
+[packages/lib/src/HotMig.ts:121](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L121)
 
 ___
 
@@ -232,13 +233,20 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:56](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L56)
+[packages/lib/src/HotMig.ts:105](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L105)
 
 ___
 
 ### latest
 
-▸ **latest**(): `Promise`<{ `applied`: `number` ; `migrations`: [`Migration`](../interfaces/Migration.md)[]  }\>
+▸ **latest**(`options?`): `Promise`<{ `applied`: `number` ; `migrations`: [`Migration`](../interfaces/Migration.md)[]  }\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `options?` | `Object` |
+| `options.onProgress?` | (`args`: [`OnProgressArgs`](../interfaces/OnProgressArgs.md)) => `Promise`<`void`\> |
 
 #### Returns
 
@@ -246,7 +254,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:245](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L245)
+[packages/lib/src/HotMig.ts:361](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L361)
 
 ___
 
@@ -260,7 +268,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:104](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L104)
+[packages/lib/src/HotMig.ts:157](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L157)
 
 ___
 
@@ -274,7 +282,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:67](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L67)
+[packages/lib/src/HotMig.ts:116](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L116)
 
 ___
 
@@ -295,7 +303,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:255](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L255)
+[packages/lib/src/HotMig.ts:371](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L371)
 
 ___
 
@@ -309,13 +317,20 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:160](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L160)
+[packages/lib/src/HotMig.ts:212](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L212)
 
 ___
 
 ### reset
 
-▸ **reset**(): `Promise`<{ `applied`: `number` ; `migrations`: [`Migration`](../interfaces/Migration.md)[]  }\>
+▸ **reset**(`options?`): `Promise`<{ `applied`: `number` ; `migrations`: [`Migration`](../interfaces/Migration.md)[]  }\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `options?` | `Object` |
+| `options.onProgress?` | (`args`: [`OnProgressArgs`](../interfaces/OnProgressArgs.md)) => `Promise`<`void`\> |
 
 #### Returns
 
@@ -323,7 +338,27 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:250](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L250)
+[packages/lib/src/HotMig.ts:366](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L366)
+
+___
+
+### setDriver
+
+▸ **setDriver**(`driver`): `Promise`<`void`\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `driver` | [`Driver`](Driver.md)<`any`\> |
+
+#### Returns
+
+`Promise`<`void`\>
+
+#### Defined in
+
+[packages/lib/src/HotMig.ts:153](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L153)
 
 ___
 
@@ -337,7 +372,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:299](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L299)
+[packages/lib/src/HotMig.ts:414](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L414)
 
 ___
 
@@ -351,6 +386,7 @@ ___
 | :------ | :------ |
 | `options` | `Object` |
 | `options.count` | `number` |
+| `options.onProgress?` | (`args`: [`OnProgressArgs`](../interfaces/OnProgressArgs.md)) => `Promise`<`void`\> |
 
 #### Returns
 
@@ -358,24 +394,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:174](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L174)
-
-___
-
-### validateMigrationModule
-
-▸ **validateMigrationModule**(`module`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `module` | `any` |
-
-#### Returns
-
-`void`
-
-#### Defined in
-
-[packages/lib/src/HotMig.ts:352](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L352)
+[packages/lib/src/HotMig.ts:226](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L226)

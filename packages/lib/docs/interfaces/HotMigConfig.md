@@ -8,7 +8,7 @@
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:22](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L22)
+[packages/lib/src/HotMig.ts:31](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L31)
 
 ___
 
@@ -18,4 +18,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:21](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/HotMig.ts#L21)
+[packages/lib/src/HotMig.ts:30](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L30)

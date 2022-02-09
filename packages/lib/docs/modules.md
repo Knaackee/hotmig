@@ -3,17 +3,24 @@
 ## Classes
 
 - [AlreadyInitializedError](classes/AlreadyInitializedError.md)
-- [DatabaseAlreadyInitializedError](classes/DatabaseAlreadyInitializedError.md)
-- [DatabaseNotInitializedError](classes/DatabaseNotInitializedError.md)
+- [DevMigrationAlreadyExistsError](classes/DevMigrationAlreadyExistsError.md)
+- [DevMigrationInvalidError](classes/DevMigrationInvalidError.md)
+- [DevMigrationNotExistsError](classes/DevMigrationNotExistsError.md)
 - [Driver](classes/Driver.md)
 - [HotMig](classes/HotMig.md)
+- [InvalidDriverError](classes/InvalidDriverError.md)
+- [LocalMigrationNotFound](classes/LocalMigrationNotFound.md)
 - [NotInitializedError](classes/NotInitializedError.md)
+- [PendingMigrationsError](classes/PendingMigrationsError.md)
+- [TestDriver](classes/TestDriver.md)
 
 ## Interfaces
 
 - [AppliedMigration](interfaces/AppliedMigration.md)
 - [HotMigConfig](interfaces/HotMigConfig.md)
 - [Migration](interfaces/Migration.md)
+- [MigrationModule](interfaces/MigrationModule.md)
+- [OnProgressArgs](interfaces/OnProgressArgs.md)
 
 ## Functions
 
@@ -27,7 +34,48 @@
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:27](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/utils/index.ts#L27)
+[packages/lib/src/utils/index.ts:27](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/utils/index.ts#L27)
+
+___
+
+### loadDriver
+
+▸ `Const` **loadDriver**(`driver`): `Promise`<`any`\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `driver` | `string` |
+
+#### Returns
+
+`Promise`<`any`\>
+
+#### Defined in
+
+[packages/lib/src/HotMig.ts:40](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L40)
+
+___
+
+### loadMigrationModule
+
+▸ `Const` **loadMigrationModule**(`path`, `logger`): `Promise`<`undefined` \| [`MigrationModule`](interfaces/MigrationModule.md)\>
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `path` | `string` |
+| `logger` | `Logger`<`LoggerOptions`\> |
+
+#### Returns
+
+`Promise`<`undefined` \| [`MigrationModule`](interfaces/MigrationModule.md)\>
+
+#### Defined in
+
+[packages/lib/src/HotMig.ts:58](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L58)
 
 ___
 
@@ -47,4 +95,25 @@ ___
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/9be9dc2/packages/lib/src/utils/index.ts#L7)
+[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/utils/index.ts#L7)
+
+___
+
+### validateMigrationModule
+
+▸ `Const` **validateMigrationModule**(`migration?`, `logger?`): `void`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `migration?` | [`Migration`](interfaces/Migration.md) |
+| `logger?` | `Logger`<`LoggerOptions`\> |
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[packages/lib/src/HotMig.ts:67](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L67)
