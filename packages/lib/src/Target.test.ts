@@ -15,6 +15,7 @@ import {
 import { Target } from "./Target";
 import "./utils";
 import "./utils/testing";
+import { HotMig } from "./HotMig";
 
 const execa = require("execa");
 
@@ -22,8 +23,6 @@ let target: Target;
 
 process.env.CONNECTION_STRING =
   "postgresql://postgres:postgres@localhost:5432/db?schema=testing";
-
-const root = resolve(__dirname, "../test/test-env");
 
 let i = 0;
 
@@ -53,6 +52,8 @@ let _originalClient: any = undefined;
 //   return eval(fs.readFileSync(main).toString());
 // });
 
+const root = resolve(__dirname, "../test/test-env/");
+
 const clearTestEnv = () => {
   if (existsSync(root)) {
     rmSync(root, { recursive: true, force: true });
@@ -66,8 +67,9 @@ beforeAll(() => {
 
 beforeEach(async () => {
   // vol.reset();
-
-  target = new Target("default_" + i, root);
+  const hm = new HotMig(root);
+  await hm.init("./.migrations");
+  target = hm.target("default_" + i);
   await target.init("@hotmig/hotmig-driver-pg");
   await target.loadConfig();
 
@@ -85,8 +87,8 @@ beforeEach(async () => {
 afterEach(async () => {
   clearTestEnv();
   // rollback
-  await trx.rollback();
-  await _originalClient.destroy();
+  await trx?.rollback();
+  await _originalClient?.destroy();
 });
 
 describe("HotMig", () => {

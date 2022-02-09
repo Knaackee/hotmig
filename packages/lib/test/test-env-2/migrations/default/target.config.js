@@ -6,4 +6,4 @@ module.exports = {
     searchPath: ["testing"],
     asyncStackTraces: true,
   },
-};
+}

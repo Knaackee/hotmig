@@ -8,10 +8,12 @@
 - [DevMigrationNotExistsError](classes/DevMigrationNotExistsError.md)
 - [Driver](classes/Driver.md)
 - [HotMig](classes/HotMig.md)
+- [InvalidConfigError](classes/InvalidConfigError.md)
 - [InvalidDriverError](classes/InvalidDriverError.md)
 - [LocalMigrationNotFound](classes/LocalMigrationNotFound.md)
 - [NotInitializedError](classes/NotInitializedError.md)
 - [PendingMigrationsError](classes/PendingMigrationsError.md)
+- [Target](classes/Target.md)
 - [TestDriver](classes/TestDriver.md)
 
 ## Interfaces
@@ -21,6 +23,7 @@
 - [Migration](interfaces/Migration.md)
 - [MigrationModule](interfaces/MigrationModule.md)
 - [OnProgressArgs](interfaces/OnProgressArgs.md)
+- [TargetConfig](interfaces/TargetConfig.md)
 
 ## Functions
 
@@ -34,7 +37,7 @@
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:27](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/utils/index.ts#L27)
+[packages/lib/src/utils/index.ts:27](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/utils/index.ts#L27)
 
 ___
 
@@ -54,7 +57,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:40](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L40)
+[packages/lib/src/Target.ts:42](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/Target.ts#L42)
 
 ___
 
@@ -75,7 +78,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:58](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L58)
+[packages/lib/src/Target.ts:60](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/Target.ts#L60)
 
 ___
 
@@ -95,7 +98,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/utils/index.ts#L7)
+[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/utils/index.ts#L7)
 
 ___
 
@@ -116,4 +119,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:67](https://github.com/Knaackee/hotmig/blob/7c5e64a/packages/lib/src/HotMig.ts#L67)
+[packages/lib/src/Target.ts:69](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/Target.ts#L69)

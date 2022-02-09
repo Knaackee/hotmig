@@ -10,6 +10,7 @@ import invariant from "invariant";
 import { resolve } from "path";
 import pino from "pino";
 import slugify from "slugify";
+import { HotMig } from ".";
 import { Driver } from "./Driver";
 import {
   AlreadyInitializedError,
@@ -26,61 +27,6 @@ import { Migration } from "./models";
 import { requireGlobal } from "./utils";
 import { generateId, isValidMigrationContent } from "./utils/utils";
 const prettier = require("prettier");
-
-export interface HotMigConfig2 {
-  migrationsDir: string;
-}
-
-export class HotMig2 {
-  configFilePath: string = "";
-  config?: HotMigConfig2;
-
-  constructor(private path: string) {
-    this.configFilePath = resolve(this.path, "hotmig.config.js");
-  }
-
-  async init(migrationsDir: string) {
-    // check if already initialized
-    if (this.isInitialized()) {
-      throw new AlreadyInitializedError();
-    }
-    this.config = { migrationsDir };
-    writeFileSync(
-      this.configFilePath,
-      prettier.format(`module.exports = ${JSON.stringify(this.config)}`, {
-        semi: false,
-        parser: "babel",
-      })
-    );
-  }
-
-  async loadConfig() {
-    // check if already initialized
-    if (!this.isInitialized()) {
-      throw new NotInitializedError();
-    }
-    // load config
-    try {
-      const config = require(this.configFilePath);
-      if (!config.migrationsDir) {
-        throw new InvalidConfigError(`migrationsDir not found in config`);
-      }
-      this.config = config;
-    } catch (e) {
-      console.log(e);
-      throw e;
-    }
-  }
-
-  isInitialized() {
-    // check if hotmig.config.js already exists
-    return existsSync(this.configFilePath);
-  }
-
-  target(name: string) {
-    return new Target(name, this.path);
-  }
-}
 
 export interface TargetConfig {
   driver: string;
@@ -140,7 +86,7 @@ export class Target {
 
   constructor(
     private readonly target: string,
-    root: string = process.cwd(),
+    hotmig: HotMig,
     logLevel:
       | "fatal"
       | "error"
@@ -150,7 +96,10 @@ export class Target {
       | "trace"
       | "silent" = "silent"
   ) {
-    this.baseDirectory = resolve(root, "./.migrations");
+    this.baseDirectory = resolve(
+      hotmig.path,
+      hotmig.config?.migrationsDir ?? ""
+    );
     this.targetDirectory = resolve(this.baseDirectory, `./${target}`);
     this.devJsPath = resolve(this.targetDirectory, "./dev.js");
     this.commitDirectory = resolve(this.targetDirectory, "./commits");
@@ -185,8 +134,9 @@ export class Target {
     this.driverName = driver;
 
     if (!existsSync(this.baseDirectory)) {
-      mkdirSync(this.baseDirectory);
+      throw new NotInitializedError();
     }
+
     mkdirSync(this.targetDirectory);
     mkdirSync(this.commitDirectory);
 
@@ -291,7 +241,6 @@ export class Target {
     let applied = 0;
     let migrations: Array<Migration> = [];
 
-    console.log("calling onProgress", options);
     await options?.onProgress?.({
       applied,
       migrations,
@@ -429,7 +378,7 @@ export class Target {
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
-    if (existsSync(this.devJsPath)) {
+    if (this.devMigationAlreadyExists()) {
       throw new DevMigrationAlreadyExistsError();
     }
     const content = await this.driver?.getEmptyMigrationContent(
@@ -439,12 +388,16 @@ export class Target {
     writeFileSync(this.devJsPath, content ?? "");
   }
 
+  devMigationAlreadyExists() {
+    return existsSync(this.devJsPath);
+  }
+
   async commit() {
     this.logger.info("commit");
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
-    if (!existsSync(this.devJsPath)) {
+    if (!this.devMigationAlreadyExists()) {
       throw new DevMigrationNotExistsError();
     }
     if (!isValidMigrationContent(this.devJsPath)) {
@@ -472,7 +425,7 @@ export class Target {
     if (!this.isInitialized()) {
       throw new NotInitializedError();
     }
-    if (!existsSync(this.devJsPath)) {
+    if (!this.devMigationAlreadyExists()) {
       throw new DevMigrationNotExistsError();
     }
     if (!isValidMigrationContent(this.devJsPath)) {

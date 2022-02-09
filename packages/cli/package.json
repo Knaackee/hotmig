@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "description": "Tool for Database Migrations.",
   "private": true,
-  "main": "dist/index.js",
+  "main": "dist/hotmig.js",
   "scripts": {
     "build": "tsc -b",
     "postbuild": "npm run docs",
     "dev": "tsc -b -w",
-    "docs": "rimraf docs && typedoc src/index.ts --hideInPageTOC --hideBreadcrumbs --plugin typedoc-plugin-markdown --out docs",
+    "docs": "rimraf docs && typedoc src/hotmig.ts --hideInPageTOC --hideBreadcrumbs --plugin typedoc-plugin-markdown --out docs",
     "test": "jest --passWithNoTests"
   },
   "license": "MIT",

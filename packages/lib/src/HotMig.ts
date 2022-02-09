@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import {
   AlreadyInitializedError,
@@ -16,7 +16,7 @@ export class HotMig {
   configFilePath: string = "";
   config?: HotMigConfig;
 
-  constructor(private path: string) {
+  constructor(public path: string) {
     this.configFilePath = resolve(this.path, "hotmig.config.js");
   }
 
@@ -33,6 +33,9 @@ export class HotMig {
         parser: "babel",
       })
     );
+    if (!existsSync(resolve(this.path, this.config.migrationsDir))) {
+      await mkdirSync(resolve(this.path, this.config.migrationsDir));
+    }
   }
 
   async loadConfig() {
@@ -58,7 +61,16 @@ export class HotMig {
     return existsSync(this.configFilePath);
   }
 
-  target(name: string) {
-    return new Target(name, this.path);
+  async target(name: string) {
+    // check if already initialized
+    if (!this.isInitialized()) {
+      throw new NotInitializedError();
+    }
+
+    const result = new Target(name, this);
+    if (result.isInitialized()) {
+      await result.loadConfig();
+    }
+    return result;
   }
 }

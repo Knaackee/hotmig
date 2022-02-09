@@ -1,16 +1,22 @@
-# Class: PendingMigrationsError
+# Class: InvalidConfigError
 
 ## Hierarchy
 
 - `Error`
 
-  ↳ **`PendingMigrationsError`**
+  ↳ **`InvalidConfigError`**
 
 ## Constructors
 
 ### constructor
 
-• **new PendingMigrationsError**()
+• **new InvalidConfigError**(`reason`)
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `reason` | `string` |
 
 #### Overrides
 
@@ -18,7 +24,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/PendingMigrationsError.ts:3](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/errors/PendingMigrationsError.ts#L3)
+[packages/lib/src/errors/InvalidConfigError.ts:5](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/errors/InvalidConfigError.ts#L5)
 
 ## Properties
 
@@ -66,11 +72,11 @@ ___
 
 ### MESSAGE
 
-▪ `Static` **MESSAGE**: `string` = `"there are pending migrations, cant test"`
+▪ `Static` **MESSAGE**: `string` = `"Invalid config: "`
 
 #### Defined in
 
-[packages/lib/src/errors/PendingMigrationsError.ts:2](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/errors/PendingMigrationsError.ts#L2)
+[packages/lib/src/errors/InvalidConfigError.ts:4](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/errors/InvalidConfigError.ts#L4)
 
 ___
 
