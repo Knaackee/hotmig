@@ -83,8 +83,8 @@ export abstract class Driver extends Base<Knex.Config<any>> {
     isInteractive?: boolean
   ): Promise<string> {
     return /*js*/ `
+// @name: ${name}    
 module.exports = {
-  name: "{{name}}",
   up: async (db) => {
     // do your migration here
   },

@@ -201,9 +201,17 @@ export class Target {
       if (file.toLocaleLowerCase().endsWith(".js")) {
         try {
           if (isValidMigrationContent(resolve(this.commitDirectory, file))) {
+            const regex = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
+              readFileSync(resolve(this.commitDirectory, file)).toString()
+            );
+            const name = regex?.groups?.name;
+            if (!name) {
+              throw new DevMigrationInvalidError();
+            }
+
             const migration = {} as Migration;
             migration.id = file.split("-")[0];
-            migration.name = file.split("-")[1].split(".")[0];
+            migration.name = name;
             migration.filePath = resolve(this.commitDirectory, file);
             migration.target = this.target;
             result.loaded++;
@@ -247,12 +255,6 @@ export class Target {
     let applied = 0;
     let migrations: Array<Migration> = [];
 
-    await options?.onProgress?.({
-      applied,
-      migrations,
-      total: Math.min(pendingMigrations.length, options.count),
-    });
-
     await this.driver?.exec(async (params) => {
       for (
         let i = 0;
@@ -278,12 +280,6 @@ export class Target {
       }
     });
 
-    await options?.onProgress?.({
-      applied,
-      migrations,
-      total: Math.min(pendingMigrations.length, options.count),
-    });
-
     return { applied, migrations };
   }
 
@@ -305,15 +301,6 @@ export class Target {
 
     let applied = 0;
     let migrations: Array<Migration> = [];
-
-    await options?.onProgress?.({
-      applied,
-      migrations,
-      total: Math.min(
-        appliedMigrations.length,
-        Math.min(options.count, options.count)
-      ),
-    });
 
     await this.driver.exec(async (params) => {
       for (
@@ -355,15 +342,6 @@ export class Target {
           ),
         });
       }
-    });
-
-    await options?.onProgress?.({
-      applied,
-      migrations,
-      total: Math.min(
-        appliedMigrations.length,
-        Math.min(options.count, options.count)
-      ),
     });
 
     return { applied, migrations };
@@ -411,17 +389,24 @@ export class Target {
     }
 
     const migration = {} as Migration;
+    const devJsContent = readFileSync(this.devJsPath).toString();
+    const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(devJsContent);
+    const name = result?.groups?.name;
+    if (!name) {
+      throw new DevMigrationInvalidError();
+    }
 
     // sorry only one commit per ms
     // we need this to avoid collisions of migration ids
     await new Promise((res) => setTimeout(res, 1));
     migration.id = generateId();
-    const module = (migration.name = require(this.devJsPath).name);
+    migration.name = name;
     migration.filePath = resolve(
       this.commitDirectory,
       `${migration.id}-${slugify(migration.name || "")}.js`
     );
-    writeFileSync(migration.filePath, readFileSync(this.devJsPath).toString());
+
+    writeFileSync(migration.filePath, devJsContent);
     unlinkSync(this.devJsPath);
     return migration;
   }

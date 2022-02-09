@@ -1,6 +1,6 @@
 
+// @name: insert name here    
 module.exports = {
-  name: "insert name here",
   up: async (db) => {
     // do your migration here
   },

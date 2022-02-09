@@ -14,7 +14,13 @@ import inqu from "inquirer";
 import chokidar from "chokidar";
 import ora from "ora";
 import { header, title } from "./header";
-import { copyFile, copyFileSync, existsSync, unlinkSync } from "fs";
+import {
+  copyFile,
+  copyFileSync,
+  existsSync,
+  readFileSync,
+  unlinkSync,
+} from "fs";
 import { resolve } from "path";
 import inquirer from "inquirer";
 const execa = require("execa");
@@ -153,11 +159,17 @@ program
     )?.up({
       count: options.count,
       onProgress: async (args: OnProgressArgs) => {
-        console.log(args);
+        console.log(
+          chalk.green(
+            `[UP] migrated ${args.migrations.length} of ${args.total}: ${
+              args.migrations[args.migrations.length - 1].id
+            }-${args.migrations[args.migrations.length - 1].name}`
+          )
+        );
       },
     });
 
-    console.log(chalk.green(`✨ done. migrated: ${result?.applied ?? "0"}`));
+    console.log(chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`));
     process.exit(0);
   });
 
@@ -176,11 +188,17 @@ program
     )?.down({
       count: options.count,
       onProgress: async (args: OnProgressArgs) => {
-        console.log(args);
+        console.log(
+          chalk.green(
+            `[DOWN] migrated ${args.migrations.length} of ${args.total}: ${
+              args.migrations[args.migrations.length - 1].id
+            }-${args.migrations[args.migrations.length - 1].name}`
+          )
+        );
       },
     });
 
-    console.log(chalk.green(`✨ done. migrated: ${result?.applied ?? "0"}`));
+    console.log(chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`));
     process.exit(0);
   });
 
@@ -195,11 +213,17 @@ program
       await getReadyTarget(options.target, false, true)
     )?.latest({
       onProgress: async (args: OnProgressArgs) => {
-        console.log(args);
+        console.log(
+          chalk.green(
+            `[UP] migrated ${args.migrations.length} of ${args.total}: ${
+              args.migrations[args.migrations.length - 1].id
+            }-${args.migrations[args.migrations.length - 1].name}`
+          )
+        );
       },
     });
 
-    console.log(chalk.green(`✨ done. migrated: ${result?.applied ?? "0"}`));
+    console.log(chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`));
     process.exit(0);
   });
 
@@ -216,11 +240,17 @@ program
       await getReadyTarget(options.target, false, true)
     )?.reset({
       onProgress: async (args: OnProgressArgs) => {
-        console.log(args);
+        console.log(
+          chalk.green(
+            `[DOWN] migrated ${args.migrations.length} of ${args.total}: ${
+              args.migrations[args.migrations.length - 1].id
+            }-${args.migrations[args.migrations.length - 1].name}`
+          )
+        );
       },
     });
 
-    console.log(chalk.green(`✨ done. migrated: ${result?.applied ?? "0"}`));
+    console.log(chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`));
     process.exit(0);
   });
 
@@ -315,94 +345,122 @@ program
             const devJs = require(path);
             validateMigrationModule(devJs);
 
-            // run up, down, up in dev.js
-            let spinner = ora(
-              `running up for target "${options.target}"...`
-            ).start();
-
-            let failed = false;
-
-            await devJs
-              .up(params)
-              .then(() => spinner.succeed())
-              .catch((err: any) => {
-                spinner.fail();
-                console.log(err);
-                failed = true;
-              });
-
-            if (failed) return;
-
-            spinner = ora(
-              `running down for target "${options.target}"...`
-            ).start();
-            await devJs
-              .down(params)
-              .then(() => spinner.succeed())
-              .catch((err: any) => {
-                spinner.fail();
-                console.log(err);
-                failed = true;
-              });
-
-            if (failed) return;
-
-            spinner = ora(
-              `running up for target "${options.target}"...`
-            ).start();
-            await devJs
-              .up(params)
-              .then(() => spinner.succeed())
-              .catch((err: any) => {
-                spinner.fail();
-                console.log(err);
-                failed = true;
-              });
-
-            if (failed) return;
-
-            console.log(
-              chalk.yellow(
-                `\n✨ dev.sql was for target "${options.target}" is alright!\n`
-              )
+            const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
+              readFileSync(path).toString()
             );
+            const name = result?.groups?.name;
+            if (name) {
+              // run up, down, up in dev.js
+              let spinner = ora(
+                `running up for target "${options.target}"...`
+              ).start();
 
-            // copy dev.js to prev.dev.js
-            copyFileSync(path, prevDevJsPath);
+              let failed = false;
 
-            // ask for commit
-            const answer = await inqu.prompt({
-              name: "action",
-              type: "list",
-              message: "Please select",
-              choices: ["commit and migrate", "commit and exit"],
-            });
+              await devJs
+                .up(params)
+                .then(() => spinner.succeed())
+                .catch((err: any) => {
+                  spinner.fail();
+                  console.log(err);
+                  failed = true;
+                });
 
-            // ask for next dev.js ?
-            if (answer.action === "commit and migrate") {
-              watcher.unwatch(target?.devJsPath ?? "");
-              await target?.commit();
-              await target?.latest();
-              unlinkSync(prevDevJsPath);
+              if (failed) return;
 
+              spinner = ora(
+                `running down for target "${options.target}"...`
+              ).start();
+              await devJs
+                .down(params)
+                .then(() => spinner.succeed())
+                .catch((err: any) => {
+                  spinner.fail();
+                  console.log(err);
+                  failed = true;
+                });
+
+              if (failed) return;
+
+              spinner = ora(
+                `running up for target "${options.target}"...`
+              ).start();
+              await devJs
+                .up(params)
+                .then(() => spinner.succeed())
+                .catch((err: any) => {
+                  spinner.fail();
+                  console.log(err);
+                  failed = true;
+                });
+
+              if (failed) return;
+
+              console.log(
+                chalk.yellow(
+                  `\n✨ dev.sql was for target "${options.target}" is alright!\n`
+                )
+              );
+
+              // copy dev.js to prev.dev.js
+              copyFileSync(path, prevDevJsPath);
+
+              // ask for commit
               const answer = await inqu.prompt({
                 name: "action",
                 type: "list",
                 message: "Please select",
-                choices: ["create new dev migration", "exit"],
+                choices: ["commit and migrate", "commit and exit", "exit"],
               });
 
-              if (answer.action === "create new dev migration") {
-                await target?.new("insert name here", false);
-                watcher.add(target?.devJsPath ?? "");
-              } else {
+              // ask for next dev.js ?
+              if (answer.action === "commit and migrate") {
+                watcher.unwatch(target?.devJsPath ?? "");
+                await target
+                  ?.commit()
+                  .then(async () => {
+                    await target?.latest();
+                    unlinkSync(prevDevJsPath);
+
+                    const answer = await inqu.prompt({
+                      name: "action",
+                      type: "list",
+                      message: "Please select",
+                      choices: ["create new dev migration", "exit"],
+                    });
+
+                    if (answer.action === "create new dev migration") {
+                      await target?.new("insert name here", false);
+                      watcher.add(target?.devJsPath ?? "");
+                    } else {
+                      process.exit(0);
+                    }
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                    watcher.add(target?.devJsPath ?? "");
+                  });
+              } else if (answer.action === "commit and exit") {
+                watcher.unwatch(target?.devJsPath ?? "");
+                await target
+                  ?.commit()
+                  .then(() => {
+                    unlinkSync(prevDevJsPath);
+                    process.exit(0);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                    watcher.add(target?.devJsPath ?? "");
+                  });
+              } else if (answer.action === "exit") {
                 process.exit(0);
               }
-            } else if (answer.action === "commit and exit") {
-              watcher.unwatch(target?.devJsPath ?? "");
-              await target?.commit();
-              unlinkSync(prevDevJsPath);
-              process.exit(0);
+            } else {
+              console.log(
+                chalk.red(
+                  `❌ dev.sql is invalid, cant test. please add a "//@name: [your name]" to the first line of the file.`
+                )
+              );
             }
           });
         } else if (event === "unlink") {
