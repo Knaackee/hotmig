@@ -14,8 +14,9 @@ import inqu from "inquirer";
 import chokidar from "chokidar";
 import ora from "ora";
 import { header, title } from "./header";
-import { copyFile, copyFileSync, existsSync } from "fs";
+import { copyFile, copyFileSync, existsSync, unlinkSync } from "fs";
 import { resolve } from "path";
+import inquirer from "inquirer";
 const execa = require("execa");
 
 console.log("");
@@ -370,11 +371,41 @@ program
             copyFileSync(path, prevDevJsPath);
 
             // ask for commit
+            const answer = await inqu.prompt({
+              name: "action",
+              type: "list",
+              message: "Please select",
+              choices: ["commit and migrate", "commit and exit"],
+            });
 
             // ask for next dev.js ?
+            if (answer.action === "commit and migrate") {
+              watcher.unwatch(target?.devJsPath ?? "");
+              await target?.commit();
+              await target?.latest();
+              unlinkSync(prevDevJsPath);
+
+              const answer = await inqu.prompt({
+                name: "action",
+                type: "list",
+                message: "Please select",
+                choices: ["create new dev migration", "exit"],
+              });
+
+              if (answer.action === "create new dev migration") {
+                await target?.new("insert name here", false);
+                watcher.add(target?.devJsPath ?? "");
+              } else {
+                process.exit(0);
+              }
+            } else if (answer.action === "commit and exit") {
+              watcher.unwatch(target?.devJsPath ?? "");
+              await target?.commit();
+              unlinkSync(prevDevJsPath);
+              process.exit(0);
+            }
           });
         } else if (event === "unlink") {
-          watcher.close();
           console.log(
             chalk.yellow(
               `dev.sql was removed for target "${options.target}", stopping dev mode...`

@@ -1,0 +1,2 @@
+- UP DOWN / ausgabe
+- "name" aus target entfernen => name aus datei (slug)
