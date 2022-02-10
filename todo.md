@@ -1,2 +1,3 @@
-- UP DOWN / ausgabe
-- "name" aus target entfernen => name aus datei (slug)
+- loadConfig, validateModule, etc. refactorieren
+  - test
+- vscode extension

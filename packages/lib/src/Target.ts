@@ -466,7 +466,7 @@ export class Target {
       }
     });
 
-    return { error };
+    return error;
   }
 
   ensureInitialized() {

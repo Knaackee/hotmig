@@ -25,7 +25,7 @@ export abstract class Driver<TConfig = any> {
   ): Promise<string> {
     return /*js*/ `
 module.exports = {
-  name: "{{name}}",
+  // @name: ${name}    
   up: async (params) => {
     // do your migration here
   },

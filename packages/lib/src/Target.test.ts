@@ -69,7 +69,7 @@ beforeEach(async () => {
   // vol.reset();
   const hm = new HotMig(root);
   await hm.init("./.migrations");
-  target = hm.target("default_" + i);
+  target = await hm.target("default_" + i);
   await target.init("@hotmig/hotmig-driver-pg");
   await target.loadConfig();
 
@@ -91,7 +91,7 @@ afterEach(async () => {
   await _originalClient?.destroy();
 });
 
-describe("HotMig", () => {
+describe("Target", () => {
   describe("isInitialized", () => {
     it("should return false if not already initialized", async () => {
       rmSync(target.targetDirectory, { recursive: true, force: true });
@@ -231,11 +231,9 @@ describe("HotMig", () => {
       });
 
       console.log(progresses);
-      expect(progresses).toHaveLength(4);
-      expect(progresses[0]).toMatchObject({ total: 2, applied: 0 });
-      expect(progresses[1]).toMatchObject({ total: 2, applied: 1 });
-      expect(progresses[2]).toMatchObject({ total: 2, applied: 2 });
-      expect(progresses[3]).toMatchObject({ total: 2, applied: 2 });
+      expect(progresses).toHaveLength(2);
+      expect(progresses[0]).toMatchObject({ total: 2, applied: 1 });
+      expect(progresses[1]).toMatchObject({ total: 2, applied: 2 });
     });
   });
   describe("down", () => {
@@ -294,11 +292,9 @@ describe("HotMig", () => {
       });
 
       console.log(progresses);
-      expect(progresses).toHaveLength(4);
-      expect(progresses[0]).toMatchObject({ total: 2, applied: 0 });
-      expect(progresses[1]).toMatchObject({ total: 2, applied: 1 });
-      expect(progresses[2]).toMatchObject({ total: 2, applied: 2 });
-      expect(progresses[3]).toMatchObject({ total: 2, applied: 2 });
+      expect(progresses).toHaveLength(2);
+      expect(progresses[0]).toMatchObject({ total: 2, applied: 1 });
+      expect(progresses[1]).toMatchObject({ total: 2, applied: 2 });
     });
   });
   describe("latest", () => {
