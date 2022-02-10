@@ -8,7 +8,7 @@
 
 #### Defined in
 
-[packages/lib/src/models/Migration.ts:4](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/models/Migration.ts#L4)
+[packages/lib/src/models/Migration.ts:4](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/models/Migration.ts#L4)
 
 ___
 
@@ -18,7 +18,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/models/Migration.ts:3](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/models/Migration.ts#L3)
+[packages/lib/src/models/Migration.ts:3](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/models/Migration.ts#L3)
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/models/Migration.ts:2](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/models/Migration.ts#L2)
+[packages/lib/src/models/Migration.ts:2](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/models/Migration.ts#L2)
 
 ___
 
@@ -38,4 +38,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/models/Migration.ts:5](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/models/Migration.ts#L5)
+[packages/lib/src/models/Migration.ts:5](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/models/Migration.ts#L5)

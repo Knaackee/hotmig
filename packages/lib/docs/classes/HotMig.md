@@ -14,7 +14,7 @@
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:19](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/HotMig.ts#L19)
+[packages/lib/src/HotMig.ts:19](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/HotMig.ts#L19)
 
 ## Properties
 
@@ -24,7 +24,7 @@
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:17](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/HotMig.ts#L17)
+[packages/lib/src/HotMig.ts:17](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/HotMig.ts#L17)
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:16](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/HotMig.ts#L16)
+[packages/lib/src/HotMig.ts:16](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/HotMig.ts#L16)
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:23](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/HotMig.ts#L23)
+[packages/lib/src/HotMig.ts:23](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/HotMig.ts#L23)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:59](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/HotMig.ts#L59)
+[packages/lib/src/HotMig.ts:59](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/HotMig.ts#L59)
 
 ___
 
@@ -88,13 +88,13 @@ ___
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:41](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/HotMig.ts#L41)
+[packages/lib/src/HotMig.ts:41](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/HotMig.ts#L41)
 
 ___
 
 ### target
 
-▸ **target**(`name`): [`Target`](Target.md)
+▸ **target**(`name`): `Promise`<[`Target`](Target.md)\>
 
 #### Parameters
 
@@ -104,8 +104,8 @@ ___
 
 #### Returns
 
-[`Target`](Target.md)
+`Promise`<[`Target`](Target.md)\>
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:64](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/HotMig.ts#L64)
+[packages/lib/src/HotMig.ts:64](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/HotMig.ts#L64)

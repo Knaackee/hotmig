@@ -24,6 +24,7 @@
 - [MigrationModule](interfaces/MigrationModule.md)
 - [OnProgressArgs](interfaces/OnProgressArgs.md)
 - [TargetConfig](interfaces/TargetConfig.md)
+- [TestOnProgressArgs](interfaces/TestOnProgressArgs.md)
 
 ## Functions
 
@@ -37,7 +38,7 @@
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:27](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/utils/index.ts#L27)
+[packages/lib/src/utils/index.ts:27](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/utils/index.ts#L27)
 
 ___
 
@@ -57,7 +58,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:42](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/Target.ts#L42)
+[packages/lib/src/Target.ts:47](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/Target.ts#L47)
 
 ___
 
@@ -78,7 +79,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:60](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/Target.ts#L60)
+[packages/lib/src/Target.ts:65](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/Target.ts#L65)
 
 ___
 
@@ -98,7 +99,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/utils/index.ts#L7)
+[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/utils/index.ts#L7)
 
 ___
 
@@ -119,4 +120,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:69](https://github.com/Knaackee/hotmig/blob/121a73c/packages/lib/src/Target.ts#L69)
+[packages/lib/src/Target.ts:75](https://github.com/Knaackee/hotmig/blob/5ff8214/packages/lib/src/Target.ts#L75)

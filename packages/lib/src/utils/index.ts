@@ -29,11 +29,19 @@ export const listGlobal = async () => {
 
   var globalNodeModules = Array.from((stdout as string).split("\n"))
     .splice(1)
-    .map((s) => s.replace("├──", "").replace("└──", "").trim())
+    .map((s) =>
+      s
+        .replace("├──", "")
+        .replace("└──", "")
+        .replace("+--", "")
+        .replace("`--", "")
+        .trim()
+    )
     .map((s) => ({
       name: s.startsWith("@") ? "@" + s.split("@")[1] : s.split("@")[0],
-      version: s.startsWith("@") ? s.split("@")[1] : s.split("@")[2],
-    }));
+      version: s.startsWith("@") ? s.split("@")[2] : s.split("@")[1],
+    }))
+    .filter((x) => x.name.trim().length > 0);
 
   return globalNodeModules;
 };
