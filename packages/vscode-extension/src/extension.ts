@@ -5,11 +5,50 @@ import { HotMig, listGlobal } from "@hotmig/lib";
 // import { commands, ProgressLocation, window } from "vscode";
 import path = require("path");
 import axios from "axios";
+import { getDirectoriesReursively } from "./utils";
+import { readdirSync, statSync } from "fs";
+import { dirname, resolve } from "path";
 // import { execa } from "execa";
 // import { resolve } from "path";
 // import { getDirectoriesReursively } from "./utils";
 
 // let myStatusBarItem: vscode.StatusBarItem;
+
+const getDirectoryContent = (
+  basePath: string,
+  last: Array<{
+    type: "file" | "directory";
+    value: string;
+  }> = []
+) => {
+  const files = readdirSync(basePath);
+
+  last.push({
+    type: "directory",
+    value: basePath,
+  });
+
+  files.forEach(function (file) {
+    if (statSync(basePath + "/" + file).isDirectory()) {
+      last = getDirectoryContent(basePath + "/" + file, last);
+    } else {
+      last.push({
+        value: path.normalize(path.join(basePath, "\\", file)),
+        type: "file",
+      });
+    }
+  });
+
+  return last;
+};
+
+const getHotmigs = (basePath: string) => {
+  const content = getDirectoryContent(basePath);
+  const hotmigs = content.filter(
+    (item) => item.type === "file" && item.value.endsWith("hotmig.config.js")
+  );
+  return hotmigs.map((x) => dirname(x.value));
+};
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -20,29 +59,112 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.commands.registerCommand("hotmig.helloWorld", () => {
     vscode.window.showInformationMessage("Hello World from hotmig!");
+    console.log(getDirectoryContent(resolve(__dirname, "../")));
+  });
+
+  vscode.commands.registerCommand("hotmig.init-target", async () => {
+    // get all "hotmigs"
+
+    const hotmigs = new Array<HotMig>();
+    vscode.workspace.workspaceFolders?.map((folder) => {
+      const content = getHotmigs(path.resolve(folder.uri.fsPath));
+      for (const hmPath of content) {
+        hotmigs.push(new HotMig(hmPath));
+      }
+    });
+
+    if (hotmigs.length === 0) {
+      vscode.window.showWarningMessage(
+        "No hotmig found in any of the folders. Please run init."
+      );
+      return;
+    }
+
+    const a = await vscode.window.showQuickPick(hotmigs.map((hm) => hm.path));
+    if (!a || a.length === 0) return;
+
+    const hm = hotmigs.find((x) => x.path === a);
+
+    const name = await vscode.window.showInputBox({
+      prompt: "Enter the name of the target",
+      value: "my-target",
+    });
+    console.log("name", name);
+    if (!name) return;
+
+    console.log(name);
+    const target = await hm?.target(name);
+    console.log(target);
+    if (!target) return;
+
+    if (target.isInitialized()) {
+      vscode.window.showInformationMessage(
+        `Target ${name} already initialized`
+      );
+      return;
+    }
+
+    // get global node modules
+    let available = new Array<{ name: string; version: string }>();
+    console.log(available);
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: "I am long running!",
+        cancellable: true,
+      },
+      async (progress) => {
+        progress.report({ increment: 0 });
+
+        // await new Promise((res) => setTimeout(res, 3000));
+
+        let global = await listGlobal();
+        available = global.filter((x) => x.name.indexOf("hotmig-driver-") > -1);
+        console.log(available, global);
+        progress.report({ increment: 100 });
+      }
+    );
+
+    console.log(available);
+
+    if (available.length === 0) {
+      vscode.window.showWarningMessage(
+        "No driver found. Please run install driver."
+      );
+      return;
+    }
+
+    console.log("aslkjdlakjsd");
+
+    const driver = await vscode.window.showQuickPick(
+      available.map((x) => x.name)
+    );
+    if (!driver || driver.length === 0) return;
+
+    await target.init(driver, false);
+
+    console.log(name, hm);
+
+    return;
+
+    // const hm = new HotMig(process.cwd());
+    // if (!hm.isInitialized()) {
+    //   // await vscode.window.showErrorMessage(`HotMig is not initialized in ${}`);
+    //   return;
+    // }
+    // await hm.loadConfig();
+
+    // const target = await hm.target(name);
+
+    // if (await target.isInitialized()) {
+    //   console.log(chalk.red(`target "${name}" is already initialized`));
+    //   process.exit(1);
+    // }
+
+    console.log("init-target");
   });
 
   vscode.commands.registerCommand("hotmig.install-driver", async () => {
-    // get global node modules
-    // let available = new Array<{ name: string; version: string }>();
-    // await vscode.window.withProgress(
-    //   {
-    //     location: vscode.ProgressLocation.Notification,
-    //     title: "I am long running!",
-    //     cancellable: true,
-    //   },
-    //   async (progress) => {
-    //     progress.report({ increment: 0 });
-
-    //     // await new Promise((res) => setTimeout(res, 3000));
-
-    //     let global = await listGlobal();
-    //     available = global.filter((x) => x.name.indexOf("hotmig-driver-") > -1);
-    //     console.log(available, global);
-    //     progress.report({ increment: 100 });
-    //   }
-    // );
-
     // vscode.window.showErrorMessage(`asdkfjlsadfj`);
 
     await vscode.window.withProgress(
@@ -79,14 +201,17 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand("hotmig.init", async () => {
     // get all folders in the workspace
     const workspaceFolders = vscode.workspace.workspaceFolders?.map((folder) =>
-      path.resolve(folder.uri.fsPath)
+      getDirectoriesReursively(path.resolve(folder.uri.fsPath))
     );
     // let user show picker to select a folder
-    const a = await vscode.window.showQuickPick(workspaceFolders || []);
+    const a = await vscode.window.showQuickPick(workspaceFolders?.flat() || []);
     if (!a) return;
     const hm = new HotMig(a);
     if (await hm.isInitialized()) {
-      vscode.window.showErrorMessage(`HotMig is already initialized in ${a}`);
+      await vscode.window.showErrorMessage(
+        `HotMig is already initialized in ${a}`
+      );
+      return;
     }
 
     var slugify = require("slugify");

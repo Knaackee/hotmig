@@ -48,11 +48,13 @@ export const loadDriver = async (driver: string) => {
   // check driver
   try {
     const module = await requireGlobal(driver);
+    console.log(module);
     if (!module["Driver"]) {
       throw new InvalidDriverError(driver);
     }
     return module;
   } catch (err) {
+    console.log(err);
     throw new InvalidDriverError(driver);
   }
 };
