@@ -2,7 +2,7 @@
   "name": "@hotmig/hotmig-driver-pg",
   "version": "0.1.0",
   "description": "Tool for Database Migrations.",
-  "private": true,
+  "private": false,
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -b",

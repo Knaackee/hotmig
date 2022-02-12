@@ -12,7 +12,27 @@ import { dirname, resolve } from "path";
 // import { resolve } from "path";
 // import { getDirectoriesReursively } from "./utils";
 
+function run(cmd) {
+  console.log("running...", cmd);
+  return new Promise((resolve, reject) => {
+    var spawn = require("child_process").spawn;
+    let options = { shell: true };
+    var command = spawn(cmd, [], options);
+    var result = "";
+    command.stdout.on("data", function (data) {
+      result += data.toString();
+    });
+    command.on("close", function (code) {
+      resolve(result);
+    });
+    command.on("error", function (err) {
+      reject(err);
+    });
+  });
+}
+
 // let myStatusBarItem: vscode.StatusBarItem;
+const Output = vscode.window.createOutputChannel("HotMig");
 
 const getDirectoryContent = (
   basePath: string,
@@ -60,6 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand("hotmig.helloWorld", () => {
     vscode.window.showInformationMessage("Hello World from hotmig!");
     console.log(getDirectoryContent(resolve(__dirname, "../")));
+    console.log(require("execa"));
   });
 
   vscode.commands.registerCommand("hotmig.init-target", async () => {
@@ -170,7 +191,7 @@ export function activate(context: vscode.ExtensionContext) {
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: "I am long running!",
+        title: "HotMig install driver...",
         cancellable: true,
       },
       async (progress) => {
@@ -190,8 +211,25 @@ export function activate(context: vscode.ExtensionContext) {
         if (!a || a.length === 0) return;
 
         for (const name of a) {
+          Output.appendLine(`Installing ${name}`);
+          console.log("installing", name);
           var cp = require("child_process");
-          const result = cp.execSync(`npm install ${name} -g`);
+          try {
+            const result = await run(
+              (/^win/.test(process.platform) ? "npm.cmd" : `npm`) +
+                ` install ${name}`
+            );
+
+            console.log("result coming up:");
+            console.log(result);
+          } catch (e) {
+            console.log(e);
+          }
+          Output.appendLine("done");
+          console.log("done");
+          vscode.window.showInformationMessage(
+            `Installed ${name} successfully`
+          );
         }
         progress.report({ increment: 100 });
       }
@@ -204,30 +242,30 @@ export function activate(context: vscode.ExtensionContext) {
       getDirectoriesReursively(path.resolve(folder.uri.fsPath))
     );
     // let user show picker to select a folder
-    const a = await vscode.window.showQuickPick(workspaceFolders?.flat() || []);
-    if (!a) return;
-    const hm = new HotMig(a);
-    if (await hm.isInitialized()) {
-      await vscode.window.showErrorMessage(
-        `HotMig is already initialized in ${a}`
-      );
-      return;
-    }
+    // const a = await vscode.window.showQuickPick(workspaceFolders?.flat() || []);
+    // if (!a) return;
+    // const hm = new HotMig(a);
+    // if (await hm.isInitialized()) {
+    //   await vscode.window.showErrorMessage(
+    //     `HotMig is already initialized in ${a}`
+    //   );
+    //   return;
+    // }
 
-    var slugify = require("slugify");
-    const migrationsFolder = slugify(
-      (await vscode.window.showInputBox({
-        prompt: "Migration Folder",
-        value: ".migrations",
-      })) || ".migrations"
-    );
+    // var slugify = require("slugify");
+    // const migrationsFolder = slugify(
+    //   (await vscode.window.showInputBox({
+    //     prompt: "Migration Folder",
+    //     value: ".migrations",
+    //   })) || ".migrations"
+    // );
 
-    await hm.init(migrationsFolder);
+    // await hm.init(migrationsFolder);
   });
 
   // ask if the users wants to create its first target
 
-  // show spinner and get global modules
+  // showspinner and get global modules
 
   // exit if no driver was found
   // if (available.length === 0) {
