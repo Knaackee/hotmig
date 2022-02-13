@@ -79,8 +79,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.commands.registerCommand("hotmig.helloWorld", () => {
     vscode.window.showInformationMessage("Hello World from hotmig!");
-    console.log(getDirectoryContent(resolve(__dirname, "../")));
-    console.log(require("execa"));
+    // console.log(getDirectoryContent(resolve(__dirname, "../")));
+    console.log(
+      require("C:\\Program Files\\nodejs\\node_modules\\@hotmig\\hotmig-driver-pg\\dist\\index.js")
+    );
   });
 
   vscode.commands.registerCommand("hotmig.init-target", async () => {
