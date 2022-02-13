@@ -1,6 +1,6 @@
 {
   "name": "@hotmig/sql-driver",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tool for Database Migrations.",
   "main": "dist/index.js",
   "scripts": {
@@ -32,7 +32,7 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@hotmig/lib": "^0.1.0",
+    "@hotmig/lib": "^0.1.1",
     "invariant": "^2.2.4",
     "knex": "^1.0.2",
     "slugify": "^1.6.5"
