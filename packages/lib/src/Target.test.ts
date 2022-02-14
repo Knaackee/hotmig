@@ -17,8 +17,6 @@ import "./utils";
 import "./utils/testing";
 import { HotMig } from "./HotMig";
 
-const execa = require("execa");
-
 let target: Target;
 
 process.env.CONNECTION_STRING =

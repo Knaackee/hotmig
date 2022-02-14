@@ -10,20 +10,13 @@ import {
 } from "@hotmig/lib";
 import axios from "axios";
 import chalk from "chalk";
-import inqu from "inquirer";
 import chokidar from "chokidar";
+import execa from "execa";
+import { copyFileSync, existsSync, readFileSync, unlinkSync } from "fs";
+import inqu from "inquirer";
 import ora from "ora";
-import { header, title } from "./header";
-import {
-  copyFile,
-  copyFileSync,
-  existsSync,
-  readFileSync,
-  unlinkSync,
-} from "fs";
 import { resolve } from "path";
-import inquirer from "inquirer";
-const execa = require("execa");
+import { header, title } from "./header";
 
 console.log("");
 
