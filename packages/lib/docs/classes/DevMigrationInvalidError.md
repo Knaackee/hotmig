@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/DevMigrationInvalidError.ts:3](https://github.com/Knaackee/hotmig/blob/2536646/packages/lib/src/errors/DevMigrationInvalidError.ts#L3)
+[packages/lib/src/errors/DevMigrationInvalidError.ts:3](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/errors/DevMigrationInvalidError.ts#L3)
 
 ## Properties
 
@@ -70,7 +70,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/errors/DevMigrationInvalidError.ts:2](https://github.com/Knaackee/hotmig/blob/2536646/packages/lib/src/errors/DevMigrationInvalidError.ts#L2)
+[packages/lib/src/errors/DevMigrationInvalidError.ts:2](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/errors/DevMigrationInvalidError.ts#L2)
 
 ___
 
