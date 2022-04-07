@@ -58,9 +58,8 @@ export abstract class Driver extends Base<Knex.Config<any>> {
 
   async exec(cb: (params: any) => Promise<void>) {
     const isTransaction = this.client?.isTransaction ?? false;
-
     if (!isTransaction) {
-      return this.client?.transaction(async (trx) => {
+      return this.client?.transaction(async (trx: any) => {
         try {
           await cb(trx);
           await trx.commit();

@@ -30,7 +30,7 @@
 
 ### listGlobal
 
-▸ `Const` **listGlobal**(): `Promise`<{ `name`: `string` ; `version`: `string`  }[]\>
+▸ **listGlobal**(): `Promise`<{ `name`: `string` ; `version`: `string`  }[]\>
 
 #### Returns
 
@@ -38,13 +38,13 @@
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:39](https://github.com/Knaackee/hotmig/blob/0e874e9/packages/lib/src/utils/index.ts#L39)
+[packages/lib/src/utils/index.ts:31](https://github.com/Knaackee/hotmig/blob/2536646/packages/lib/src/utils/index.ts#L31)
 
 ___
 
 ### loadDriver
 
-▸ `Const` **loadDriver**(`driver`): `Promise`<`any`\>
+▸ **loadDriver**(`driver`): `Promise`<`any`\>
 
 #### Parameters
 
@@ -58,13 +58,13 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:47](https://github.com/Knaackee/hotmig/blob/0e874e9/packages/lib/src/Target.ts#L47)
+[packages/lib/src/Target.ts:47](https://github.com/Knaackee/hotmig/blob/2536646/packages/lib/src/Target.ts#L47)
 
 ___
 
 ### loadMigrationModule
 
-▸ `Const` **loadMigrationModule**(`path`, `logger`): `Promise`<`undefined` \| [`MigrationModule`](interfaces/MigrationModule.md)\>
+▸ **loadMigrationModule**(`path`, `logger`): `Promise`<`undefined` \| [`MigrationModule`](interfaces/MigrationModule.md)\>
 
 #### Parameters
 
@@ -79,13 +79,13 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:67](https://github.com/Knaackee/hotmig/blob/0e874e9/packages/lib/src/Target.ts#L67)
+[packages/lib/src/Target.ts:66](https://github.com/Knaackee/hotmig/blob/2536646/packages/lib/src/Target.ts#L66)
 
 ___
 
 ### requireGlobal
 
-▸ `Const` **requireGlobal**(`packageName`): `Promise`<`any`\>
+▸ **requireGlobal**(`packageName`): `Promise`<`any`\>
 
 #### Parameters
 
@@ -99,13 +99,13 @@ ___
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/0e874e9/packages/lib/src/utils/index.ts#L7)
+[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/2536646/packages/lib/src/utils/index.ts#L7)
 
 ___
 
 ### validateMigrationModule
 
-▸ `Const` **validateMigrationModule**(`migration?`, `logger?`): `void`
+▸ **validateMigrationModule**(`migration?`, `logger?`): `void`
 
 #### Parameters
 
@@ -120,4 +120,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:77](https://github.com/Knaackee/hotmig/blob/0e874e9/packages/lib/src/Target.ts#L77)
+[packages/lib/src/Target.ts:76](https://github.com/Knaackee/hotmig/blob/2536646/packages/lib/src/Target.ts#L76)

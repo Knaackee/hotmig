@@ -1,6 +1,6 @@
 {
   "name": "@hotmig/cli",
-  "version": "0.2.0",
+  "version": "0.5.1",
   "description": "Tool for Database Migrations.",
   "main": "dist/hotmig.js",
   "scripts": {
@@ -9,6 +9,9 @@
     "dev": "tsc -b -w",
     "docs": "rimraf docs && typedoc src/hotmig.ts --hideInPageTOC --hideBreadcrumbs --plugin typedoc-plugin-markdown --out docs",
     "test": "jest --passWithNoTests"
+  },
+  "bin": {
+    "hotmig": "dist/hotmig.js"
   },
   "license": "MIT",
   "repository": {
@@ -34,7 +37,8 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@hotmig/lib": "^0.1.0",
+    "@hotmig/lib": "^0.4.8",
+    "axios": "^0.26.1",
     "chalk": "2.4.1",
     "chalk-animation": "^1.6.0",
     "chokidar": "^3.5.3",

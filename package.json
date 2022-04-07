@@ -4,7 +4,8 @@
   "description": "Tool for Database Migrations.",
   "scripts": {
     "postinstall": "lerna bootstrap",
-    "test": "lerna run test --stream"
+    "test": "lerna run test --stream",
+    "publish:all": "lerna run publish --stream"
   },
   "license": "MIT",
   "repository": {

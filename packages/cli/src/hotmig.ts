@@ -296,14 +296,20 @@ program
       .watch(target?.devJsPath ?? ".", { ignoreInitial: false })
       .on("all", async (event, path) => {
         if (event === "change" || event === "add") {
+          console.log("dev.js changed, applying...");
           const prevDevJsPath = resolve(
             target?.targetDirectory ?? "",
             "prev.dev.js"
           );
+          let failed = false;
+          let error = new Error();
           await target?.driver?.exec(async (params) => {
             // check if prev.dev.js exists
             if (existsSync(prevDevJsPath)) {
               try {
+                // remove from require cache
+                delete require.cache[prevDevJsPath ?? ""];
+
                 const prevDevJs = require(prevDevJsPath);
                 // validate prev.dev.js
                 validateMigrationModule(prevDevJs);
@@ -312,7 +318,7 @@ program
                 const spinner = ora(
                   `running down on prev.dev.js for target "${options.target}"...`
                 ).start();
-                let failed = false;
+
                 await prevDevJs
                   .down(params)
                   .then(() => spinner.succeed())
@@ -320,13 +326,14 @@ program
                     spinner.fail();
                     console.log(err);
                     failed = true;
+                    error = err;
                   });
 
-                if (failed) return;
+                if (failed) throw error;
               } catch (e) {
                 console.log(chalk.red(`❌ prev.dev.js is invalid, cant test.`));
                 console.log(e);
-                return;
+                throw e;
               }
             }
 
@@ -348,8 +355,6 @@ program
                 `running up for target "${options.target}"...`
               ).start();
 
-              let failed = false;
-
               await devJs
                 .up(params)
                 .then(() => spinner.succeed())
@@ -357,9 +362,10 @@ program
                   spinner.fail();
                   console.log(err);
                   failed = true;
+                  error = err;
                 });
 
-              if (failed) return;
+              if (failed) throw error;
 
               spinner = ora(
                 `running down for target "${options.target}"...`
@@ -371,9 +377,10 @@ program
                   spinner.fail();
                   console.log(err);
                   failed = true;
+                  error = err;
                 });
 
-              if (failed) return;
+              if (failed) throw error;
 
               spinner = ora(
                 `running up for target "${options.target}"...`
@@ -385,9 +392,10 @@ program
                   spinner.fail();
                   console.log(err);
                   failed = true;
+                  error = err;
                 });
 
-              if (failed) return;
+              if (failed) throw error;
 
               console.log(
                 chalk.yellow(
@@ -397,57 +405,6 @@ program
 
               // copy dev.js to prev.dev.js
               copyFileSync(path, prevDevJsPath);
-
-              // ask for commit
-              const answer = await inqu.prompt({
-                name: "action",
-                type: "list",
-                message: "Please select",
-                choices: ["commit and migrate", "commit and exit", "exit"],
-              });
-
-              // ask for next dev.js ?
-              if (answer.action === "commit and migrate") {
-                watcher.unwatch(target?.devJsPath ?? "");
-                await target
-                  ?.commit()
-                  .then(async () => {
-                    await target?.latest();
-                    unlinkSync(prevDevJsPath);
-
-                    const answer = await inqu.prompt({
-                      name: "action",
-                      type: "list",
-                      message: "Please select",
-                      choices: ["create new dev migration", "exit"],
-                    });
-
-                    if (answer.action === "create new dev migration") {
-                      await target?.new("insert name here", false);
-                      watcher.add(target?.devJsPath ?? "");
-                    } else {
-                      process.exit(0);
-                    }
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                    watcher.add(target?.devJsPath ?? "");
-                  });
-              } else if (answer.action === "commit and exit") {
-                watcher.unwatch(target?.devJsPath ?? "");
-                await target
-                  ?.commit()
-                  .then(() => {
-                    unlinkSync(prevDevJsPath);
-                    process.exit(0);
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                    watcher.add(target?.devJsPath ?? "");
-                  });
-              } else if (answer.action === "exit") {
-                process.exit(0);
-              }
             } else {
               console.log(
                 chalk.red(
@@ -456,6 +413,98 @@ program
               );
             }
           });
+
+          if (!failed) {
+            const rollBackDevSql = async () => {
+              if (existsSync(prevDevJsPath)) {
+                await target?.driver?.exec(async (params) => {
+                  try {
+                    // remove from require cache
+                    delete require.cache[prevDevJsPath ?? ""];
+
+                    const prevDevJs = require(prevDevJsPath);
+                    // validate prev.dev.js
+                    validateMigrationModule(prevDevJs);
+                    // run down in prev.dev.js
+
+                    const spinner = ora(
+                      `running down on prev.dev.js for target "${options.target}"...`
+                    ).start();
+
+                    await prevDevJs
+                      .down(params)
+                      .then(() => spinner.succeed())
+                      .catch((err: any) => {
+                        spinner.fail();
+                        console.log(err);
+                        failed = true;
+                        error = err;
+                      });
+
+                    if (failed) throw error;
+                  } catch (e) {
+                    console.log(
+                      chalk.red(`❌ prev.dev.js is invalid, cant test.`)
+                    );
+                    console.log(e);
+                    throw e;
+                  }
+                });
+              }
+            };
+
+            // ask for commit
+            const answer = await inqu.prompt({
+              name: "action",
+              type: "list",
+              message: "Please select",
+              choices: ["commit and migrate", "commit and exit", "exit"],
+            });
+
+            // ask for next dev.js ?
+            if (answer.action === "commit and migrate") {
+              watcher.unwatch(target?.devJsPath ?? "");
+              await rollBackDevSql();
+
+              await target
+                ?.commit()
+                .then(async () => {
+                  await target?.latest();
+                  const answer = await inqu.prompt({
+                    name: "action",
+                    type: "list",
+                    message: "Please select",
+                    choices: ["create new dev migration", "exit"],
+                  });
+
+                  if (answer.action === "create new dev migration") {
+                    await target?.new("insert name here", false);
+                    watcher.add(target?.devJsPath ?? "");
+                  } else {
+                    process.exit(0);
+                  }
+                })
+                .catch((err) => {
+                  console.log(err);
+                  watcher.add(target?.devJsPath ?? "");
+                });
+            } else if (answer.action === "commit and exit") {
+              watcher.unwatch(target?.devJsPath ?? "");
+              await rollBackDevSql();
+
+              await target
+                ?.commit()
+                .then(() => {
+                  process.exit(0);
+                })
+                .catch((err) => {
+                  console.log(err);
+                  watcher.add(target?.devJsPath ?? "");
+                });
+            } else if (answer.action === "exit") {
+              process.exit(0);
+            }
+          }
         } else if (event === "unlink") {
           console.log(
             chalk.yellow(

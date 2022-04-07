@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/AlreadyInitializedError.ts:3](https://github.com/Knaackee/hotmig/blob/0e874e9/packages/lib/src/errors/AlreadyInitializedError.ts#L3)
+[packages/lib/src/errors/AlreadyInitializedError.ts:3](https://github.com/Knaackee/hotmig/blob/2536646/packages/lib/src/errors/AlreadyInitializedError.ts#L3)
 
 ## Properties
 
@@ -70,7 +70,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/errors/AlreadyInitializedError.ts:2](https://github.com/Knaackee/hotmig/blob/0e874e9/packages/lib/src/errors/AlreadyInitializedError.ts#L2)
+[packages/lib/src/errors/AlreadyInitializedError.ts:2](https://github.com/Knaackee/hotmig/blob/2536646/packages/lib/src/errors/AlreadyInitializedError.ts#L2)
 
 ___
 
