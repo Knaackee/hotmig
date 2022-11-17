@@ -65,6 +65,7 @@ export abstract class Driver extends Base<Knex.Config<any>> {
           await trx.commit();
         } catch (err) {
           await trx.rollback();
+          console.log(err);
           throw err;
         }
       });
@@ -82,12 +83,14 @@ export abstract class Driver extends Base<Knex.Config<any>> {
     isInteractive?: boolean
   ): Promise<string> {
     return /*js*/ `
+import { Knex } from "knex";
+
 // @name: ${name}    
-module.exports = {
-  up: async (db) => {
+export = {
+  up: async (db:Knex) => {
     // do your migration here
   },
-  down: async (db) => {
+  down: async (db:Knex) => {
     // undo your migration here
   },
 };

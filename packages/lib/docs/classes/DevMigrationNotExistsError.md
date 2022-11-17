@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/DevMigrationNotExistsError.ts:3](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/errors/DevMigrationNotExistsError.ts#L3)
+[packages/lib/src/errors/DevMigrationNotExistsError.ts:3](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/errors/DevMigrationNotExistsError.ts#L3)
 
 ## Properties
 
@@ -66,11 +66,11 @@ ___
 
 ### MESSAGE
 
-▪ `Static` **MESSAGE**: `string` = `"dev.js does not exist"`
+▪ `Static` **MESSAGE**: `string` = `"dev.ts does not exist"`
 
 #### Defined in
 
-[packages/lib/src/errors/DevMigrationNotExistsError.ts:2](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/errors/DevMigrationNotExistsError.ts#L2)
+[packages/lib/src/errors/DevMigrationNotExistsError.ts:2](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/errors/DevMigrationNotExistsError.ts#L2)
 
 ___
 

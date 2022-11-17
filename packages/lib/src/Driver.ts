@@ -24,12 +24,14 @@ export abstract class Driver<TConfig = any> {
     isInteractive?: boolean
   ): Promise<string> {
     return /*js*/ `
-module.exports = {
-  // @name: ${name}    
-  up: async (params) => {
+import { Knex } from "knex";
+
+// @name: ${name}    
+export = {
+  up: async (db:Knex) => {
     // do your migration here
   },
-  down: async (oarams) => {
+  down: async (db:Knex) => {
     // undo your migration here
   },
 };

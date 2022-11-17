@@ -4,7 +4,7 @@ import { Migration } from "../models";
 export const isValidMigrationContent = (filePath: string) => {
   try {
     delete require.cache[require.resolve(filePath)];
-    const module = require(filePath);
+    // const module = import(filePath);
   } catch (err) {
     return false;
   }

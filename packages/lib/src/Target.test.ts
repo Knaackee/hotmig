@@ -339,7 +339,7 @@ describe("Target", () => {
       rmSync(target.targetDirectory, { recursive: true, force: true });
       expect(target.new("")).rejects.toThrow(NotInitializedError.MESSAGE);
     });
-    it("should fail if a dev.js already exists", async () => {
+    it("should fail if a dev.ts already exists", async () => {
       await target.new("init");
       expect(target.new("init")).rejects.toThrow(
         DevMigrationAlreadyExistsError.MESSAGE
@@ -390,13 +390,13 @@ describe("Target", () => {
       rmSync(target.targetDirectory, { recursive: true, force: true });
       expect(target.new("")).rejects.toThrow(NotInitializedError.MESSAGE);
     });
-    it("should fail if a dev.js does not exists", async () => {
+    it("should fail if a dev.ts does not exists", async () => {
       expect(target.test()).rejects.toThrow(DevMigrationNotExistsError.MESSAGE);
     });
-    it("should fail if a dev.js is not valid", async () => {
+    it("should fail if a dev.ts is not valid", async () => {
       await target.new("init");
       writeFileSync(target.devJsPath, "XXX");
-      await expect(target.test()).rejects.toThrow("dev.js is invalid");
+      await expect(target.test()).rejects.toThrow("dev.ts is invalid");
     });
     it("should fail if there are pending migrations", async () => {
       await target.createMigrationStore();

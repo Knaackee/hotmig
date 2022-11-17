@@ -12,6 +12,9 @@ import pino from "pino";
 import slugify from "slugify";
 import { HotMig } from ".";
 import { Driver } from "./Driver";
+import * as path from "path";
+import execa from "execa";
+import ora from "ora";
 import {
   AlreadyInitializedError,
   DevMigrationAlreadyExistsError,
@@ -63,14 +66,45 @@ export interface MigrationModule {
   down: (client: any) => Promise<void>;
 }
 
-export const loadMigrationModule = async (
-  path: string,
-  logger: pino.Logger
-): Promise<MigrationModule | undefined> => {
-  logger.info("loadMigrationModule");
-  const module = require(path);
-  await validateMigrationModule(module, logger);
+export const loadMigrationModule = async (p: string) => {
+  if (!existsSync(p)) {
+    throw new Error("File does not exist");
+  }
+
+  const module = await import(p);
+  // delete require cache
+  delete require.cache[p];
+
   return module;
+
+  // // transpile
+  // var dir = path.dirname(p);
+  // var file = path.basename(p);
+  // var fileWithoutExt = file.substring(0, file.lastIndexOf("."));
+  // var extension = file.split(".")[1];
+  // var tempFile = path.join(dir, "_temp", fileWithoutExt + ".js");
+  // var tempFilePath = path.dirname(tempFile);
+
+  // if (existsSync(tempFile)) {
+  //   unlinkSync(tempFile);
+  // }
+
+  // const spinner = ora(`transpiling "${p}"...`).start();
+
+  // try {
+  //   // run tsc on file using execa
+  //   const res = await execa("tsc", [p, "--outDir", tempFilePath]);
+  //   if (res.failed) {
+  //     throw new Error(res.stderr);
+  //   }
+  //   // delete require cache
+  //   delete require.cache[tempFile];
+  //   spinner.succeed();
+  //   return require(tempFile);
+  // } catch (e) {
+  //   console.log(e);
+  //   spinner.fail();
+  // }
 };
 
 export const validateMigrationModule = (
@@ -86,6 +120,7 @@ export class Target {
   commitDirectory: string;
   configFilePath: string;
   devJsPath: string;
+  prevJsPath: string;
   config: TargetConfig | undefined;
   driver: Driver | undefined = undefined;
   driverName?: string;
@@ -108,7 +143,8 @@ export class Target {
       hotmig.config?.migrationsDir ?? ""
     );
     this.targetDirectory = resolve(this.baseDirectory, `./${target}`);
-    this.devJsPath = resolve(this.targetDirectory, "./dev.js");
+    this.devJsPath = resolve(this.targetDirectory, "./dev.ts");
+    this.prevJsPath = resolve(this.targetDirectory, "./prev.dev.ts");
     this.commitDirectory = resolve(this.targetDirectory, "./commits");
     this.configFilePath = resolve(this.targetDirectory, "./target.config.js");
     this.logger = pino({ level: logLevel });
@@ -198,8 +234,12 @@ export class Target {
     }
 
     result.migrations = [];
+    if (!existsSync(this.commitDirectory)) {
+      mkdirSync(this.commitDirectory);
+    }
+
     readdirSync(this.commitDirectory).forEach((file) => {
-      if (file.toLocaleLowerCase().endsWith(".js")) {
+      if (file.toLocaleLowerCase().endsWith(".ts")) {
         try {
           if (isValidMigrationContent(resolve(this.commitDirectory, file))) {
             const regex = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
@@ -212,7 +252,7 @@ export class Target {
 
             const migration = {} as Migration;
             migration.id = file.split("-")[0];
-            migration.name = name;
+            migration.name = name?.trim();
             migration.filePath = resolve(this.commitDirectory, file);
             migration.target = this.target;
             result.loaded++;
@@ -221,9 +261,11 @@ export class Target {
             result.skipped++;
           }
         } catch (e) {
+          console.log("skipped", e);
           result.skipped++;
         }
       } else {
+        console.log("skipped");
         result.skipped++;
       }
     });
@@ -231,7 +273,6 @@ export class Target {
   }
 
   async pending() {
-    this.logger.info("pending");
     invariant(this.driver, "db is required");
     this.ensureInitialized();
     const localMigrations = await this.getLocalMigrations();
@@ -264,10 +305,7 @@ export class Target {
       ) {
         const migration = pendingMigrations[i];
 
-        const module = await loadMigrationModule(
-          migration.filePath || "",
-          this.logger
-        );
+        const module = await loadMigrationModule(migration.filePath || "");
         await module?.up(params);
         await this.driver?.addMigration(migration);
         applied++;
@@ -319,8 +357,7 @@ export class Target {
         }
 
         const module = await loadMigrationModule(
-          localMigration?.filePath ?? "",
-          this.logger
+          localMigration?.filePath ?? ""
         );
         this.logger.info("running down " + localMigration?.filePath);
         try {
@@ -404,11 +441,14 @@ export class Target {
     migration.name = name;
     migration.filePath = resolve(
       this.commitDirectory,
-      `${migration.id}-${slugify(migration.name || "")}.js`
+      `${migration.id}-${slugify(migration.name || "")}.ts`
     );
+
+    await this.driver?.addMigration(migration);
 
     writeFileSync(migration.filePath, devJsContent);
     unlinkSync(this.devJsPath);
+    unlinkSync(this.prevJsPath);
     return migration;
   }
 
@@ -433,7 +473,7 @@ export class Target {
       throw new PendingMigrationsError();
     }
 
-    const devMigration = await loadMigrationModule(this.devJsPath, this.logger);
+    const devMigration = await loadMigrationModule(this.devJsPath);
 
     let error: any = undefined;
     await this.driver?.exec(async (params) => {
@@ -477,3 +517,6 @@ export class Target {
     }
   }
 }
+
+// TODO: pending, nicer output
+// dev mode: commit and migrate not working ?

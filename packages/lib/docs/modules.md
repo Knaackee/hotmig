@@ -38,7 +38,7 @@
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:31](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/utils/index.ts#L31)
+[packages/lib/src/utils/index.ts:31](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/utils/index.ts#L31)
 
 ___
 
@@ -58,28 +58,27 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:47](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/Target.ts#L47)
+[packages/lib/src/Target.ts:50](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/Target.ts#L50)
 
 ___
 
 ### loadMigrationModule
 
-▸ **loadMigrationModule**(`path`, `logger`): `Promise`<`undefined` \| [`MigrationModule`](interfaces/MigrationModule.md)\>
+▸ **loadMigrationModule**(`p`): `Promise`<`any`\>
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `path` | `string` |
-| `logger` | `Logger`<`LoggerOptions`\> |
+| `p` | `string` |
 
 #### Returns
 
-`Promise`<`undefined` \| [`MigrationModule`](interfaces/MigrationModule.md)\>
+`Promise`<`any`\>
 
 #### Defined in
 
-[packages/lib/src/Target.ts:66](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/Target.ts#L66)
+[packages/lib/src/Target.ts:69](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/Target.ts#L69)
 
 ___
 
@@ -99,7 +98,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/utils/index.ts#L7)
+[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/utils/index.ts#L7)
 
 ___
 
@@ -120,4 +119,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:76](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/Target.ts#L76)
+[packages/lib/src/Target.ts:110](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/Target.ts#L110)

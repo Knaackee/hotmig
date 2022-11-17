@@ -1,10 +1,12 @@
 
+import { Knex } from "knex";
+
 // @name: insert name here    
-module.exports = {
-  up: async (db) => {
+export = {
+  up: async (db:Knex) => {
     // do your migration here
   },
-  down: async (db) => {
+  down: async (db:Knex) => {
     // undo your migration here
   },
 };

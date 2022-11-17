@@ -1,9 +1,8 @@
-#!/usr/bin/env node
-
 const program = require("commander");
 
 import {
   HotMig,
+  listGlobal,
   Migration,
   OnProgressArgs,
   validateMigrationModule,
@@ -16,6 +15,7 @@ import { copyFileSync, existsSync, readFileSync, unlinkSync } from "fs";
 import inqu from "inquirer";
 import ora from "ora";
 import { resolve } from "path";
+import q from "inquirer";
 import { header, title } from "./header";
 
 console.log("");
@@ -47,6 +47,103 @@ program
     await hm.init(answer.migrationsDir);
 
     console.log(chalk.green("hotmig initalized, happy migrating! ✨"));
+  });
+
+program
+  .command("init-target")
+  .description("initalize a new target")
+  .argument("[name]", "name of the target", "default")
+  .action(async (name: string) => {
+    header(`initializing new target "${name}"...`);
+
+    const hm = new HotMig(process.cwd());
+    if (!hm.isInitialized()) {
+      console.log(chalk.red("hotmig is not initialized"));
+      return;
+    }
+    await hm.loadConfig();
+
+    const target = await hm.target(name);
+
+    if (await target.isInitialized()) {
+      console.log(chalk.red(`target "${name}" is already initialized`));
+      process.exit(1);
+    }
+
+    // show spinner and get global modules
+    let spinner = ora({
+      text: "Getting drivers from global modules...",
+    }).start();
+    let global = await listGlobal();
+    let available = global.filter((x) => x.name.indexOf("hotmig-driver-") > -1);
+    spinner.stop();
+
+    // exit if no driver was found
+    if (available.length === 0) {
+      console.log(
+        chalk.red(
+          "no driver found in global modules. Please run install-drivers."
+        )
+      );
+
+      process.exit(1);
+    }
+
+    // show spinner and get global modules
+    spinner = ora({
+      text: "Getting drivers from global modules...",
+    }).start();
+    global = await listGlobal();
+    available = global.filter((x) => x.name.indexOf("hotmig-driver") > -1);
+    spinner.stop();
+
+    // ask for driver
+    const answer = await q.prompt({
+      name: "driver",
+      type: "list",
+      message: "Choose driver",
+      choices: available.map((g) => g.name),
+    });
+
+    // init (interactive)
+    await target.init(answer.driver, true);
+
+    // show success message
+    console.log(chalk.green("✨ done, happy migrating!"));
+    process.exit(0);
+  });
+
+program
+  .command("init-store")
+  .description("initalize a new store")
+  .argument("[name]", "name of the target", "default")
+  .action(async (name: string) => {
+    header(`initializing migration store for target "${name}"...`);
+
+    const hm = new HotMig(process.cwd());
+
+    if (!hm.isInitialized()) {
+      console.log(chalk.red("hotmig is not initialized"));
+      process.exit(1);
+    }
+
+    await hm.loadConfig();
+
+    const target = await hm.target(name);
+    if (!target.isInitialized()) {
+      console.log(chalk.red(`target "${name}" is not initialized`));
+      process.exit(1);
+    }
+
+    if (await target.migrationStoreExists()) {
+      console.log(chalk.red("migration store already exists"));
+      process.exit(1);
+    }
+
+    await target.createMigrationStore();
+
+    console.log(chalk.green("✨ done, happy migrating!"));
+    process.exit(0);
   });
 
 program
@@ -85,8 +182,6 @@ program
     process.exit(0);
   });
 
-program.command("target", "initialize a new target or migration store");
-
 program
   .command("new")
   .description("create a new dev migration for a target")
@@ -116,8 +211,8 @@ program
   .action(async (options: any) => {
     header(`testing dev migration for target "${options.target}"...`);
 
-    const task = await getReadyTarget(options.target, true, true);
-    await task?.test();
+    const target = await getReadyTarget(options.target, true, true);
+    await testDevMigration(target?.devJsPath || "", target, options, true);
 
     console.log(chalk.green(`✨ done!`));
     process.exit(0);
@@ -147,9 +242,8 @@ program
       `running up for target "${options.target}" (${options.count} times)...`
     );
 
-    const result = await (
-      await getReadyTarget(options.target, false, true)
-    )?.up({
+    const target = await getReadyTarget(options.target, false, true);
+    const result = await target?.up({
       count: options.count,
       onProgress: async (args: OnProgressArgs) => {
         console.log(
@@ -162,7 +256,12 @@ program
       },
     });
 
-    console.log(chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`));
+    if (result?.applied != options.count)
+      console.log(chalk.yellow(`no migrations applied`));
+    else
+      console.log(
+        chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`)
+      );
     process.exit(0);
   });
 
@@ -191,7 +290,12 @@ program
       },
     });
 
-    console.log(chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`));
+    if (result?.applied != options.count)
+      console.log(chalk.yellow(`no migrations applied`));
+    else
+      console.log(
+        chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`)
+      );
     process.exit(0);
   });
 
@@ -257,7 +361,7 @@ program
     const task = await getReadyTarget(options.target, false, false);
     const result = await task?.pending();
 
-    console.log(result);
+    console.table(result, ["id", "name"]);
 
     console.log(chalk.green(`✨ done!`));
     process.exit(0);
@@ -272,8 +376,9 @@ program
 
     const target = await getReadyTarget(options.target, false, true);
 
-    // check if there are pending migrations
+    // check for pending migrations
     const pending = (await target?.pending()) as Array<Migration>;
+
     if (pending?.length > 0) {
       console.log(
         chalk.red(
@@ -283,232 +388,24 @@ program
       process.exit(0);
     }
 
-    // create dev.sql if not exists
+    // create dev.ts if not exists
     if (!target?.devMigationAlreadyExists()) {
       console.log(
-        chalk.yellow(`creating dev.sql for target "${options.target}"...`)
+        chalk.yellow(`creating dev.tsfor target "${options.target}"...`)
       );
       await target?.new("insert name here", false);
     }
 
-    // watch for changes in dev.sql
-    const watcher = chokidar
+    // watch for changes in dev.ts
+    chokidar
       .watch(target?.devJsPath ?? ".", { ignoreInitial: false })
       .on("all", async (event, path) => {
         if (event === "change" || event === "add") {
-          console.log("dev.js changed, applying...");
-          const prevDevJsPath = resolve(
-            target?.targetDirectory ?? "",
-            "prev.dev.js"
-          );
-          let failed = false;
-          let error = new Error();
-          await target?.driver?.exec(async (params) => {
-            // check if prev.dev.js exists
-            if (existsSync(prevDevJsPath)) {
-              try {
-                // remove from require cache
-                delete require.cache[prevDevJsPath ?? ""];
-
-                const prevDevJs = require(prevDevJsPath);
-                // validate prev.dev.js
-                validateMigrationModule(prevDevJs);
-                // run down in prev.dev.js
-
-                const spinner = ora(
-                  `running down on prev.dev.js for target "${options.target}"...`
-                ).start();
-
-                await prevDevJs
-                  .down(params)
-                  .then(() => spinner.succeed())
-                  .catch((err: any) => {
-                    spinner.fail();
-                    console.log(err);
-                    failed = true;
-                    error = err;
-                  });
-
-                if (failed) throw error;
-              } catch (e) {
-                console.log(chalk.red(`❌ prev.dev.js is invalid, cant test.`));
-                console.log(e);
-                throw e;
-              }
-            }
-
-            // validate dev.js
-
-            // remove from require cache
-            delete require.cache[target?.devJsPath ?? ""];
-
-            const devJs = require(path);
-            validateMigrationModule(devJs);
-
-            const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
-              readFileSync(path).toString()
-            );
-            const name = result?.groups?.name;
-            if (name) {
-              // run up, down, up in dev.js
-              let spinner = ora(
-                `running up for target "${options.target}"...`
-              ).start();
-
-              await devJs
-                .up(params)
-                .then(() => spinner.succeed())
-                .catch((err: any) => {
-                  spinner.fail();
-                  console.log(err);
-                  failed = true;
-                  error = err;
-                });
-
-              if (failed) throw error;
-
-              spinner = ora(
-                `running down for target "${options.target}"...`
-              ).start();
-              await devJs
-                .down(params)
-                .then(() => spinner.succeed())
-                .catch((err: any) => {
-                  spinner.fail();
-                  console.log(err);
-                  failed = true;
-                  error = err;
-                });
-
-              if (failed) throw error;
-
-              spinner = ora(
-                `running up for target "${options.target}"...`
-              ).start();
-              await devJs
-                .up(params)
-                .then(() => spinner.succeed())
-                .catch((err: any) => {
-                  spinner.fail();
-                  console.log(err);
-                  failed = true;
-                  error = err;
-                });
-
-              if (failed) throw error;
-
-              console.log(
-                chalk.yellow(
-                  `\n✨ dev.sql was for target "${options.target}" is alright!\n`
-                )
-              );
-
-              // copy dev.js to prev.dev.js
-              copyFileSync(path, prevDevJsPath);
-            } else {
-              console.log(
-                chalk.red(
-                  `❌ dev.sql is invalid, cant test. please add a "//@name: [your name]" to the first line of the file.`
-                )
-              );
-            }
-          });
-
-          if (!failed) {
-            const rollBackDevSql = async () => {
-              if (existsSync(prevDevJsPath)) {
-                await target?.driver?.exec(async (params) => {
-                  try {
-                    // remove from require cache
-                    delete require.cache[prevDevJsPath ?? ""];
-
-                    const prevDevJs = require(prevDevJsPath);
-                    // validate prev.dev.js
-                    validateMigrationModule(prevDevJs);
-                    // run down in prev.dev.js
-
-                    const spinner = ora(
-                      `running down on prev.dev.js for target "${options.target}"...`
-                    ).start();
-
-                    await prevDevJs
-                      .down(params)
-                      .then(() => spinner.succeed())
-                      .catch((err: any) => {
-                        spinner.fail();
-                        console.log(err);
-                        failed = true;
-                        error = err;
-                      });
-
-                    if (failed) throw error;
-                  } catch (e) {
-                    console.log(
-                      chalk.red(`❌ prev.dev.js is invalid, cant test.`)
-                    );
-                    console.log(e);
-                    throw e;
-                  }
-                });
-              }
-            };
-
-            // ask for commit
-            const answer = await inqu.prompt({
-              name: "action",
-              type: "list",
-              message: "Please select",
-              choices: ["commit and migrate", "commit and exit", "exit"],
-            });
-
-            // ask for next dev.js ?
-            if (answer.action === "commit and migrate") {
-              watcher.unwatch(target?.devJsPath ?? "");
-              await rollBackDevSql();
-
-              await target
-                ?.commit()
-                .then(async () => {
-                  await target?.latest();
-                  const answer = await inqu.prompt({
-                    name: "action",
-                    type: "list",
-                    message: "Please select",
-                    choices: ["create new dev migration", "exit"],
-                  });
-
-                  if (answer.action === "create new dev migration") {
-                    await target?.new("insert name here", false);
-                    watcher.add(target?.devJsPath ?? "");
-                  } else {
-                    process.exit(0);
-                  }
-                })
-                .catch((err) => {
-                  console.log(err);
-                  watcher.add(target?.devJsPath ?? "");
-                });
-            } else if (answer.action === "commit and exit") {
-              watcher.unwatch(target?.devJsPath ?? "");
-              await rollBackDevSql();
-
-              await target
-                ?.commit()
-                .then(() => {
-                  process.exit(0);
-                })
-                .catch((err) => {
-                  console.log(err);
-                  watcher.add(target?.devJsPath ?? "");
-                });
-            } else if (answer.action === "exit") {
-              process.exit(0);
-            }
-          }
+          await testDevMigration(path, target, options, true);
         } else if (event === "unlink") {
           console.log(
             chalk.yellow(
-              `dev.sql was removed for target "${options.target}", stopping dev mode...`
+              `dev.ts was removed for target "${options.target}", stopping dev mode...`
             )
           );
           process.exit(0);
@@ -518,6 +415,162 @@ program
     // console.log(chalk.green(`✨ done!`));
     // process.exit(0);
   });
+
+const run = async (
+  action: "up" | "down",
+  migration: { up: (params: any) => any; down: (params: any) => any },
+  params: any,
+  options: any
+) => {
+  var failed = false;
+  var error: any;
+  var spinner = ora(
+    `running ${action === "up" ? "up" : "down"} for target "${
+      options.target
+    }"...`
+  ).start();
+  var c = console.log;
+  try {
+    console.log = function () {};
+    await migration[action](params);
+    spinner.succeed();
+  } catch (err: any) {
+    spinner.fail();
+    failed = true;
+    error = err;
+  } finally {
+    console.log = c;
+  }
+
+  if (failed) {
+    console.log(chalk.white.bgRed.bold(">>" + error.message));
+    throw error;
+  }
+};
+
+const getModule = async (p: string) => {
+  if (!existsSync(p)) {
+    throw new Error("File does not exist");
+  }
+
+  const module = await import(p);
+  // delete require cache
+  delete require.cache[p];
+
+  return module;
+};
+
+const testDevMigration = async (
+  path: string,
+  target: any,
+  options: any,
+  interactive: boolean
+) => {
+  console.log("dev.ts changed, applying...");
+  const prevDevJsPath = resolve(target?.targetDirectory ?? "", "prev.dev.ts");
+  let failed = false;
+  let error = new Error();
+  await target?.driver?.exec(async (params: any) => {
+    // check if prev.dev.ts exists
+    if (existsSync(prevDevJsPath)) {
+      try {
+        const prevDevJs = await getModule(prevDevJsPath);
+
+        // validate prev.dev.ts
+        validateMigrationModule(prevDevJs);
+
+        // run down in prev.dev.ts
+        await run("down", prevDevJs, params, options.target);
+      } catch (e) {
+        console.log(chalk.red(`❌ prev.dev.ts is invalid, cant test.`));
+        console.log(e);
+        throw e;
+      }
+    }
+
+    const devJs = await getModule(path);
+    validateMigrationModule(devJs);
+
+    const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
+      readFileSync(path).toString()
+    );
+    const name = result?.groups?.name;
+    if (name) {
+      try {
+        // run up, down, up in dev.ts
+        await run("up", devJs, params, options);
+        await run("down", devJs, params, options);
+        await run("up", devJs, params, options);
+
+        // copy dev.ts to prev.dev.ts
+        copyFileSync(path, prevDevJsPath);
+      } catch (e: any) {
+        console.log(chalk.red.italic(`Please fix dev.ts and try again.`));
+        failed = true;
+      }
+    } else {
+      console.log(
+        chalk.red.italic(
+          `dev.ts is invalid, cant test. please add a "//@name: [your name]" to the first line of the file.`
+        )
+      );
+      failed = true;
+    }
+  });
+
+  if (!failed) {
+    // const rollBackDevSql = async () => {
+    //   if (existsSync(prevDevJsPath)) {
+    //     await target?.driver?.exec(async (params: any) => {
+    //       try {
+    //         // remove from require cache
+    //         delete require.cache[prevDevJsPath ?? ""];
+
+    //         const prevDevJs = await getModule(prevDevJsPath);
+    //         // validate prev.dev.ts
+    //         validateMigrationModule(prevDevJs);
+    //         // run down in prev.dev.ts
+
+    //         const spinner = ora(
+    //           `running down on prev.dev.ts for target "${options.target}"...`
+    //         ).start();
+
+    //         var c = console.log;
+    //         try {
+    //           console.log = function () {};
+    //           await prevDevJs.down(params);
+    //           spinner.succeed();
+    //         } catch (err: any) {
+    //           spinner.fail();
+    //           failed = true;
+    //           error = err;
+    //         } finally {
+    //           console.log = c;
+    //         }
+
+    //         if (failed) throw error;
+    //       } catch (e) {
+    //         console.log(chalk.red(`❌ prev.dev.ts is invalid, cant test.`));
+    //         console.log(e);
+    //         throw e;
+    //       }
+    //     });
+    //   }
+    // };
+
+    // ask for commit
+    const answer = await inqu.prompt({
+      name: "action",
+      type: "list",
+      message: "Please select",
+      choices: ["exit"],
+    });
+
+    if (answer.action === "exit") {
+      process.exit(0);
+    }
+  }
+};
 
 const getReadyTarget = async (
   targetName: string,

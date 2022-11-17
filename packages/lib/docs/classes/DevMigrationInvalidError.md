@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/DevMigrationInvalidError.ts:3](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/errors/DevMigrationInvalidError.ts#L3)
+[packages/lib/src/errors/DevMigrationInvalidError.ts:3](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/errors/DevMigrationInvalidError.ts#L3)
 
 ## Properties
 
@@ -66,11 +66,11 @@ ___
 
 ### MESSAGE
 
-▪ `Static` **MESSAGE**: `string` = `"dev.js is invalid"`
+▪ `Static` **MESSAGE**: `string` = `"dev.ts is invalid"`
 
 #### Defined in
 
-[packages/lib/src/errors/DevMigrationInvalidError.ts:2](https://github.com/Knaackee/hotmig/blob/c2001ab/packages/lib/src/errors/DevMigrationInvalidError.ts#L2)
+[packages/lib/src/errors/DevMigrationInvalidError.ts:2](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/errors/DevMigrationInvalidError.ts#L2)
 
 ___
 
