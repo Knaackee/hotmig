@@ -34,6 +34,13 @@ const prettier = require("prettier");
 export interface TargetConfig {
   driver: string;
   config: any;
+  dev?: {
+    runAfter?: {
+      command: string;
+      args?: string[];
+      options?: any;
+    };
+  };
 }
 
 export interface OnProgressArgs {
@@ -76,35 +83,6 @@ export const loadMigrationModule = async (p: string) => {
   delete require.cache[p];
 
   return module;
-
-  // // transpile
-  // var dir = path.dirname(p);
-  // var file = path.basename(p);
-  // var fileWithoutExt = file.substring(0, file.lastIndexOf("."));
-  // var extension = file.split(".")[1];
-  // var tempFile = path.join(dir, "_temp", fileWithoutExt + ".js");
-  // var tempFilePath = path.dirname(tempFile);
-
-  // if (existsSync(tempFile)) {
-  //   unlinkSync(tempFile);
-  // }
-
-  // const spinner = ora(`transpiling "${p}"...`).start();
-
-  // try {
-  //   // run tsc on file using execa
-  //   const res = await execa("tsc", [p, "--outDir", tempFilePath]);
-  //   if (res.failed) {
-  //     throw new Error(res.stderr);
-  //   }
-  //   // delete require cache
-  //   delete require.cache[tempFile];
-  //   spinner.succeed();
-  //   return require(tempFile);
-  // } catch (e) {
-  //   console.log(e);
-  //   spinner.fail();
-  // }
 };
 
 export const validateMigrationModule = (

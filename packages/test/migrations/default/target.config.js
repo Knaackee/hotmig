@@ -1,3 +1,5 @@
+const path = require("path");
+
 module.exports = {
   driver: "@hotmig/hotmig-driver-pg",
   config: {

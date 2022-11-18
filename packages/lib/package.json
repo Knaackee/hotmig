@@ -1,10 +1,11 @@
 {
   "name": "@hotmig/lib",
-  "version": "0.9.0",
+  "version": "0.9.8",
   "description": "Tool for Database Migrations.",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -b",
+    "hello-world": "echo \"Hello World!\"",
     "postbuild": "npm run docs",
     "dev": "tsc -w",
     "docs": "rimraf docs && typedoc src/index.ts --hideInPageTOC --hideBreadcrumbs --plugin typedoc-plugin-markdown --out docs",
@@ -22,7 +23,7 @@
   },
   "author": "Denis Knaack",
   "devDependencies": {
-    "@hotmig/hotmig-driver-pg": "^0.9.0",
+    "@hotmig/hotmig-driver-pg": "^0.9.8",
     "@types/invariant": "^2.2.35",
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.14",

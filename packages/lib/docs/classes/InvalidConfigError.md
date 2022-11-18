@@ -24,7 +24,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/InvalidConfigError.ts:5](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/errors/InvalidConfigError.ts#L5)
+[packages/lib/src/errors/InvalidConfigError.ts:5](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/errors/InvalidConfigError.ts#L5)
 
 ## Properties
 
@@ -76,7 +76,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/errors/InvalidConfigError.ts:4](https://github.com/Knaackee/hotmig/blob/225169c/packages/lib/src/errors/InvalidConfigError.ts#L4)
+[packages/lib/src/errors/InvalidConfigError.ts:4](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/errors/InvalidConfigError.ts#L4)
 
 ___
 

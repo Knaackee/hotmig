@@ -5,6 +5,7 @@ import {
   listGlobal,
   Migration,
   OnProgressArgs,
+  TargetConfig,
   validateMigrationModule,
 } from "@hotmig/lib";
 import axios from "axios";
@@ -416,6 +417,22 @@ program
     // process.exit(0);
   });
 
+export const runAfter = async (config: TargetConfig) => {
+  if (config?.dev?.runAfter) {
+    var spinner = ora(`running dev.runAfter ...`).start();
+    try {
+      const runAfter = config.dev?.runAfter;
+      await runAfter();
+
+      spinner.succeed();
+    } catch (err) {
+      spinner.fail();
+      console.log(chalk.red(err));
+      throw err;
+    }
+  }
+};
+
 const run = async (
   action: "up" | "down",
   migration: { up: (params: any) => any; down: (params: any) => any },
@@ -469,6 +486,7 @@ const testDevMigration = async (
   console.log("dev.ts changed, applying...");
   const prevDevJsPath = resolve(target?.targetDirectory ?? "", "prev.dev.ts");
   let failed = false;
+  let runAfterFailed = false;
   let error = new Error();
   await target?.driver?.exec(async (params: any) => {
     // check if prev.dev.ts exists
@@ -505,7 +523,13 @@ const testDevMigration = async (
         // copy dev.ts to prev.dev.ts
         copyFileSync(path, prevDevJsPath);
       } catch (e: any) {
-        console.log(chalk.red.italic(`Please fix dev.ts and try again.`));
+        if (!runAfterFailed) {
+          console.log(chalk.red.italic(`Please fix dev.ts and try again.`));
+        } else {
+          console.log(
+            chalk.red.italic(`Please fix runAfter, restart and try again.`)
+          );
+        }
         failed = true;
       }
     } else {
@@ -519,55 +543,29 @@ const testDevMigration = async (
   });
 
   if (!failed) {
-    // const rollBackDevSql = async () => {
-    //   if (existsSync(prevDevJsPath)) {
-    //     await target?.driver?.exec(async (params: any) => {
-    //       try {
-    //         // remove from require cache
-    //         delete require.cache[prevDevJsPath ?? ""];
+    try {
+      // run after is set
+      await runAfter(target?.config);
+    } catch (e) {
+      runAfterFailed = true;
+      throw e;
+    }
 
-    //         const prevDevJs = await getModule(prevDevJsPath);
-    //         // validate prev.dev.ts
-    //         validateMigrationModule(prevDevJs);
-    //         // run down in prev.dev.ts
+    if (!runAfterFailed) {
+      const answer = await inqu.prompt({
+        name: "action",
+        type: "list",
+        message: "Please select",
+        choices: ["exit"],
+      });
 
-    //         const spinner = ora(
-    //           `running down on prev.dev.ts for target "${options.target}"...`
-    //         ).start();
-
-    //         var c = console.log;
-    //         try {
-    //           console.log = function () {};
-    //           await prevDevJs.down(params);
-    //           spinner.succeed();
-    //         } catch (err: any) {
-    //           spinner.fail();
-    //           failed = true;
-    //           error = err;
-    //         } finally {
-    //           console.log = c;
-    //         }
-
-    //         if (failed) throw error;
-    //       } catch (e) {
-    //         console.log(chalk.red(`❌ prev.dev.ts is invalid, cant test.`));
-    //         console.log(e);
-    //         throw e;
-    //       }
-    //     });
-    //   }
-    // };
-
-    // ask for commit
-    const answer = await inqu.prompt({
-      name: "action",
-      type: "list",
-      message: "Please select",
-      choices: ["exit"],
-    });
-
-    if (answer.action === "exit") {
-      process.exit(0);
+      if (answer.action === "exit") {
+        process.exit(0);
+      }
+    } else {
+      console.log(
+        chalk.red.italic(`Please fix runAfter, restart and try again.`)
+      );
     }
   }
 };
