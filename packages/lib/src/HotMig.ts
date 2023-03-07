@@ -51,7 +51,6 @@ export class HotMig {
       }
       this.config = config;
     } catch (e) {
-      console.log(e);
       throw e;
     }
   }

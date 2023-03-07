@@ -2,13 +2,23 @@
 
 ## Properties
 
+### commitDirectory
+
+• `Optional` **commitDirectory**: `string` \| `string`[]
+
+#### Defined in
+
+[packages/lib/src/Target.ts:37](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L37)
+
+___
+
 ### config
 
 • **config**: `any`
 
 #### Defined in
 
-[packages/lib/src/Target.ts:36](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L36)
+[packages/lib/src/Target.ts:36](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L36)
 
 ___
 
@@ -20,14 +30,11 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `runAfter?` | { `args?`: `string`[] ; `command`: `string` ; `options?`: `any`  } |
-| `runAfter.args?` | `string`[] |
-| `runAfter.command` | `string` |
-| `runAfter.options?` | `any` |
+| `runAfter?` | () => `Promise`<`void`\> |
 
 #### Defined in
 
-[packages/lib/src/Target.ts:37](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L37)
+[packages/lib/src/Target.ts:38](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L38)
 
 ___
 
@@ -37,4 +44,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:35](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L35)
+[packages/lib/src/Target.ts:35](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L35)

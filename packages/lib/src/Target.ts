@@ -34,12 +34,9 @@ const prettier = require("prettier");
 export interface TargetConfig {
   driver: string;
   config: any;
+  commitDirectory?: string | Array<string>;
   dev?: {
-    runAfter?: {
-      command: string;
-      args?: string[];
-      options?: any;
-    };
+    runAfter?: () => Promise<void>;
   };
 }
 
@@ -53,6 +50,14 @@ export interface TestOnProgressArgs {
   action: "up" | "down";
   run: number;
 }
+
+const ensureDirectoriesExists = (paths: Array<string>) => {
+  paths.forEach((p) => {
+    if (!existsSync(p)) {
+      mkdirSync(p);
+    }
+  });
+};
 
 export const loadDriver = async (driver: string) => {
   // check driver
@@ -95,7 +100,7 @@ export const validateMigrationModule = (
 export class Target {
   baseDirectory: string;
   targetDirectory: string;
-  commitDirectory: string;
+  commitDirectory: string | Array<string>;
   configFilePath: string;
   devJsPath: string;
   prevJsPath: string;
@@ -159,10 +164,15 @@ export class Target {
     }
 
     mkdirSync(this.targetDirectory);
-    mkdirSync(this.commitDirectory);
+    ensureDirectoriesExists(
+      typeof this.commitDirectory === "string"
+        ? [this.commitDirectory]
+        : this.commitDirectory
+    );
 
     const config = {
       driver,
+      commitDirecotry: this.commitDirectory,
       config: await this.driver?.getDefaultConfig(isInteractive),
     };
 
@@ -191,6 +201,9 @@ export class Target {
     this.driver = new module["Driver"]() as Driver;
     this.driverName = this.config?.driver;
 
+    // override default if provided in target.config.js
+    this.commitDirectory = this.config?.commitDirectory || this.commitDirectory;
+
     this.driver?.init(this.config?.config);
   }
 
@@ -212,41 +225,49 @@ export class Target {
     }
 
     result.migrations = [];
-    if (!existsSync(this.commitDirectory)) {
-      mkdirSync(this.commitDirectory);
-    }
 
-    readdirSync(this.commitDirectory).forEach((file) => {
-      if (file.toLocaleLowerCase().endsWith(".ts")) {
-        try {
-          if (isValidMigrationContent(resolve(this.commitDirectory, file))) {
-            const regex = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
-              readFileSync(resolve(this.commitDirectory, file)).toString()
-            );
-            const name = regex?.groups?.name;
-            if (!name) {
-              throw new DevMigrationInvalidError();
+    const migrationDirectories =
+      typeof this.commitDirectory === "string"
+        ? [this.commitDirectory]
+        : this.commitDirectory;
+    ensureDirectoriesExists(migrationDirectories);
+
+    migrationDirectories.forEach((d) => {
+      readdirSync(d).forEach((file) => {
+        if (file.toLocaleLowerCase().endsWith(".ts")) {
+          try {
+            if (isValidMigrationContent(resolve(d, file))) {
+              const regex = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
+                readFileSync(resolve(d, file)).toString()
+              );
+              const name = regex?.groups?.name;
+              if (!name) {
+                throw new DevMigrationInvalidError();
+              }
+
+              const migration = {} as Migration;
+              migration.id = file.split("-")[0];
+              migration.name = name?.trim();
+              migration.filePath = resolve(d, file);
+              migration.target = this.target;
+              result.loaded++;
+              result.migrations.push(migration);
+            } else {
+              result.skipped++;
             }
-
-            const migration = {} as Migration;
-            migration.id = file.split("-")[0];
-            migration.name = name?.trim();
-            migration.filePath = resolve(this.commitDirectory, file);
-            migration.target = this.target;
-            result.loaded++;
-            result.migrations.push(migration);
-          } else {
+          } catch (e) {
             result.skipped++;
           }
-        } catch (e) {
-          console.log("skipped", e);
+        } else {
           result.skipped++;
         }
-      } else {
-        console.log("skipped");
-        result.skipped++;
-      }
+      });
     });
+    // sort by id asc
+    result.migrations.sort((a, b) => {
+      return a.id.localeCompare(b.id);
+    });
+
     return result;
   }
 
@@ -418,7 +439,9 @@ export class Target {
     migration.id = generateId();
     migration.name = name;
     migration.filePath = resolve(
-      this.commitDirectory,
+      typeof this.commitDirectory === "string"
+        ? this.commitDirectory
+        : this.commitDirectory[0],
       `${migration.id}-${slugify(migration.name || "")}.ts`
     );
 

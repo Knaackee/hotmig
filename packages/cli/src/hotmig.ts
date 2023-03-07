@@ -5,6 +5,7 @@ import {
   listGlobal,
   Migration,
   OnProgressArgs,
+  Target,
   TargetConfig,
   validateMigrationModule,
 } from "@hotmig/lib";
@@ -15,11 +16,14 @@ import execa from "execa";
 import { copyFileSync, existsSync, readFileSync, unlinkSync } from "fs";
 import inqu from "inquirer";
 import ora from "ora";
-import { resolve } from "path";
+import path, { resolve } from "path";
 import q from "inquirer";
 import { header, title } from "./header";
+import { TestRunner, TestRunnerAction } from "./TestRunner";
 
 console.log("");
+
+let ignoreChanges = false;
 
 program
   .name("hotmig")
@@ -213,7 +217,12 @@ program
     header(`testing dev migration for target "${options.target}"...`);
 
     const target = await getReadyTarget(options.target, true, true);
-    await testDevMigration(target?.devJsPath || "", target, options, true);
+    await testDevMigration(
+      target?.devJsPath || "",
+      target as Target,
+      options,
+      true
+    );
 
     console.log(chalk.green(`✨ done!`));
     process.exit(0);
@@ -392,7 +401,7 @@ program
     // create dev.ts if not exists
     if (!target?.devMigationAlreadyExists()) {
       console.log(
-        chalk.yellow(`creating dev.tsfor target "${options.target}"...`)
+        chalk.yellow(`creating dev.ts for target "${options.target}"...`)
       );
       await target?.new("insert name here", false);
     }
@@ -401,8 +410,10 @@ program
     chokidar
       .watch(target?.devJsPath ?? ".", { ignoreInitial: false })
       .on("all", async (event, path) => {
+        if (ignoreChanges) return;
+
         if (event === "change" || event === "add") {
-          await testDevMigration(path, target, options, true);
+          testDevMigration(path, target as Target, options, true).then;
         } else if (event === "unlink") {
           console.log(
             chalk.yellow(
@@ -477,9 +488,27 @@ const getModule = async (p: string) => {
   return module;
 };
 
+const test = async (
+  migrationFilePath: string,
+  action: TestRunnerAction,
+  params: any
+) => {
+  const testDevTestRunner = new TestRunner(migrationFilePath);
+  const result = await testDevTestRunner.run(action, params);
+  if (!result.success) {
+    console.log(
+      chalk.red(
+        `❌ ${path.basename(migrationFilePath)} "${action}" test failed.`
+      )
+    );
+    console.log(chalk.red(result.failureMessages?.join("\r") ?? ""));
+    throw new Error(result.failureMessages?.join("\r") ?? "");
+  }
+};
+
 const testDevMigration = async (
   path: string,
-  target: any,
+  target: Target,
   options: any,
   interactive: boolean
 ) => {
@@ -487,86 +516,107 @@ const testDevMigration = async (
   const prevDevJsPath = resolve(target?.targetDirectory ?? "", "prev.dev.ts");
   let failed = false;
   let runAfterFailed = false;
-  let error = new Error();
-  await target?.driver?.exec(async (params: any) => {
-    // check if prev.dev.ts exists
-    if (existsSync(prevDevJsPath)) {
-      try {
-        const prevDevJs = await getModule(prevDevJsPath);
+  ignoreChanges = true;
+  try {
+    await target?.driver?.exec(async (params: any) => {
+      // check if prev.dev.ts exists
+      if (existsSync(prevDevJsPath)) {
+        try {
+          const prevDevJs = await getModule(prevDevJsPath);
 
-        // validate prev.dev.ts
-        validateMigrationModule(prevDevJs);
+          // validate prev.dev.ts
+          validateMigrationModule(prevDevJs);
 
-        // run down in prev.dev.ts
-        await run("down", prevDevJs, params, options.target);
-      } catch (e) {
-        console.log(chalk.red(`❌ prev.dev.ts is invalid, cant test.`));
-        console.log(e);
-        throw e;
+          // run down in prev.dev.ts
+          await test(prevDevJsPath, "testAfter", params);
+          await run("down", prevDevJs, params, options);
+          await test(prevDevJsPath, "testBefore", params);
+        } catch (e) {
+          console.log(chalk.red(`❌ prev.dev.ts is invalid`));
+          console.log(e);
+          throw e;
+        }
       }
-    }
 
-    const devJs = await getModule(path);
-    validateMigrationModule(devJs);
+      const devJs = await getModule(path);
+      validateMigrationModule(devJs);
 
-    const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
-      readFileSync(path).toString()
-    );
-    const name = result?.groups?.name;
-    if (name) {
-      try {
+      const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
+        readFileSync(path).toString()
+      );
+      const name = result?.groups?.name;
+      if (name) {
         // run up, down, up in dev.ts
+        await test(path, "testBefore", params);
+
         await run("up", devJs, params, options);
         await run("down", devJs, params, options);
         await run("up", devJs, params, options);
 
+        await test(path, "testAfter", params);
+
         // copy dev.ts to prev.dev.ts
         copyFileSync(path, prevDevJsPath);
-      } catch (e: any) {
-        if (!runAfterFailed) {
-          console.log(chalk.red.italic(`Please fix dev.ts and try again.`));
-        } else {
-          console.log(
-            chalk.red.italic(`Please fix runAfter, restart and try again.`)
-          );
-        }
+      } else {
+        console.log(
+          chalk.red.italic(
+            `dev.ts is invalid, cant test. please add a "//@name: [your name]" to the first line of the file.`
+          )
+        );
         failed = true;
       }
-    } else {
-      console.log(
-        chalk.red.italic(
-          `dev.ts is invalid, cant test. please add a "//@name: [your name]" to the first line of the file.`
-        )
-      );
-      failed = true;
-    }
-  });
+    });
 
-  if (!failed) {
-    try {
-      // run after is set
-      await runAfter(target?.config);
-    } catch (e) {
-      runAfterFailed = true;
-      throw e;
-    }
-
-    if (!runAfterFailed) {
-      const answer = await inqu.prompt({
-        name: "action",
-        type: "list",
-        message: "Please select",
-        choices: ["exit"],
-      });
-
-      if (answer.action === "exit") {
-        process.exit(0);
+    if (!failed) {
+      try {
+        // run after is set
+        await runAfter(target.config as any);
+      } catch (e) {
+        runAfterFailed = true;
+        throw e;
       }
-    } else {
-      console.log(
-        chalk.red.italic(`Please fix runAfter, restart and try again.`)
-      );
     }
+  } finally {
+    ignoreChanges = false;
+  }
+
+  if (!runAfterFailed) {
+    const answer = await inqu.prompt({
+      name: "action",
+      type: "list",
+      message: "Please select",
+      choices: ["exit"], // "next",
+    });
+
+    // if (answer.action === "next") {
+    //   // a.k.a unwatch
+    //   ignoreChanges = true;
+    //   try {
+    //     // commit
+    //     console.log("committing...");
+    //     await target.commit();
+
+    //     // migrate
+    //     console.log("migrating...");
+    //     await target.latest();
+
+    //     // next
+    //     console.log("next...");
+    //     await target?.new("insert name here", false);
+
+    //     console.log("done");
+    //   } finally {
+    //     ignoreChanges = false;
+    //   }
+    // }
+
+    if (answer.action === "exit") {
+      process.exit(0);
+    }
+  } else {
+    console.log(
+      chalk.red.italic(`Please fix runAfter, restart and try again.`)
+    );
   }
 };
 

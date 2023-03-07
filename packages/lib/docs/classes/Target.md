@@ -16,7 +16,7 @@
 
 #### Defined in
 
-[packages/lib/src/Target.ts:107](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L107)
+[packages/lib/src/Target.ts:112](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L112)
 
 ## Properties
 
@@ -26,17 +26,17 @@
 
 #### Defined in
 
-[packages/lib/src/Target.ts:96](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L96)
+[packages/lib/src/Target.ts:101](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L101)
 
 ___
 
 ### commitDirectory
 
-• **commitDirectory**: `string`
+• **commitDirectory**: `string` \| `string`[]
 
 #### Defined in
 
-[packages/lib/src/Target.ts:98](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L98)
+[packages/lib/src/Target.ts:103](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L103)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:102](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L102)
+[packages/lib/src/Target.ts:107](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L107)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:99](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L99)
+[packages/lib/src/Target.ts:104](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L104)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:100](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L100)
+[packages/lib/src/Target.ts:105](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L105)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:103](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L103)
+[packages/lib/src/Target.ts:108](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L108)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:104](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L104)
+[packages/lib/src/Target.ts:109](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L109)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:105](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L105)
+[packages/lib/src/Target.ts:110](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L110)
 
 ___
 
@@ -106,7 +106,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:101](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L101)
+[packages/lib/src/Target.ts:106](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L106)
 
 ___
 
@@ -116,7 +116,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:97](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L97)
+[packages/lib/src/Target.ts:102](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L102)
 
 ## Methods
 
@@ -130,7 +130,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:395](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L395)
+[packages/lib/src/Target.ts:416](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L416)
 
 ___
 
@@ -144,7 +144,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:137](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L137)
+[packages/lib/src/Target.ts:142](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L142)
 
 ___
 
@@ -158,7 +158,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:391](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L391)
+[packages/lib/src/Target.ts:412](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L412)
 
 ___
 
@@ -180,7 +180,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:303](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L303)
+[packages/lib/src/Target.ts:324](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L324)
 
 ___
 
@@ -194,7 +194,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:491](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L491)
+[packages/lib/src/Target.ts:514](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L514)
 
 ___
 
@@ -208,7 +208,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:197](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L197)
+[packages/lib/src/Target.ts:210](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L210)
 
 ___
 
@@ -222,7 +222,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:203](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L203)
+[packages/lib/src/Target.ts:216](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L216)
 
 ___
 
@@ -243,7 +243,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:147](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L147)
+[packages/lib/src/Target.ts:152](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L152)
 
 ___
 
@@ -257,7 +257,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:131](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L131)
+[packages/lib/src/Target.ts:136](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L136)
 
 ___
 
@@ -278,7 +278,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:366](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L366)
+[packages/lib/src/Target.ts:387](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L387)
 
 ___
 
@@ -292,7 +292,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:184](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L184)
+[packages/lib/src/Target.ts:194](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L194)
 
 ___
 
@@ -306,7 +306,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:142](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L142)
+[packages/lib/src/Target.ts:147](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L147)
 
 ___
 
@@ -327,7 +327,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:376](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L376)
+[packages/lib/src/Target.ts:397](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L397)
 
 ___
 
@@ -341,7 +341,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:253](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L253)
+[packages/lib/src/Target.ts:274](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L274)
 
 ___
 
@@ -362,7 +362,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:371](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L371)
+[packages/lib/src/Target.ts:392](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L392)
 
 ___
 
@@ -382,7 +382,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:180](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L180)
+[packages/lib/src/Target.ts:190](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L190)
 
 ___
 
@@ -403,7 +403,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:433](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L433)
+[packages/lib/src/Target.ts:456](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L456)
 
 ___
 
@@ -425,4 +425,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:266](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/Target.ts#L266)
+[packages/lib/src/Target.ts:287](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/Target.ts#L287)

@@ -25,7 +25,8 @@ export const generateId = () => {
     pad2(now.getMinutes()) +
     pad2(now.getSeconds()) +
     pad2(now.getMilliseconds());
-  return id;
+  // ensure length
+  return id.padEnd(17, "0");
 };
 
 // export const parseMigrationContent = (content: string) => {

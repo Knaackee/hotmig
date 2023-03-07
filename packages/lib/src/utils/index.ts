@@ -5,7 +5,8 @@ import execa from "execa";
 
 // based on: https://stackoverflow.com/a/38535119/479659
 export const requireGlobal = async (packageName: string) => {
-  const { stdout: globalNodeModules } = await execa("npm root -g");
+  const { stdout: globalNodeModules } = await execa("npm", ["root", "-g"]);
+
   var packageDir = path.join(globalNodeModules, packageName);
   if (!fs.existsSync(packageDir))
     packageDir = path.join(globalNodeModules, "npm/node_modules", packageName); //find package required by old npm

@@ -8,4 +8,4 @@
 
 #### Defined in
 
-[packages/lib/src/HotMig.ts:12](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/HotMig.ts#L12)
+[packages/lib/src/HotMig.ts:12](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/HotMig.ts#L12)

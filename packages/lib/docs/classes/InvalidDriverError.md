@@ -24,7 +24,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/InvalidDriverError.ts:3](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/errors/InvalidDriverError.ts#L3)
+[packages/lib/src/errors/InvalidDriverError.ts:3](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/errors/InvalidDriverError.ts#L3)
 
 ## Properties
 
@@ -76,7 +76,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/errors/InvalidDriverError.ts:2](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/lib/src/errors/InvalidDriverError.ts#L2)
+[packages/lib/src/errors/InvalidDriverError.ts:2](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/errors/InvalidDriverError.ts#L2)
 
 ___
 

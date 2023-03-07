@@ -18,4 +18,4 @@
 
 #### Defined in
 
-[hotmig.ts:420](https://github.com/Knaackee/hotmig/blob/1ea8218/packages/cli/src/hotmig.ts#L420)
+[hotmig.ts:431](https://github.com/Knaackee/hotmig/blob/306dd08/packages/cli/src/hotmig.ts#L431)
