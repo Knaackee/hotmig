@@ -430,37 +430,47 @@ program
             options,
             true
           );
+
           if (success) {
+            console.log(chalk.greenBright(`✨ done, migration looks good 😎`));
+            console.log();
+
             const answer = await inqu.prompt({
               name: "action",
               type: "list",
               message: "Please select",
-              choices: ["next", "exit"],
+              choices: ["exit"], // "next",
             });
 
             if (answer.action === "next") {
               // a.k.a unwatch
               ignoreChanges = true;
               try {
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+
                 // commit
-                console.log(chalk.yellowBright("committing..."));
+                console.log(line);
+                console.log(chalk.yellowBright("💪 committing..."));
                 await target.commit();
-                console.log(chalk.greenBright("✅ committed"));
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                console.log(chalk.greenBright("🟢 committed"));
 
                 // migrate
-                console.log(chalk.yellowBright("migrating..."));
+                console.log(chalk.yellowBright("💪 migrating..."));
                 await target.latest();
-                console.log(chalk.greenBright("✅ migrated"));
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                console.log(chalk.greenBright("🟢 migrated"));
 
                 // next
-                console.log(chalk.yellowBright("creating next dev.ts..."));
+                console.log(chalk.yellowBright("💪 creating next dev.ts..."));
                 await target?.new("insert name here", false);
-                console.log(chalk.greenBright("✅ created next dev.ts"));
-
                 await new Promise((resolve) => setTimeout(resolve, 1000));
+                console.log(chalk.greenBright("🟢 created next dev.ts"));
               } finally {
                 ignoreChanges = false;
-                console.log(chalk.yellowBright("✅ waiting for changes..."));
+                console.log(chalk.greenBright("✨ done"));
+                console.log(line);
+                console.log(chalk.yellowBright("⌛ waiting for changes..."));
               }
             }
 
@@ -503,7 +513,7 @@ export const runAfter = async (config: TargetConfig) => {
       await runAfter();
       console.log(chalk.greenBright(`✨ done!`));
     } catch (err) {
-      console.log(chalk.red(`❌ runAfter failed`));
+      console.log(chalk.red(`🔴 runAfter failed`));
       console.log(chalk.red(err));
       throw err;
     }
@@ -517,16 +527,20 @@ const run = async (
   options: any
 ) => {
   console.log(line);
-  console.log(chalk.yellowBright(`⬆️ [${action.toUpperCase()}]...`));
+  console.log(
+    chalk.yellowBright(
+      `${action === "up" ? "👆" : "👇"} [${action.toUpperCase()}]...`
+    )
+  );
 
   var failed = false;
   var error: any;
 
   try {
     await migration[action](params);
-    console.log(chalk.greenBright(`✅ [${action.toUpperCase()}]... done`));
+    console.log(chalk.greenBright(`🟢 [${action.toUpperCase()}]... done`));
   } catch (err: any) {
-    console.log(chalk.red(`❌ [${action.toUpperCase()}]... failed`));
+    console.log(chalk.red(`🔴 [${action.toUpperCase()}]... failed`));
     console.log(chalk.red(err));
     failed = true;
     error = err;
@@ -549,19 +563,11 @@ const getModule = async (p: string) => {
   return module;
 };
 
-const test = async (
-  migrationFilePath: string,
-  action: TestRunnerAction,
-  params: any
-) => {
-  const testDevTestRunner = new TestRunner(migrationFilePath);
+const test = async (action: TestRunnerAction, module: any, params: any) => {
+  const testDevTestRunner = new TestRunner(module);
   const result = await testDevTestRunner.run(action, params);
   if (!result.success) {
-    console.log(
-      chalk.red(
-        `❌ ${path.basename(migrationFilePath)} "${action}" test failed.`
-      )
-    );
+    console.log(chalk.red(`🔴 "${action}" test failed.`));
     throw new Error("Test failed");
   }
 };
@@ -578,61 +584,67 @@ const testDevMigration = async (
   let runAfterFailed = false;
   ignoreChanges = true;
   try {
-    await target?.driver?.exec(async (params: any) => {
-      // check if prev.dev.ts exists
-      if (existsSync(prevDevJsPath)) {
+    if (existsSync(prevDevJsPath)) {
+      await target?.driver?.exec(async (params: any) => {
+        // check if prev.dev.ts exists
+
         try {
-          const prevDevJs = await getModule(prevDevJsPath);
+          const prevDevJsModule = await getModule(prevDevJsPath);
 
           // validate prev.dev.ts
-          validateMigrationModule(prevDevJs);
+          validateMigrationModule(prevDevJsModule);
 
           // run down in prev.dev.ts
-          await test(prevDevJsPath, "testAfter", params);
-          await run("down", prevDevJs, params, options);
-          await test(prevDevJsPath, "testBefore", params);
+          await run("down", prevDevJsModule, params, options);
+
+          // remove prev.dev.ts
+          unlinkSync(prevDevJsPath);
         } catch (e) {
           console.log(chalk.red(`❌ prev.dev.ts is invalid`));
-          console.log(e);
           failed = true;
+          // throw in order to rollback the transaction
+          if (failed) throw new Error("Testing dev migration failed");
         }
-      }
+      });
+    }
 
-      if (!failed) {
-        const devJs = await getModule(path);
-        validateMigrationModule(devJs);
+    await target?.driver?.exec(async (params: any) => {
+      const devJsModule = await getModule(path);
+      validateMigrationModule(devJsModule);
 
-        const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
-          readFileSync(path).toString()
+      const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
+        readFileSync(path).toString()
+      );
+      const name = result?.groups?.name;
+      if (name) {
+        try {
+          // run up, down, up in dev.ts
+          await test("testBefore", devJsModule, params);
+
+          await run("up", devJsModule, params, options);
+          await run("down", devJsModule, params, options);
+          await run("up", devJsModule, params, options);
+
+          await test("testAfter", devJsModule, params);
+
+          // copy dev.ts to prev.dev.ts
+          copyFileSync(path, prevDevJsPath);
+        } catch (e) {
+          console.log(chalk.red(`❌ dev.ts is invalid`));
+          failed = true;
+          //
+        }
+      } else {
+        console.log(
+          chalk.red.italic(
+            `dev.ts is invalid, cant test. please add a "//@name: [your name]" to the first line of the file.`
+          )
         );
-        const name = result?.groups?.name;
-        if (name) {
-          try {
-            // run up, down, up in dev.ts
-            await test(path, "testBefore", params);
-
-            await run("up", devJs, params, options);
-            await run("down", devJs, params, options);
-            await run("up", devJs, params, options);
-
-            await test(path, "testAfter", params);
-
-            // copy dev.ts to prev.dev.ts
-            copyFileSync(path, prevDevJsPath);
-          } catch (e) {
-            console.log(chalk.red(`❌ dev.ts is invalid`));
-            console.log(e);
-            failed = true;
-          }
-        } else {
-          console.log(
-            chalk.red.italic(
-              `dev.ts is invalid, cant test. please add a "//@name: [your name]" to the first line of the file.`
-            )
-          );
-          failed = true;
-        }
+        failed = true;
       }
+
+      // throw in order to rollback the transaction
+      if (failed) throw new Error("Testing dev migration failed");
     });
 
     if (!failed) {

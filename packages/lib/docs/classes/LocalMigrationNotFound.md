@@ -24,7 +24,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/LocalMigrationNotFound.ts:3](https://github.com/Knaackee/hotmig/blob/26e873a/packages/lib/src/errors/LocalMigrationNotFound.ts#L3)
+[packages/lib/src/errors/LocalMigrationNotFound.ts:3](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/errors/LocalMigrationNotFound.ts#L3)
 
 ## Properties
 
@@ -76,7 +76,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/errors/LocalMigrationNotFound.ts:2](https://github.com/Knaackee/hotmig/blob/26e873a/packages/lib/src/errors/LocalMigrationNotFound.ts#L2)
+[packages/lib/src/errors/LocalMigrationNotFound.ts:2](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/errors/LocalMigrationNotFound.ts#L2)
 
 ___
 

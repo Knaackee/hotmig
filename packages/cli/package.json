@@ -1,6 +1,6 @@
 {
   "name": "@hotmig/cli",
-  "version": "0.10.61",
+  "version": "0.20.17",
   "description": "Tool for Database Migrations.",
   "main": "dist/hotmig.js",
   "scripts": {

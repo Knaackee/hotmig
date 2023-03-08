@@ -13,25 +13,22 @@ export interface TestRunResult {
 export type TestRunnerAction = "testBefore" | "testAfter";
 
 export class TestRunner {
-  constructor(public migrationFileName: string) {}
+  constructor(public module: any) {}
 
   async run(action: TestRunnerAction, params: any): Promise<TestRunResult> {
     return new Promise<TestRunResult>(async (resolve) => {
       console.log(line);
       console.log(chalk.yellowBright(`🤔 [${action.toUpperCase()}]...`));
 
-      // get module to check which tests are provided
-      const module = await getModule(this.migrationFileName);
-
       // check if test is provided
-      if (!module.default[action]) {
+      if (!this.module.default[action]) {
         console.log(
-          chalk.greenBright(
-            `✅ [${action.toUpperCase()}] ${path.basename(
-              this.migrationFileName
-            )}... SKIPPED (no tests found)`
+          chalk.yellowBright(
+            `🟡 [${action.toUpperCase()}]... SKIPPED (no tests found)`
           )
         );
+        console.log(line);
+        console.log();
         resolve({ success: true });
         return;
       }
@@ -45,13 +42,10 @@ export class TestRunner {
       });
 
       // create suite
-      const suite = suiteInstance.create(
-        mocha.suite,
-        path.basename(this.migrationFileName)
-      );
+      const suite = suiteInstance.create(mocha.suite, action);
 
       // get tests
-      const tests = (await module.default[action](params, chai)) || {};
+      const tests = (await this.module.default[action](params, chai)) || {};
 
       // add tests to suite
       for (var testName of Object.keys(tests)) {
@@ -72,10 +66,10 @@ export class TestRunner {
 
       if (success) {
         console.log(
-          chalk.greenBright(`✅ [${action.toUpperCase()}]... SUCCESS`)
+          chalk.greenBright(`🟢 [${action.toUpperCase()}]... SUCCESS`)
         );
       } else {
-        console.log(chalk.red(`❌ [${action.toUpperCase()}]... FAILED`));
+        console.log(chalk.red(`🔴 [${action.toUpperCase()}]... FAILED`));
       }
 
       console.log(line);

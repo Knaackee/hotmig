@@ -519,5 +519,4 @@ export class Target {
   }
 }
 
-// TODO: pending, nicer output
-// dev mode: commit and migrate not working ?
+// TODO: less output

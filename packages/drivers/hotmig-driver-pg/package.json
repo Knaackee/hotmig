@@ -1,6 +1,6 @@
 {
   "name": "@hotmig/hotmig-driver-pg",
-  "version": "0.10.61",
+  "version": "0.20.17",
   "description": "Tool for Database Migrations.",
   "private": false,
   "main": "dist/index.js",
@@ -34,7 +34,7 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@hotmig/sql-driver": "0.10.61",
+    "@hotmig/sql-driver": "0.20.17",
     "chalk": "4",
     "invariant": "^2.2.4",
     "knex": "^1.0.5",

@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/PendingMigrationsError.ts:3](https://github.com/Knaackee/hotmig/blob/26e873a/packages/lib/src/errors/PendingMigrationsError.ts#L3)
+[packages/lib/src/errors/PendingMigrationsError.ts:3](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/errors/PendingMigrationsError.ts#L3)
 
 ## Properties
 
@@ -70,7 +70,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/errors/PendingMigrationsError.ts:2](https://github.com/Knaackee/hotmig/blob/26e873a/packages/lib/src/errors/PendingMigrationsError.ts#L2)
+[packages/lib/src/errors/PendingMigrationsError.ts:2](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/errors/PendingMigrationsError.ts#L2)
 
 ___
 

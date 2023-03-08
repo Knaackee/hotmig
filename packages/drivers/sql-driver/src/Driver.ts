@@ -65,7 +65,6 @@ export abstract class Driver extends Base<Knex.Config<any>> {
           await trx.commit();
         } catch (err) {
           await trx.rollback();
-          console.log(err);
           throw err;
         }
       });
@@ -84,6 +83,7 @@ export abstract class Driver extends Base<Knex.Config<any>> {
   ): Promise<string> {
     return /*js*/ `
 import { Knex } from "knex";
+import Chai from "chai";
 
 // @name: ${name}    
 export = {
@@ -93,7 +93,7 @@ export = {
   down: async (db:Knex) => {
     // undo your migration here
   },
-  testAfter: async (params: any, { expect }: Chai.ChaiStatic) => {
+  testAfter: async (db: Knex, { expect }: Chai.ChaiStatic) => {
     // write your tests that run after up or before down here
     // return {
     //   "test1": async () => {
@@ -101,7 +101,7 @@ export = {
     //   },
     // }
   },
-  testBefore: async (params: any, { expect }: Chai.ChaiStatic) => {
+  testBefore: async (db: Knex, { expect }: Chai.ChaiStatic) => {
     // write your tests that run before up or after down here
     // return {
     //   "test1": async () => {
