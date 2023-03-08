@@ -13,7 +13,7 @@ import axios from "axios";
 import chalk from "chalk";
 import chokidar from "chokidar";
 import execa from "execa";
-import { copyFileSync, existsSync, readFileSync, unlinkSync } from "fs";
+import { copyFileSync, exists, existsSync, readFileSync, unlinkSync } from "fs";
 import inqu from "inquirer";
 import ora from "ora";
 import path, { resolve } from "path";
@@ -22,6 +22,7 @@ import { header, title } from "./header";
 import { TestRunner, TestRunnerAction } from "./TestRunner";
 
 console.log("");
+const line = "-".repeat(process.stdout.columns);
 
 let ignoreChanges = false;
 
@@ -51,7 +52,7 @@ program
 
     await hm.init(answer.migrationsDir);
 
-    console.log(chalk.green("hotmig initalized, happy migrating! ✨"));
+    console.log(chalk.greenBright("hotmig initalized, happy migrating! ✨"));
   });
 
 program
@@ -114,7 +115,7 @@ program
     await target.init(answer.driver, true);
 
     // show success message
-    console.log(chalk.green("✨ done, happy migrating!"));
+    console.log(chalk.greenBright("✨ done, happy migrating!"));
     process.exit(0);
   });
 
@@ -147,7 +148,7 @@ program
 
     await target.createMigrationStore();
 
-    console.log(chalk.green("✨ done, happy migrating!"));
+    console.log(chalk.greenBright("✨ done, happy migrating!"));
     process.exit(0);
   });
 
@@ -176,14 +177,14 @@ program
     });
 
     for (const name of answer.drivers) {
-      console.log(chalk.yellow(`\ninstalling ${name}...\n`));
+      console.log(chalk.yellowBright(`\ninstalling ${name}...\n`));
       await execa(`npm install ${name.split(" ")[0]} -g`, {
         shell: true,
         stdio: "inherit",
       });
     }
 
-    console.log(chalk.green("✨ done, happy migrating!"));
+    console.log(chalk.greenBright("✨ done, happy migrating!"));
     process.exit(0);
   });
 
@@ -205,7 +206,7 @@ program
       process.exit(0);
     }
 
-    console.log(chalk.green(`✨ done!`));
+    console.log(chalk.greenBright(`✨ done!`));
     process.exit(0);
   });
 
@@ -224,7 +225,7 @@ program
       true
     );
 
-    console.log(chalk.green(`✨ done!`));
+    console.log(chalk.greenBright(`✨ done!`));
     process.exit(0);
   });
 
@@ -238,7 +239,7 @@ program
     const task = await getReadyTarget(options.target, true, true);
     await task?.commit();
 
-    console.log(chalk.green(`✨ done!`));
+    console.log(chalk.greenBright(`✨ done!`));
     process.exit(0);
   });
 
@@ -257,7 +258,7 @@ program
       count: options.count,
       onProgress: async (args: OnProgressArgs) => {
         console.log(
-          chalk.green(
+          chalk.greenBright(
             `[UP] migrated ${args.migrations.length} of ${args.total}: ${
               args.migrations[args.migrations.length - 1].id
             }-${args.migrations[args.migrations.length - 1].name}`
@@ -267,10 +268,10 @@ program
     });
 
     if (result?.applied != options.count)
-      console.log(chalk.yellow(`no migrations applied`));
+      console.log(chalk.yellowBright(`no migrations applied`));
     else
       console.log(
-        chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`)
+        chalk.greenBright(`\n✨ done. migrated: ${result?.applied ?? "0"}`)
       );
     process.exit(0);
   });
@@ -291,7 +292,7 @@ program
       count: options.count,
       onProgress: async (args: OnProgressArgs) => {
         console.log(
-          chalk.green(
+          chalk.greenBright(
             `[DOWN] migrated ${args.migrations.length} of ${args.total}: ${
               args.migrations[args.migrations.length - 1].id
             }-${args.migrations[args.migrations.length - 1].name}`
@@ -301,10 +302,10 @@ program
     });
 
     if (result?.applied != options.count)
-      console.log(chalk.yellow(`no migrations applied`));
+      console.log(chalk.yellowBright(`no migrations applied`));
     else
       console.log(
-        chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`)
+        chalk.greenBright(`\n✨ done. migrated: ${result?.applied ?? "0"}`)
       );
     process.exit(0);
   });
@@ -321,7 +322,7 @@ program
     )?.latest({
       onProgress: async (args: OnProgressArgs) => {
         console.log(
-          chalk.green(
+          chalk.greenBright(
             `[UP] migrated ${args.migrations.length} of ${args.total}: ${
               args.migrations[args.migrations.length - 1].id
             }-${args.migrations[args.migrations.length - 1].name}`
@@ -330,7 +331,9 @@ program
       },
     });
 
-    console.log(chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`));
+    console.log(
+      chalk.greenBright(`\n✨ done. migrated: ${result?.applied ?? "0"}`)
+    );
     process.exit(0);
   });
 
@@ -348,7 +351,7 @@ program
     )?.reset({
       onProgress: async (args: OnProgressArgs) => {
         console.log(
-          chalk.green(
+          chalk.greenBright(
             `[DOWN] migrated ${args.migrations.length} of ${args.total}: ${
               args.migrations[args.migrations.length - 1].id
             }-${args.migrations[args.migrations.length - 1].name}`
@@ -357,7 +360,9 @@ program
       },
     });
 
-    console.log(chalk.green(`\n✨ done. migrated: ${result?.applied ?? "0"}`));
+    console.log(
+      chalk.greenBright(`\n✨ done. migrated: ${result?.applied ?? "0"}`)
+    );
     process.exit(0);
   });
 
@@ -373,7 +378,7 @@ program
 
     console.table(result, ["id", "name"]);
 
-    console.log(chalk.green(`✨ done!`));
+    console.log(chalk.greenBright(`✨ done!`));
     process.exit(0);
   });
 
@@ -385,6 +390,12 @@ program
     header(`starting dev mode for target "${options.target}"...`);
 
     const target = await getReadyTarget(options.target, false, true);
+    if (!target) {
+      console.log(
+        chalk.red(`target "${options.target}" not found. initialized ?`)
+      );
+      process.exit(0);
+    }
 
     // check for pending migrations
     const pending = (await target?.pending()) as Array<Migration>;
@@ -401,7 +412,7 @@ program
     // create dev.ts if not exists
     if (!target?.devMigationAlreadyExists()) {
       console.log(
-        chalk.yellow(`creating dev.ts for target "${options.target}"...`)
+        chalk.yellowBright(`creating dev.ts for target "${options.target}"...`)
       );
       await target?.new("insert name here", false);
     }
@@ -413,10 +424,66 @@ program
         if (ignoreChanges) return;
 
         if (event === "change" || event === "add") {
-          testDevMigration(path, target as Target, options, true).then;
+          const success = await testDevMigration(
+            path,
+            target as Target,
+            options,
+            true
+          );
+          if (success) {
+            const answer = await inqu.prompt({
+              name: "action",
+              type: "list",
+              message: "Please select",
+              choices: ["next", "exit"],
+            });
+
+            if (answer.action === "next") {
+              // a.k.a unwatch
+              ignoreChanges = true;
+              try {
+                // commit
+                console.log(chalk.yellowBright("committing..."));
+                await target.commit();
+                console.log(chalk.greenBright("✅ committed"));
+
+                // migrate
+                console.log(chalk.yellowBright("migrating..."));
+                await target.latest();
+                console.log(chalk.greenBright("✅ migrated"));
+
+                // next
+                console.log(chalk.yellowBright("creating next dev.ts..."));
+                await target?.new("insert name here", false);
+                console.log(chalk.greenBright("✅ created next dev.ts"));
+
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+              } finally {
+                ignoreChanges = false;
+                console.log(chalk.yellowBright("✅ waiting for changes..."));
+              }
+            }
+
+            if (answer.action === "exit") {
+              // down on test migration
+              await target?.driver?.exec(async (params: any) => {
+                // load test migration
+                const m = await getModule(target?.prevJsPath);
+                await run("down", m, params, {});
+
+                // remove prev. dev.ts
+                console.log("removing dev.ts...");
+                if (existsSync(target?.prevJsPath ?? "")) {
+                  unlinkSync(target?.prevJsPath ?? "");
+                }
+              });
+
+              process.exit(0);
+            }
+          }
         } else if (event === "unlink") {
           console.log(
-            chalk.yellow(
+            chalk.yellowBright(
               `dev.ts was removed for target "${options.target}", stopping dev mode...`
             )
           );
@@ -424,20 +491,19 @@ program
         }
       });
 
-    // console.log(chalk.green(`✨ done!`));
+    // console.log(chalk.greenBright(`✨ done!`));
     // process.exit(0);
   });
 
 export const runAfter = async (config: TargetConfig) => {
   if (config?.dev?.runAfter) {
-    var spinner = ora(`running dev.runAfter ...`).start();
+    console.log(chalk.yellowBright(`running dev.runAfter ...`));
     try {
       const runAfter = config.dev?.runAfter;
       await runAfter();
-
-      spinner.succeed();
+      console.log(chalk.greenBright(`✨ done!`));
     } catch (err) {
-      spinner.fail();
+      console.log(chalk.red(`❌ runAfter failed`));
       console.log(chalk.red(err));
       throw err;
     }
@@ -450,30 +516,25 @@ const run = async (
   params: any,
   options: any
 ) => {
+  console.log(line);
+  console.log(chalk.yellowBright(`⬆️ [${action.toUpperCase()}]...`));
+
   var failed = false;
   var error: any;
-  var spinner = ora(
-    `running ${action === "up" ? "up" : "down"} for target "${
-      options.target
-    }"...`
-  ).start();
-  var c = console.log;
+
   try {
-    console.log = function () {};
     await migration[action](params);
-    spinner.succeed();
+    console.log(chalk.greenBright(`✅ [${action.toUpperCase()}]... done`));
   } catch (err: any) {
-    spinner.fail();
+    console.log(chalk.red(`❌ [${action.toUpperCase()}]... failed`));
+    console.log(chalk.red(err));
     failed = true;
     error = err;
-  } finally {
-    console.log = c;
+    throw err;
   }
 
-  if (failed) {
-    console.log(chalk.white.bgRed.bold(">>" + error.message));
-    throw error;
-  }
+  console.log(line);
+  console.log();
 };
 
 const getModule = async (p: string) => {
@@ -501,8 +562,7 @@ const test = async (
         `❌ ${path.basename(migrationFilePath)} "${action}" test failed.`
       )
     );
-    console.log(chalk.red(result.failureMessages?.join("\r") ?? ""));
-    throw new Error(result.failureMessages?.join("\r") ?? "");
+    throw new Error("Test failed");
   }
 };
 
@@ -534,36 +594,44 @@ const testDevMigration = async (
         } catch (e) {
           console.log(chalk.red(`❌ prev.dev.ts is invalid`));
           console.log(e);
-          throw e;
+          failed = true;
         }
       }
 
-      const devJs = await getModule(path);
-      validateMigrationModule(devJs);
+      if (!failed) {
+        const devJs = await getModule(path);
+        validateMigrationModule(devJs);
 
-      const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
-        readFileSync(path).toString()
-      );
-      const name = result?.groups?.name;
-      if (name) {
-        // run up, down, up in dev.ts
-        await test(path, "testBefore", params);
-
-        await run("up", devJs, params, options);
-        await run("down", devJs, params, options);
-        await run("up", devJs, params, options);
-
-        await test(path, "testAfter", params);
-
-        // copy dev.ts to prev.dev.ts
-        copyFileSync(path, prevDevJsPath);
-      } else {
-        console.log(
-          chalk.red.italic(
-            `dev.ts is invalid, cant test. please add a "//@name: [your name]" to the first line of the file.`
-          )
+        const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(
+          readFileSync(path).toString()
         );
-        failed = true;
+        const name = result?.groups?.name;
+        if (name) {
+          try {
+            // run up, down, up in dev.ts
+            await test(path, "testBefore", params);
+
+            await run("up", devJs, params, options);
+            await run("down", devJs, params, options);
+            await run("up", devJs, params, options);
+
+            await test(path, "testAfter", params);
+
+            // copy dev.ts to prev.dev.ts
+            copyFileSync(path, prevDevJsPath);
+          } catch (e) {
+            console.log(chalk.red(`❌ dev.ts is invalid`));
+            console.log(e);
+            failed = true;
+          }
+        } else {
+          console.log(
+            chalk.red.italic(
+              `dev.ts is invalid, cant test. please add a "//@name: [your name]" to the first line of the file.`
+            )
+          );
+          failed = true;
+        }
       }
     });
 
@@ -573,51 +641,20 @@ const testDevMigration = async (
         await runAfter(target.config as any);
       } catch (e) {
         runAfterFailed = true;
-        throw e;
+        failed = true;
       }
     }
   } finally {
     ignoreChanges = false;
   }
 
-  if (!runAfterFailed) {
-    const answer = await inqu.prompt({
-      name: "action",
-      type: "list",
-      message: "Please select",
-      choices: ["exit"], // "next",
-    });
-
-    // if (answer.action === "next") {
-    //   // a.k.a unwatch
-    //   ignoreChanges = true;
-    //   try {
-    //     // commit
-    //     console.log("committing...");
-    //     await target.commit();
-
-    //     // migrate
-    //     console.log("migrating...");
-    //     await target.latest();
-
-    //     // next
-    //     console.log("next...");
-    //     await target?.new("insert name here", false);
-
-    //     console.log("done");
-    //   } finally {
-    //     ignoreChanges = false;
-    //   }
-    // }
-
-    if (answer.action === "exit") {
-      process.exit(0);
-    }
-  } else {
+  if (runAfterFailed) {
     console.log(
       chalk.red.italic(`Please fix runAfter, restart and try again.`)
     );
   }
+
+  return !failed;
 };
 
 const getReadyTarget = async (

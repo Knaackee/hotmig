@@ -1,6 +1,6 @@
 {
   "name": "@hotmig/lib",
-  "version": "0.10.38",
+  "version": "0.10.61",
   "description": "Tool for Database Migrations.",
   "main": "dist/index.js",
   "scripts": {

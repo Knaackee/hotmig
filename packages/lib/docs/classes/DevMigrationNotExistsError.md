@@ -18,7 +18,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/DevMigrationNotExistsError.ts:3](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/errors/DevMigrationNotExistsError.ts#L3)
+[packages/lib/src/errors/DevMigrationNotExistsError.ts:3](https://github.com/Knaackee/hotmig/blob/26e873a/packages/lib/src/errors/DevMigrationNotExistsError.ts#L3)
 
 ## Properties
 
@@ -70,7 +70,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/errors/DevMigrationNotExistsError.ts:2](https://github.com/Knaackee/hotmig/blob/306dd08/packages/lib/src/errors/DevMigrationNotExistsError.ts#L2)
+[packages/lib/src/errors/DevMigrationNotExistsError.ts:2](https://github.com/Knaackee/hotmig/blob/26e873a/packages/lib/src/errors/DevMigrationNotExistsError.ts#L2)
 
 ___
 

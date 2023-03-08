@@ -23,7 +23,7 @@ class PostgresDriver extends Driver {
 
     if (process.env.DATABASE_CONNECTION) {
       console.log(
-        chalk.yellow("Using DATABASE_CONNECTION environment variable.")
+        chalk.yellowBright("Using DATABASE_CONNECTION environment variable.")
       );
 
       const parse = require("pg-connection-string").parse;
