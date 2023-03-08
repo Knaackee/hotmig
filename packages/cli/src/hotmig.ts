@@ -602,7 +602,7 @@ const testDevMigration = async (
         } catch (e) {
           console.log(chalk.red(`❌ prev.dev.ts is invalid`));
           failed = true;
-          // throw in order to rollback the transaction
+          // throw in order to rollback the transaction.
           if (failed) throw new Error("Testing dev migration failed");
         }
       });
