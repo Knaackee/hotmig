@@ -29,7 +29,7 @@ import {
 import { Migration } from "./models";
 import { requireGlobal } from "./utils";
 import { generateId, isValidMigrationContent } from "./utils/utils";
-const prettier = require("prettier");
+import prettier from "prettier";
 import chai from "chai";
 
 const getModule = async (p: string) => {
@@ -316,18 +316,23 @@ export class Target {
         i++
       ) {
         const migration = pendingMigrations[i];
-
         const module = await loadMigrationModule(migration.filePath || "");
-        await module?.up(params);
-        await this.driver?.addMigration(migration);
-        applied++;
-        migrations.push(migration);
 
-        await options?.onProgress?.({
-          applied,
-          migrations,
-          total: Math.min(pendingMigrations.length, options.count),
-        });
+        try {
+          await module?.up(params);
+
+          await this.driver?.addMigration(migration);
+          applied++;
+          migrations.push(migration);
+
+          await options?.onProgress?.({
+            applied,
+            migrations,
+            total: Math.min(pendingMigrations.length, options.count),
+          });
+        } catch (e) {
+          console.log("error", e);
+        }
       }
     });
 
@@ -494,8 +499,12 @@ export class Target {
       }),
     });
 
+    // format tests.json
+    let content = JSON.stringify(testsJson, null, 2);
+    content = prettier.format(content, { semi: false, parser: "json" });
+
     // write tests.json
-    writeFileSync(testsJsonPath, JSON.stringify(testsJson));
+    writeFileSync(testsJsonPath, content);
 
     // write migration
     writeFileSync(migration.filePath, devJsContent);

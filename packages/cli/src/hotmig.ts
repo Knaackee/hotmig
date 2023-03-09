@@ -508,14 +508,6 @@ program
       watcher = chokidar
         .watch(target?.devJsPath ?? ".", { ignoreInitial: false })
         .on("all", async (event, path) => {
-          console.log(
-            "event:",
-            event,
-            "path:",
-            path,
-            "target:",
-            options.target
-          );
           if (event === "change" || event === "add") {
             console.log("🔥 change detected, testing...");
 
@@ -614,7 +606,6 @@ const testDevMigration = async (
   interactive: boolean,
   testAll?: boolean
 ) => {
-  console.log("dev.ts changed, applying...");
   const prevDevJsPath = resolve(target?.targetDirectory ?? "", "prev.dev.ts");
   let failed = false;
   let runAfterFailed = false;
