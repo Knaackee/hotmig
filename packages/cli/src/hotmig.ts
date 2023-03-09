@@ -15,6 +15,7 @@ import chokidar from "chokidar";
 import execa from "execa";
 import { copyFileSync, exists, existsSync, readFileSync, unlinkSync } from "fs";
 import inqu from "inquirer";
+import enqu from "enquirer";
 import ora from "ora";
 import path, { resolve } from "path";
 import q from "inquirer";
@@ -23,6 +24,7 @@ import { runAllTests, TestRunner, TestRunnerAction } from "./TestRunner";
 
 console.log("");
 const line = "-".repeat(32);
+let prompt: any;
 
 program
   .name("hotmig")
@@ -417,6 +419,9 @@ program
       await target?.new("insert name here", false);
     }
 
+    // Problem: chokidar ruft diese funktion auf
+    // es staut sich also immer mehr auf
+
     const runTestDevmigration = async (path: string, testAll: boolean) => {
       const success = await testDevMigration(
         path,
@@ -430,46 +435,49 @@ program
         console.log(chalk.greenBright(`✨ done, migration looks good 😎`));
         console.log();
 
-        const answer = await inqu.prompt({
+        prompt?.ui.close();
+        prompt = inqu.prompt({
           name: "action",
           type: "list",
           message: "Please select",
-          choices: ["test", "exit"], //  "next"
+          choices: ["test", "migrate and new", "migrate and exit", "exit"],
         });
+
+        const answer = await prompt;
 
         if (answer.action === "test") {
           // a.k.a unwatch
-          // await watcher?.close();
-          try {
-            await runTestDevmigration(path, true);
-          } finally {
-            // createWatcher();
-            console.log(chalk.yellowBright("⌛ waiting for changes..."));
-          }
-        } else if (answer.action === "next") {
+          await runTestDevmigration(path, true);
+          return;
+        } else if (
+          answer.action === "migrate and exit" ||
+          answer.action === "migrate and new"
+        ) {
           // a.k.a unwatch
           await watcher?.close();
           try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-
             // commit
             console.log(line);
             console.log(chalk.yellowBright("💪 committing..."));
             await target.commit();
-            await new Promise((resolve) => setTimeout(resolve, 1000));
             console.log(chalk.greenBright("🟢 committed"));
 
             // migrate
             console.log(chalk.yellowBright("💪 migrating..."));
             await target.latest();
-            await new Promise((resolve) => setTimeout(resolve, 1000));
             console.log(chalk.greenBright("🟢 migrated"));
 
-            // next
-            console.log(chalk.yellowBright("💪 creating next dev.ts..."));
+            if (answer.action === "migrate and exit") {
+              // exit
+              console.log(chalk.greenBright("✨ done"));
+              console.log(line);
+              process.exit(0);
+            }
+
+            // new
+            console.log(chalk.yellowBright("💪 creating new dev.ts..."));
             await target?.new("insert name here", false);
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            console.log(chalk.greenBright("🟢 created next dev.ts"));
+            console.log(chalk.greenBright("🟢 created new dev.ts"));
           } finally {
             console.log(chalk.greenBright("✨ done"));
             console.log(line);
@@ -500,8 +508,21 @@ program
       watcher = chokidar
         .watch(target?.devJsPath ?? ".", { ignoreInitial: false })
         .on("all", async (event, path) => {
+          console.log(
+            "event:",
+            event,
+            "path:",
+            path,
+            "target:",
+            options.target
+          );
           if (event === "change" || event === "add") {
+            console.log("🔥 change detected, testing...");
+
+            prompt?.ui.close();
             await runTestDevmigration(path, false);
+
+            // fragen, tada
           } else if (event === "unlink") {
             console.log(
               chalk.yellowBright(
