@@ -38,7 +38,7 @@
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:32](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/utils/index.ts#L32)
+[packages/lib/src/utils/index.ts:32](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/utils/index.ts#L32)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:62](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/Target.ts#L62)
+[packages/lib/src/Target.ts:75](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/Target.ts#L75)
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:81](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/Target.ts#L81)
+[packages/lib/src/Target.ts:94](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/Target.ts#L94)
 
 ___
 
@@ -98,7 +98,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/utils/index.ts#L7)
+[packages/lib/src/utils/index.ts:7](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/utils/index.ts#L7)
 
 ___
 
@@ -119,4 +119,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:93](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/Target.ts#L93)
+[packages/lib/src/Target.ts:106](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/Target.ts#L106)

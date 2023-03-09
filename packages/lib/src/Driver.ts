@@ -35,18 +35,18 @@ export = {
   down: async (db:Knex) => {
     // undo your migration here
   },
-  testAfter: async (db: Knex, { expect }: Chai.ChaiStatic) => {
+  testAfter: () => {
     // write your tests that run after up or before down here
     // return {
-    //   "test1": async () => {
+    //   "test1": async (db: Knex, { expect }: Chai.ChaiStatic) => {
     //     expect(1).to.equal(1);
     //   },
     // }
   },
-  testBefore: async (db: Knex, { expect }: Chai.ChaiStatic) => {
+  testBefore: () => {
     // write your tests that run before up or after down here
     // return {
-    //   "test1": async () => {
+    //   "test1": async (db: Knex, { expect }: Chai.ChaiStatic) => {
     //     expect(1).to.equal(1);
     //   },
     // }

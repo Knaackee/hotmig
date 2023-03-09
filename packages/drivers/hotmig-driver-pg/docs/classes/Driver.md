@@ -18,7 +18,7 @@ Driver.constructor
 
 #### Defined in
 
-[hotmig-driver-pg/src/PostgresDriver.ts:8](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/drivers/hotmig-driver-pg/src/PostgresDriver.ts#L8)
+[hotmig-driver-pg/src/PostgresDriver.ts:8](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/drivers/hotmig-driver-pg/src/PostgresDriver.ts#L8)
 
 ## Properties
 
@@ -32,7 +32,7 @@ Driver.client
 
 #### Defined in
 
-[hotmig-driver-pg/src/PostgresDriver.ts:6](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/drivers/hotmig-driver-pg/src/PostgresDriver.ts#L6)
+[hotmig-driver-pg/src/PostgresDriver.ts:6](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/drivers/hotmig-driver-pg/src/PostgresDriver.ts#L6)
 
 ## Methods
 
@@ -80,7 +80,7 @@ Driver.createClient
 
 #### Defined in
 
-[hotmig-driver-pg/src/PostgresDriver.ts:21](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/drivers/hotmig-driver-pg/src/PostgresDriver.ts#L21)
+[hotmig-driver-pg/src/PostgresDriver.ts:21](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/drivers/hotmig-driver-pg/src/PostgresDriver.ts#L21)
 
 ___
 
@@ -164,7 +164,7 @@ Driver.getDefaultConfig
 
 #### Defined in
 
-[hotmig-driver-pg/src/PostgresDriver.ts:12](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/drivers/hotmig-driver-pg/src/PostgresDriver.ts#L12)
+[hotmig-driver-pg/src/PostgresDriver.ts:12](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/drivers/hotmig-driver-pg/src/PostgresDriver.ts#L12)
 
 ___
 

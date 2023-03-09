@@ -8,7 +8,7 @@
 
 #### Defined in
 
-[packages/lib/src/models/AppliedMigration.ts:4](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/models/AppliedMigration.ts#L4)
+[packages/lib/src/models/AppliedMigration.ts:4](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/models/AppliedMigration.ts#L4)
 
 ___
 
@@ -18,7 +18,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/models/AppliedMigration.ts:2](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/models/AppliedMigration.ts#L2)
+[packages/lib/src/models/AppliedMigration.ts:2](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/models/AppliedMigration.ts#L2)
 
 ___
 
@@ -28,4 +28,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/models/AppliedMigration.ts:3](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/models/AppliedMigration.ts#L3)
+[packages/lib/src/models/AppliedMigration.ts:3](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/models/AppliedMigration.ts#L3)

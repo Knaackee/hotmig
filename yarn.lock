@@ -380,46 +380,6 @@
     unique-filename "^1.1.1"
     which "^1.3.1"
 
-"@hotmig/hotmig-driver-pg@^0.10":
-  version "0.10.65"
-  resolved "https://registry.npmjs.org/@hotmig/hotmig-driver-pg/-/hotmig-driver-pg-0.10.65.tgz#03908f5b61ddef401cab8a0921975e0267860bd5"
-  integrity sha512-UFvPa5B3iSTZwxoLTL6pVpd9vwGVq8EHXabQq/vf4Qf1KxjKUdevCEOKnjcEqnTuNOebbT02vAOevIP5shhVww==
-  dependencies:
-    "@hotmig/sql-driver" "0.10.65"
-    chalk "4"
-    invariant "^2.2.4"
-    knex "^1.0.5"
-    pg "^8.7.1"
-    pg-connection-string "^2.5.0"
-
-"@hotmig/lib@0.10.65", "@hotmig/lib@^0.10":
-  version "0.10.65"
-  resolved "https://registry.npmjs.org/@hotmig/lib/-/lib-0.10.65.tgz#74f8fd5a91897f8adf626b72a38480091bcc91ee"
-  integrity sha512-n0aP6tnEJu/8gnRooG1FIVFLTl9gBkHG7cM+Wpgt4zrBPx3rRQj5GQGU6fXLjer9pGCkpgoZuuL5F2OgHw9g4w==
-  dependencies:
-    "@types/execa" "^2.0.0"
-    axios "^0.25.0"
-    dotenv "^16.0.0"
-    execa "5"
-    invariant "^2.2.4"
-    knex "^1.0.2"
-    memfs "^3.4.1"
-    ora "5"
-    pino "^7.6.5"
-    pino-pretty "^7.5.1"
-    prettier "^2.5.1"
-    slugify "^1.6.5"
-
-"@hotmig/sql-driver@0.10.65":
-  version "0.10.65"
-  resolved "https://registry.npmjs.org/@hotmig/sql-driver/-/sql-driver-0.10.65.tgz#6fc6d1de0ddef8ede4b53e94c36228d6252868d4"
-  integrity sha512-OFZYxJdF0ISEYvRqpzdN/fwCKI26w4TaiGzdAObn4agqPdTcJpuKr914OtruAu6HCwZwxxU4rzfq6dvjJSPfcw==
-  dependencies:
-    "@hotmig/lib" "0.10.65"
-    invariant "^2.2.4"
-    knex "^1.0.2"
-    slugify "^1.6.5"
-
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz#fd3db1d59ecf7cf121e80650bb86712f9b55eced"
@@ -2400,7 +2360,7 @@ caseless@~0.12.0:
   resolved "https://registry.npmjs.org/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha512-4tYFyifaFfGacoiObjJegolkwSU4xQNGbVgUiNYVUxbQ2x2lUsFvY4hVgVzGiIe6WLOPqycWXA40l+PWsxthUw==
 
-chai@^4.3.7:
+chai@4.3.7, chai@^4.3.7:
   version "4.3.7"
   resolved "https://registry.npmjs.org/chai/-/chai-4.3.7.tgz#ec63f6df01829088e8bf55fca839bcd464a8ec51"
   integrity sha512-HLnAzZ2iupm25PlN0xFreAlBA5zaBSv3og0DdeGA4Ar6h6rJ3A0rolRUKJhSF2V10GZKDgWF/VmAEsNWjCRB+A==
@@ -5748,7 +5708,7 @@ mocha-suppress-logs@^0.3.1:
   resolved "https://registry.npmjs.org/mocha-suppress-logs/-/mocha-suppress-logs-0.3.1.tgz#e0fb454daea9e65e4aced488c26e5000691ed598"
   integrity sha512-Iu6jyTguAtFzmt7l4Agfnve0v+cQNbH92iMau1kjWwom7MNn18/Mzo1EaVhwDrH24cQ87RDKAMse2rDUkuXy8A==
 
-mocha@^10.2.0:
+mocha@10.2.0, mocha@^10.2.0:
   version "10.2.0"
   resolved "https://registry.npmjs.org/mocha/-/mocha-10.2.0.tgz#1fd4a7c32ba5ac372e03a17eef435bd00e5c68b8"
   integrity sha512-IDY7fl/BecMwFHzoqF2sg/SHHANeBoMMXFlS9r0OXKDssYE1M5O43wUY/9BVPeIvfH2zmEbBfseqN9gBQZzXkg==

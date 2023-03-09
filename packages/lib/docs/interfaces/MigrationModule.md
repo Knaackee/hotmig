@@ -18,7 +18,7 @@
 
 #### Defined in
 
-[packages/lib/src/Target.ts:78](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/Target.ts#L78)
+[packages/lib/src/Target.ts:91](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/Target.ts#L91)
 
 ___
 
@@ -38,4 +38,4 @@ ___
 
 #### Defined in
 
-[packages/lib/src/Target.ts:77](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/Target.ts#L77)
+[packages/lib/src/Target.ts:90](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/Target.ts#L90)

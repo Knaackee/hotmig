@@ -24,7 +24,7 @@ Error.constructor
 
 #### Defined in
 
-[packages/lib/src/errors/InvalidConfigError.ts:5](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/errors/InvalidConfigError.ts#L5)
+[packages/lib/src/errors/InvalidConfigError.ts:5](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/errors/InvalidConfigError.ts#L5)
 
 ## Properties
 
@@ -38,7 +38,7 @@ Error.message
 
 #### Defined in
 
-node_modules/typescript/lib/lib.es5.d.ts:1023
+node_modules/typescript/lib/lib.es5.d.ts:1054
 
 ___
 
@@ -52,7 +52,7 @@ Error.name
 
 #### Defined in
 
-node_modules/typescript/lib/lib.es5.d.ts:1022
+node_modules/typescript/lib/lib.es5.d.ts:1053
 
 ___
 
@@ -66,7 +66,7 @@ Error.stack
 
 #### Defined in
 
-node_modules/typescript/lib/lib.es5.d.ts:1024
+node_modules/typescript/lib/lib.es5.d.ts:1055
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 #### Defined in
 
-[packages/lib/src/errors/InvalidConfigError.ts:4](https://github.com/Knaackee/hotmig/blob/071ee3a/packages/lib/src/errors/InvalidConfigError.ts#L4)
+[packages/lib/src/errors/InvalidConfigError.ts:4](https://github.com/Knaackee/hotmig/blob/30d10b9/packages/lib/src/errors/InvalidConfigError.ts#L4)
 
 ___
 
@@ -87,10 +87,6 @@ ___
 #### Type declaration
 
 ▸ (`err`, `stackTraces`): `any`
-
-Optional override for formatting stack traces
-
-**`see`** https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 ##### Parameters
 
@@ -109,7 +105,7 @@ Error.prepareStackTrace
 
 #### Defined in
 
-node_modules/@types/node/globals.d.ts:11
+packages/lib/node_modules/@types/node/globals.d.ts:11
 
 ___
 
@@ -123,15 +119,13 @@ Error.stackTraceLimit
 
 #### Defined in
 
-node_modules/@types/node/globals.d.ts:13
+packages/lib/node_modules/@types/node/globals.d.ts:13
 
 ## Methods
 
 ### captureStackTrace
 
 ▸ `Static` **captureStackTrace**(`targetObject`, `constructorOpt?`): `void`
-
-Create .stack property on a target object
 
 #### Parameters
 
@@ -150,4 +144,4 @@ Error.captureStackTrace
 
 #### Defined in
 
-node_modules/@types/node/globals.d.ts:4
+packages/lib/node_modules/@types/node/globals.d.ts:4

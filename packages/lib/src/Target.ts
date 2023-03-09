@@ -30,6 +30,19 @@ import { Migration } from "./models";
 import { requireGlobal } from "./utils";
 import { generateId, isValidMigrationContent } from "./utils/utils";
 const prettier = require("prettier");
+import chai from "chai";
+
+const getModule = async (p: string) => {
+  if (!existsSync(p)) {
+    throw new Error("File does not exist");
+  }
+
+  const module = await import(p);
+  // delete require cache
+  delete require.cache[p];
+
+  return module;
+};
 
 export interface TargetConfig {
   driver: string;
@@ -426,6 +439,8 @@ export class Target {
     }
 
     const migration = {} as Migration;
+
+    // get name from dev.js
     const devJsContent = readFileSync(this.devJsPath).toString();
     const result = new RegExp("// @name:(?<name>[^\n]*)\n").exec(devJsContent);
     const name = result?.groups?.name;
@@ -445,11 +460,53 @@ export class Target {
       `${migration.id}-${slugify(migration.name || "")}.ts`
     );
 
+    // add migration (e.g. add to db migrations table)
     await this.driver?.addMigration(migration);
 
+    // add tests to tests.json
+    const module = await getModule(this.devJsPath);
+
+    // get tests
+    const test = module["testAfter"]?.({}, chai);
+
+    // load tests.json
+    const testsJsonPath = resolve(
+      typeof this.commitDirectory === "string"
+        ? this.commitDirectory
+        : this.commitDirectory[0],
+      "..",
+      "tests.json"
+    );
+    let testsJson: any = [];
+    if (existsSync(testsJsonPath)) {
+      testsJson = JSON.parse(readFileSync(testsJsonPath).toString());
+    } else {
+      writeFileSync(testsJsonPath, JSON.stringify(testsJson));
+    }
+
+    // add test to tests.json
+    testsJson.push({
+      commit: migration.id + "-" + slugify(migration.name || ""),
+      tests: Object.keys(test || {}).map((key) => {
+        return {
+          name: key,
+        };
+      }),
+    });
+
+    // write tests.json
+    writeFileSync(testsJsonPath, JSON.stringify(testsJson));
+
+    // write migration
     writeFileSync(migration.filePath, devJsContent);
+
+    // remove dev migration
     unlinkSync(this.devJsPath);
-    unlinkSync(this.prevJsPath);
+
+    // remove prev migration if exists
+    if (existsSync(this.prevJsPath)) unlinkSync(this.prevJsPath);
+
+    // return migration
     return migration;
   }
 
@@ -497,6 +554,8 @@ export class Target {
         });
         await devMigration?.up(params);
 
+        // TODO: Test all
+
         await onProgress?.({
           action: "down",
           run: 2,
@@ -518,5 +577,3 @@ export class Target {
     }
   }
 }
-
-// TODO: less output
