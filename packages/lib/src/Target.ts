@@ -457,7 +457,7 @@ export class Target {
     // we need this to avoid collisions of migration ids
     await new Promise((res) => setTimeout(res, 1));
     migration.id = generateId();
-    migration.name = name;
+    migration.name = name?.trim();
     migration.filePath = resolve(
       typeof this.commitDirectory === "string"
         ? this.commitDirectory
